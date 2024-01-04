@@ -13,13 +13,7 @@ import {
 import { PayloadExt, verifyAccessToken } from '../../lib/tokenUtil';
 import { service as userService } from '../../service/common/userService';
 import { service as tokenHistoryService } from '../../service/common/tokenHistoryService';
-import {
-  UserLoginParams,
-  UserPinLoginParams,
-  UserLogoutParams,
-  UserLicenseLoginParams,
-  UserLicensePinLoginParams,
-} from '../../models/common/user';
+import { UserLoginParams, UserLogoutParams } from '../../models/common/user';
 import { makeAccessToken } from '../../lib/tokenUtil';
 
 const router = express.Router();
@@ -113,62 +107,6 @@ router.delete('/token', async (req: Request<unknown, unknown, unknown, unknown>,
 
     // 최종 응답값 세팅
     const resJson = resSuccess(result, resType.DELETE);
-    logging.RESPONSE_DATA(logFormat, resJson);
-
-    return res.status(resJson.status).json(resJson);
-  } catch (err) {
-    // 에러 응답값 세팅
-    const resJson = resError(err);
-    logging.RESPONSE_DATA(logFormat, resJson);
-
-    return res.status(resJson.status).json(resJson);
-  }
-});
-
-// user pin 토큰 발행
-router.post('/pin', async (req: Request<unknown, unknown, UserPinLoginParams, unknown>, res: Response) => {
-  const logFormat = makeLogFormat(req);
-
-  try {
-    // 요청 파라미터
-    const params: UserPinLoginParams = {
-      pin: req.body.pin,
-    };
-    logging.REQUEST_PARAM(logFormat);
-
-    // 입력값 체크
-    if (!params.pin) {
-      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (pin)');
-
-      const resJson = resError(err);
-      logging.RESPONSE_DATA(logFormat, resJson);
-
-      return res.status(resJson.status).json(resJson);
-    }
-
-    // 1. 비즈니스 로직 호출
-    const result = await userService.pinLogin(params, logFormat);
-
-    // 2. 토큰 생성 및 header 세팅
-    const accessToken = makeAccessToken(result);
-    res.set('access-token', accessToken);
-
-    // 3. 토큰 발행 히스토리 입력 (비동기)
-    if (result && result.id && accessToken) {
-      void tokenHistoryService.regCreated(
-        {
-          userId: result.id,
-          action: 'CreatedPin',
-          accessToken: accessToken,
-          accessExpire: null,
-          clientIp: logFormat.clientIp,
-        },
-        logFormat
-      );
-    }
-
-    // 최종 응답값 세팅
-    const resJson = resSuccess({ accessToken }, resType.LOGIN);
     logging.RESPONSE_DATA(logFormat, resJson);
 
     return res.status(resJson.status).json(resJson);

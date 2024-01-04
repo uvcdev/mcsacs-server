@@ -35,36 +35,18 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, UserInsertPar
   try {
     // 요청 파라미터
     const params: UserInsertParams = {
-      companyId: req.body.companyId,
       userid: req.body.userid,
       password: req.body.password,
-      pin: req.body.pin,
       name: req.body.name,
-      auth: req.body.auth || UserDefaults.auth,
       email: req.body.email,
       mobile: req.body.mobile,
-      externalCode: req.body.externalCode,
-      activePin: req.body.activePin,
       active: req.body.active || UserDefaults.active,
-      partnerId: req.body.partnerId,
-      departmentIds: req.body.departmentIds,
-      roleGroupIds: req.body.roleGroupIds,
     };
     logging.REQUEST_PARAM(logFormat);
 
     // 입력값 체크
     if (!params.userid || !params.password || !params.name) {
       const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (userid, password, name)');
-
-      const resJson = resError(err);
-      logging.RESPONSE_DATA(logFormat, resJson);
-
-      return res.status(resJson.status).json(resJson);
-    }
-
-    // 입력값 체크 - 기본 권한('system'은 입력할 수 없음)
-    if (params.auth === 'system') {
-      const err = new ErrorClass(resCode.BAD_REQUEST_INVALID, 'Invalid value (auth)');
 
       const resJson = resError(err);
       logging.RESPONSE_DATA(logFormat, resJson);
@@ -114,16 +96,7 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, UserS
         : null,
       userid: req.query.userid,
       name: req.query.name,
-      auth: req.query.auth,
-      externalCode: req.query.externalCode,
-      activePin: req.query.activePin,
       active: req.query.active,
-      departmentIds: req.query.departmentIds
-        ? ((req.query.departmentIds as unknown) as string).split(',').map((i) => Number(i))
-        : null,
-      roleGroupIds: req.query.roleGroupIds
-        ? ((req.query.roleGroupIds as unknown) as string).split(',').map((i) => Number(i))
-        : null,
       limit: Number(req.query.limit || 'NaN'),
       offset: Number(req.query.offset || 'NaN'),
       order: req.query.order,
@@ -247,18 +220,10 @@ router.put(
       // 요청 파라미터
       const params: UserUpdateParams = {
         id: Number(req.params.id),
-        pin: req.body.pin,
         name: req.body.name,
         email: req.body.email,
         mobile: req.body.mobile,
-        externalCode: req.body.externalCode,
-        activePin: req.body.activePin,
         active: req.body.active || UserDefaults.active,
-        partnerId: req.body.partnerId,
-        otherDate: req.body.otherDate,
-        departmentIds: req.body.departmentIds,
-        roleGroupIds: req.body.roleGroupIds,
-        ccIdEligibilityIds: req.body.ccIdEligibilityIds, //적격성 공통코드 모음
       };
       logging.REQUEST_PARAM(logFormat);
 
@@ -316,8 +281,6 @@ router.put(
         email: req.body.email,
         mobile: req.body.mobile,
         // active: req.body.active || UserDefaults.active, // 내정보에서는 active를 수정할 수 없음
-        departmentIds: req.body.departmentIds,
-        roleGroupIds: req.body.roleGroupIds,
       };
       logging.REQUEST_PARAM(logFormat);
 

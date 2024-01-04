@@ -71,12 +71,7 @@ const dao = {
     }
     // subQuery
     const setSubQueryUser: TokenHistorySelectListSubQueryUser = {};
-    if (params.companyIds) {
-      setSubQueryUser.where = {
-        ...setSubQueryUser.where,
-        companyId: params.companyIds,
-      };
-    }
+
     // 2. limit, offset 세팅
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;

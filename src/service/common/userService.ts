@@ -17,9 +17,6 @@ import {
   // UserDeleteParams,
   UserUpdatePasswordParams,
   UserLoginParams,
-  UserPinLoginParams,
-  UserLicenseLoginParams,
-  UserLicensePinLoginParams,
   UserLogoutParams,
   UserDeleteParams,
 } from '../../models/common/user';
@@ -170,38 +167,6 @@ const service = {
         reject(err);
       });
     }
-
-    return new Promise((resolve) => {
-      resolve(user);
-    });
-  },
-  // pin login 프로세스
-  async pinLogin(params: UserPinLoginParams, logFormat: LogFormat<unknown>): Promise<UserAttributes | null> {
-    // 1. 사용자 아이디 조회
-    let user: UserAttributes | null;
-    try {
-      user = await userDao.selectPinUser(params);
-      logging.METHOD_ACTION(logFormat, __filename, params, user);
-
-      // 해당 사용자가 없는 경우 튕겨냄
-      if (!user) {
-        const err = new ErrorClass(resCode.BAD_REQUEST_NODATA, 'Incorect user pin');
-        logging.ERROR_METHOD(logFormat, __filename, params, err);
-
-        return new Promise((resolve, reject) => {
-          reject(err);
-        });
-      }
-    } catch (err) {
-      logging.ERROR_METHOD(logFormat, __filename, params, err);
-
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
-    }
-
-    // 마지막 로그인 일시 업데이트 & 비번 틀린 횟수 초기화
-    void userDao.updateLastLogin({ id: user.id });
 
     return new Promise((resolve) => {
       resolve(user);

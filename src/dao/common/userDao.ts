@@ -19,7 +19,6 @@ import User, {
   // UserDeleteParams,
   UserUpdatePasswordParams,
   UserLoginParams,
-  UserPinLoginParams,
   UserLoginFailCountUpdateParams,
   UserDeleteParams,
 } from '../../models/common/user';
@@ -41,12 +40,6 @@ const dao = {
     // DB에 넘길 최종 쿼리 세팅
     const setQuery: UserSelectListQuery = {};
     // 1. where조건 세팅
-    if (params.companyIds) {
-      setQuery.where = {
-        ...setQuery.where,
-        companyId: params.companyIds, // 'in' 검색
-      };
-    }
     if (params.userid) {
       setQuery.where = {
         ...setQuery.where,
@@ -57,31 +50,6 @@ const dao = {
       setQuery.where = {
         ...setQuery.where,
         name: { [Op.like]: `%${params.name}%` }, // 'like' 검색
-      };
-    }
-    if (params.auth && (params.auth === 'admin' || params.auth === 'staff')) {
-      // 권한 검색이 있는 경우(admin, staff만 허용함)
-      setQuery.where = {
-        ...setQuery.where,
-        auth: params.auth, // '='검색
-      };
-    } else {
-      // 권한 검색이 없는 경우
-      setQuery.where = {
-        ...setQuery.where,
-        auth: { [Op.in]: ['admin', 'staff'] }, // 'system'은 제외 한다.
-      };
-    }
-    if (params.externalCode) {
-      setQuery.where = {
-        ...setQuery.where,
-        externalCode: { [Op.like]: `%${params.externalCode}%` }, // 'like' 검색
-      };
-    }
-    if (params.activePin) {
-      setQuery.where = {
-        ...setQuery.where,
-        activePin: params.activePin, // true/false 검색
       };
     }
     if (params.active) {
@@ -223,24 +191,6 @@ const dao = {
         });
     });
   },
-  // PIN로그인 전용 쿼리(login by pin)
-  selectPinUser(params: UserPinLoginParams): Promise<UserAttributes | null> {
-    return new Promise((resolve, reject) => {
-      User.findOne({
-        attributes: ['id', 'companyId', 'userid', 'name', 'auth'],
-        where: {
-          pin: params.pin,
-          activePin: true,
-        },
-      })
-        .then((selectedOne) => {
-          resolve(selectedOne);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
   // 로그인 실패 카운트 업데이트
   updateLoginFailCount(params: UserLoginFailCountUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
@@ -282,7 +232,6 @@ const dao = {
           return User.update(
             {
               userid: `${selectedOne?.userid || ''}D${+new Date()}`,
-              pin: `${selectedOne?.pin || ''}D${+new Date()}`,
             },
             {
               where: { id: params.id },
