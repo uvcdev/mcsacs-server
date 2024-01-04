@@ -13,7 +13,7 @@ import { isActionKey } from '../../lib/middleware';
 import { sequelize } from '../../models';
 import { service as userService } from '../../service/common/userService';
 import { service as commonCodeService } from '../../service/common/commonCodeService';
-import { initUser, initCommonCodes, initCompany, initRoleGroups } from '../../config/initData';
+import { initUser, initCommonCodes } from '../../config/initData';
 
 const router = express.Router();
 
