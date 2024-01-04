@@ -1,0 +1,23 @@
+FROM node:18.12.1-slim
+
+RUN apt-get update
+RUN apt-get install -y vim
+RUN apt-get install -y locales
+RUN sed -i 's/^# \(ko_KR.UTF-8\)/\1/' /etc/locale.gen
+RUN localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
+ENV LC_ALL ko_KR.UTF-8
+ENV NODE_OPTIONS --unhandled-rejections=warn
+
+
+RUN mkdir -p /home/flexing-mes-server-2.0
+COPY . /home/flexing-mes-server-2.0
+WORKDIR /home/flexing-mes-server-2.0
+
+RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+
+RUN pnpm install -rP && npx tsc && pnpm obfuscate
+RUN rm -rf build files logs public src
+EXPOSE 3030
+EXPOSE 443
+
+CMD ["node", "obfuscated"]

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# setting - docker info
+DOCKER_IMAGE_NAME=redis
+DOCKER_IMAGE_TAG=6.2.1
+DOCKER_PROJECT_NAME=mes-dev
+DOCKER_CONTAINER_NAME=$DOCKER_IMAGE_NAME-$DOCKER_PROJECT_NAME
+DOCKER_PORT=6379
+DOCKER_IMAGE=$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
+
+# docker run #################################
+docker run --name $DOCKER_CONTAINER_NAME \
+-p $DOCKER_PORT:6379 \
+-d \
+$DOCKER_IMAGE

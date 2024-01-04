@@ -1,0 +1,28 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# build files
+build/*
+obfuscated/*
+!build/.gitkeep
+
+#files
+files
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variables file
+.env
+.env.local
+
+# uploads
+uploads
+
+# webstorm env
+.idea
