@@ -7,15 +7,21 @@ import User from './common/user';
 import TokenHistory from './common/tokenHistory';
 import File from './common/file';
 
-//
+// dashboard
+import DailyStatistic from './dashboard/dailyStatistic';
+import MonthlyStatistic from './dashboard/monthlyStatistic';
 
 export * from './sequelize';
 
 const db = {
+  /* common */
   CommonCode,
   User,
   TokenHistory,
   File,
+  /* dashboard */
+  DailyStatistic,
+  MonthlyStatistic,
 };
 
 export type dbType = typeof db;
