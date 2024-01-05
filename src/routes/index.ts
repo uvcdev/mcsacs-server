@@ -14,6 +14,11 @@ import { router as fileRouter } from './common/file';
 import { router as userRouter } from './common/user';
 import { router as commonCodeRouter } from './common/commonCode';
 import { router as tokenHistoryRouter } from './common/tokenHistory';
+// dashboard
+import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
+import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
+// operation
+import { router as facilityRouter } from './operation/facility';
 
 dotenv.config();
 
@@ -174,5 +179,9 @@ router.use('/files', fileRouter);
 router.use('/users', userRouter);
 router.use('/common-codes', commonCodeRouter);
 router.use('/token-histories', tokenHistoryRouter);
-
+// dashboard
+router.use('/daily-statistics', dailyStatisticRouter);
+router.use('/monthly-statistics', monthlyStatisticRouter);
+// operation
+router.use('/facilities', facilityRouter);
 export { router };

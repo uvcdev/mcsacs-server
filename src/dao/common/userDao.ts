@@ -40,6 +40,12 @@ const dao = {
     // DB에 넘길 최종 쿼리 세팅
     const setQuery: UserSelectListQuery = {};
     // 1. where조건 세팅
+    if (params.ids) {
+      setQuery.where = {
+        ...setQuery.where,
+        id: params.ids, // 'in' 검색
+      };
+    }
     if (params.userid) {
       setQuery.where = {
         ...setQuery.where,

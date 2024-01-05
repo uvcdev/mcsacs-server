@@ -6,10 +6,14 @@ import CommonCode from './common/commonCode';
 import User from './common/user';
 import TokenHistory from './common/tokenHistory';
 import File from './common/file';
+import EventHistory from './common/eventHistory';
 
 // dashboard
 import DailyStatistic from './dashboard/dailyStatistic';
 import MonthlyStatistic from './dashboard/monthlyStatistic';
+
+// operation
+import Facility from './operation/facility';
 
 export * from './sequelize';
 
@@ -19,9 +23,12 @@ const db = {
   User,
   TokenHistory,
   File,
+  EventHistory,
   /* dashboard */
   DailyStatistic,
   MonthlyStatistic,
+  /* operation */
+  Facility,
 };
 
 export type dbType = typeof db;
