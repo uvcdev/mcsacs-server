@@ -7,32 +7,32 @@ import {
   DeletedResult,
   getOrderby,
 } from '../../lib/resUtil';
-import FacilityGroup, {
-  FacilityGroupAttributes,
-  FacilityGroupInsertParams,
-  FacilityGroupSelectListParams,
-  FacilityGroupSelectListQuery,
-  // FacilityGroupSelectAllParams,
-  // FacilityGroupSelectAllQuery,
-  FacilityGroupSelectInfoParams,
-  FacilityGroupSelectOneParams,
-  FacilityGroupUpdateParams,
-  // FacilityGroupUpdateLiveStateParams,
-  // FacilityGroupUpdateRunningStateParams,
-  FacilityGroupDeleteParams,
-} from '../../models/operation/facilityGroup';
+import Zone, {
+  ZoneAttributes,
+  ZoneInsertParams,
+  ZoneSelectListParams,
+  ZoneSelectListQuery,
+  // ZoneSelectAllParams,
+  // ZoneSelectAllQuery,
+  ZoneSelectInfoParams,
+  ZoneSelectOneParams,
+  ZoneUpdateParams,
+  // ZoneUpdateLiveStateParams,
+  // ZoneUpdateRunningStateParams,
+  ZoneDeleteParams,
+} from '../../models/operation/zone';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
-// import FacilityGroupInterrupt, { FacilityGroupInterruptAttributesInclude } from '../../models/operation/facilityGroupInterrupt';
-// import FacilityGroupMaintenance, { FacilityGroupMaintenanceAttributesInclude } from '../../models/operation/facilityGroupMaintenance';
-// import FacilityGroupMaintenanceHistory, {
-//   FacilityGroupMaintenanceHistoryAttributesInclude,
-// } from '../../models/operation/facilityGroupMaintenanceHistory';
+// import ZoneInterrupt, { ZoneInterruptAttributesInclude } from '../../models/operation/zoneInterrupt';
+// import ZoneMaintenance, { ZoneMaintenanceAttributesInclude } from '../../models/operation/zoneMaintenance';
+// import ZoneMaintenanceHistory, {
+//   ZoneMaintenanceHistoryAttributesInclude,
+// } from '../../models/operation/zoneMaintenanceHistory';
 
 const dao = {
-  insert(params: FacilityGroupInsertParams): Promise<InsertedResult> {
+  insert(params: ZoneInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.create(params)
+      Zone.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -41,9 +41,9 @@ const dao = {
         });
     });
   },
-  selectList(params: FacilityGroupSelectListParams): Promise<SelectedListResult<FacilityGroupAttributes>> {
+  selectList(params: ZoneSelectListParams): Promise<SelectedListResult<ZoneAttributes>> {
     // DB에 넘길 최종 쿼리 세팅
-    const setQuery: FacilityGroupSelectListQuery = {};
+    const setQuery: ZoneSelectListQuery = {};
     // 1. where조건 세팅
     if (params.ids) {
       setQuery.where = {
@@ -64,14 +64,14 @@ const dao = {
     setQuery.order = getOrderby(params.order);
 
     return new Promise((resolve, reject) => {
-      FacilityGroup.findAndCountAll({
+      Zone.findAndCountAll({
         ...setQuery,
         distinct: true,
         include: [
           // {
-          //   model: FacilityGroupGroup,
-          //   as: 'FacilityGroupGroup',
-          //   attributes: FacilityGroupGroupAttributesInclude,
+          //   model: ZoneGroup,
+          //   as: 'ZoneGroup',
+          //   attributes: ZoneGroupAttributesInclude,
           // },
           // {
           //   model: Zone,
@@ -88,9 +88,9 @@ const dao = {
         });
     });
   },
-  // selectAll(params: FacilityGroupSelectAllParams): Promise<SelectedAllResult<FacilityGroupAttributes>> {
+  // selectAll(params: ZoneSelectAllParams): Promise<SelectedAllResult<ZoneAttributes>> {
   //   // DB에 넘길 최종 쿼리 세팅
-  //   const setQuery: FacilityGroupSelectAllQuery = {};
+  //   const setQuery: ZoneSelectAllQuery = {};
   //   // 1. where조건 세팅
   //   if (params.companyIds) {
   //     setQuery.where = {
@@ -100,7 +100,7 @@ const dao = {
   //   }
 
   //   return new Promise((resolve, reject) => {
-  //     FacilityGroup.findAll({
+  //     Zone.findAll({
   //       ...setQuery,
   //       order: [['code', 'ASC']],
   //     })
@@ -112,14 +112,14 @@ const dao = {
   //       });
   //   });
   // },
-  selectInfo(params: FacilityGroupSelectInfoParams): Promise<FacilityGroupAttributes | null> {
+  selectInfo(params: ZoneSelectInfoParams): Promise<ZoneAttributes | null> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.findByPk(params.id, {
+      Zone.findByPk(params.id, {
         include: [
           // {
-          //   model: FacilityGroupGroup,
-          //   as: 'FacilityGroupGroup',
-          //   attributes: FacilityGroupGroupAttributesInclude,
+          //   model: ZoneGroup,
+          //   as: 'ZoneGroup',
+          //   attributes: ZoneGroupAttributesInclude,
           // },
           // {
           //   model: Zone,
@@ -151,9 +151,9 @@ const dao = {
           // },
           // 히스토리가 많이 쌓이므로 페이징 처리 하기위해 별도로 호출 한다.
           // {
-          //   model: FacilityGroupInterrupt,
-          //   as: 'FacilityGroupInterrupts',
-          //   attributes: FacilityGroupInterruptAttributesInclude,
+          //   model: ZoneInterrupt,
+          //   as: 'ZoneInterrupts',
+          //   attributes: ZoneInterruptAttributesInclude,
           //   include: [
           //     {
           //       model: User,
@@ -169,14 +169,14 @@ const dao = {
           // },
           // 히스토리가 많이 쌓이므로 페이징 처리 하기위해 별도로 호출 한다.
           // {
-          //   model: FacilityGroupMaintenance,
-          //   as: 'FacilityGroupMaintenances',
-          //   attributes: FacilityGroupMaintenanceAttributesInclude,
+          //   model: ZoneMaintenance,
+          //   as: 'ZoneMaintenances',
+          //   attributes: ZoneMaintenanceAttributesInclude,
           //   include: [
           //     {
-          //       model: FacilityGroupMaintenanceHistory,
-          //       as: 'FacilityGroupMaintenanceHistories',
-          //       attributes: FacilityGroupMaintenanceHistoryAttributesInclude,
+          //       model: ZoneMaintenanceHistory,
+          //       as: 'ZoneMaintenanceHistories',
+          //       attributes: ZoneMaintenanceHistoryAttributesInclude,
           //     },
           //   ],
           // },
@@ -190,9 +190,9 @@ const dao = {
         });
     });
   },
-  selectOne(params: FacilityGroupSelectOneParams): Promise<FacilityGroupAttributes | null> {
+  selectOne(params: ZoneSelectOneParams): Promise<ZoneAttributes | null> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.findOne({
+      Zone.findOne({
         where: { id: params.id },
       })
         .then((selectedOne) => {
@@ -203,9 +203,9 @@ const dao = {
         });
     });
   },
-  update(params: FacilityGroupUpdateParams): Promise<UpdatedResult> {
+  update(params: ZoneUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.update(params, { where: { id: params.id } })
+      Zone.update(params, { where: { id: params.id } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })
@@ -214,9 +214,9 @@ const dao = {
         });
     });
   },
-  delete(params: FacilityGroupDeleteParams): Promise<DeletedResult> {
+  delete(params: ZoneDeleteParams): Promise<DeletedResult> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.destroy({
+      Zone.destroy({
         where: { id: params.id },
       })
         .then((deleted) => {

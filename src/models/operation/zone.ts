@@ -2,7 +2,7 @@ import { Model, DataTypes, WhereOptions, Order } from 'sequelize';
 import { sequelize } from '../sequelize';
 
 // 기본 interface
-export interface FacilityGroupAttributes {
+export interface ZoneAttributes {
   id: number;
   name: string;
   description: string | null;
@@ -11,16 +11,16 @@ export interface FacilityGroupAttributes {
   deletedAt: Date | null;
 }
 
-class FacilityGroup extends Model implements FacilityGroupAttributes {
-  public readonly id!: FacilityGroupAttributes['id'];
-  public name!: FacilityGroupAttributes['name'];
-  public description!: FacilityGroupAttributes['description'];
-  public readonly createdAt!: FacilityGroupAttributes['createdAt'];
-  public readonly updatedAt!: FacilityGroupAttributes['updatedAt'];
-  public readonly deletedAt!: FacilityGroupAttributes['deletedAt'];
+class Zone extends Model implements ZoneAttributes {
+  public readonly id!: ZoneAttributes['id'];
+  public name!: ZoneAttributes['name'];
+  public description!: ZoneAttributes['description'];
+  public readonly createdAt!: ZoneAttributes['createdAt'];
+  public readonly updatedAt!: ZoneAttributes['updatedAt'];
+  public readonly deletedAt!: ZoneAttributes['deletedAt'];
 }
 
-FacilityGroup.init(
+Zone.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -46,13 +46,13 @@ FacilityGroup.init(
 );
 
 // insert
-export interface FacilityGroupInsertParams {
+export interface ZoneInsertParams {
   name: string;
   description: string | null;
 }
 
 // selectList
-export interface FacilityGroupSelectListParams {
+export interface ZoneSelectListParams {
   ids?: Array<number> | null;
   name?: string | null;
   limit?: number;
@@ -60,41 +60,41 @@ export interface FacilityGroupSelectListParams {
   order?: string;
 }
 
-export interface FacilityGroupSelectListQuery {
-  where?: WhereOptions<FacilityGroupAttributes>;
+export interface ZoneSelectListQuery {
+  where?: WhereOptions<ZoneAttributes>;
   limit?: number;
   offset?: number;
   order?: Order;
 }
 
 // selectInfo
-export interface FacilityGroupSelectInfoParams {
+export interface ZoneSelectInfoParams {
   id?: number;
 }
 
 // selectOne
-export interface FacilityGroupSelectOneParams {
+export interface ZoneSelectOneParams {
   id?: number;
 }
 
 // update
-export interface FacilityGroupUpdateParams {
+export interface ZoneUpdateParams {
   id?: number;
   name?: string;
   description?: string | null;
 }
 
 // delete
-export interface FacilityGroupDeleteParams {
+export interface ZoneDeleteParams {
   id?: number;
 }
 
 // include attributes
-export const FacilityGroupAttributesInclude = [
+export const ZoneAttributesInclude = [
   'id',
   'name',
   'description',
   'createdAt',
 ];
 
-export default FacilityGroup;
+export default Zone;

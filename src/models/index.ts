@@ -15,6 +15,7 @@ import MonthlyStatistic from './dashboard/monthlyStatistic';
 // operation
 import Facility from './operation/facility';
 import FacilityGroup from './operation/facilityGroup';
+import Zone from './operation/zone';
 
 export * from './sequelize';
 
@@ -31,6 +32,7 @@ const db = {
   /* operation */
   Facility,
   FacilityGroup,
+  Zone,
 };
 
 export type dbType = typeof db;
@@ -43,3 +45,4 @@ export type dbType = typeof db;
 /* operation */
 // Facility
 Facility.belongsTo(FacilityGroup, { foreignKey: { name: 'facilityGroupId' }, onDelete: 'SET NULL', as: 'FacilityGroup' });
+Facility.belongsTo(Zone, { foreignKey: { name: 'zoneId' }, onDelete: 'SET NULL', as: 'Zone' });

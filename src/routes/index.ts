@@ -20,6 +20,7 @@ import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
 // operation
 import { router as facilityRouter } from './operation/facility';
 import { router as facilityGroupRouter } from './operation/facilityGroup';
+import { router as zoneRouter } from './operation/zone';
 
 dotenv.config();
 
@@ -186,4 +187,5 @@ router.use('/monthly-statistics', monthlyStatisticRouter);
 // operation
 router.use('/facilities', facilityRouter);
 router.use('/facility-groups', facilityGroupRouter);
+router.use('/zones', zoneRouter);
 export { router };

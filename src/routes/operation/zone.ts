@@ -12,27 +12,27 @@ import {
 } from '../../lib/resUtil';
 import { Payload } from '../../lib/tokenUtil';
 import {
-  FacilityGroupInsertParams,
-  FacilityGroupSelectListParams,
-  FacilityGroupSelectInfoParams,
-  FacilityGroupUpdateParams,
-  FacilityGroupDeleteParams,
-} from '../../models/operation/facilityGroup';
+  ZoneInsertParams,
+  ZoneSelectListParams,
+  ZoneSelectInfoParams,
+  ZoneUpdateParams,
+  ZoneDeleteParams,
+} from '../../models/operation/zone';
 import { service as eventHistoryService } from '../../service/common/eventHistoryService';
-import { service as facilityGroupService } from '../../service/operation/facilityGroupService';
+import { service as zoneService } from '../../service/operation/zoneService';
 
 const router = express.Router();
 
-const TABLE_NAME = 'facilityGroups'; // 이벤트 히스토리를 위한 테이블 명
+const TABLE_NAME = 'zones'; // 이벤트 히스토리를 위한 테이블 명
 
-// facilityGroup 등록
-router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityGroupInsertParams, unknown>, res: Response) => {
+// zone 등록
+router.post('/', isLoggedIn, async (req: Request<unknown, unknown, ZoneInsertParams, unknown>, res: Response) => {
   const logFormat = makeLogFormat(req);
   const tokenUser = (req as { decoded?: Payload }).decoded;
 
   try {
     // 요청 파라미터
-    const params: FacilityGroupInsertParams = {
+    const params: ZoneInsertParams = {
       name: req.body.name,
       description: req.body.description,
     };
@@ -49,7 +49,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityGroup
     }
 
     // 비즈니스 로직 호출
-    const result = await facilityGroupService.reg(params, logFormat);
+    const result = await zoneService.reg(params, logFormat);
 
     // 최종 응답 값 세팅
     const resJson = resSuccess(result, resType.REG);
@@ -68,17 +68,17 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityGroup
   }
 });
 
-// facilityGroup 리스트 조회
+// zone 리스트 조회
 router.get(
   '/',
   isLoggedIn,
-  async (req: Request<unknown, unknown, unknown, FacilityGroupSelectListParams>, res: Response) => {
+  async (req: Request<unknown, unknown, unknown, ZoneSelectListParams>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: FacilityGroupSelectListParams = {
+      const params: ZoneSelectListParams = {
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         name: req.query.name,
         limit: Number(req.query.limit || 'NaN'),
@@ -88,7 +88,7 @@ router.get(
       logging.REQUEST_PARAM(logFormat);
 
       // 비즈니스 로직 호출
-      const result = await facilityGroupService.list(params, logFormat);
+      const result = await zoneService.list(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.LIST);
@@ -108,17 +108,17 @@ router.get(
   }
 );
 
-// facilityGroup 상세정보 조회
+// zone 상세정보 조회
 router.get(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<FacilityGroupSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<ZoneSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: FacilityGroupSelectInfoParams = {
+      const params: ZoneSelectInfoParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -134,7 +134,7 @@ router.get(
       }
 
       // 비즈니스 로직 호출
-      const result = await facilityGroupService.info(params, logFormat);
+      const result = await zoneService.info(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.INFO);
@@ -154,17 +154,17 @@ router.get(
   }
 );
 
-// facilityGroup 정보 수정
+// zone 정보 수정
 router.put(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<FacilityGroupUpdateParams, unknown, FacilityGroupUpdateParams, unknown>, res: Response) => {
+  async (req: Request<ZoneUpdateParams, unknown, ZoneUpdateParams, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: FacilityGroupUpdateParams = {
+      const params: ZoneUpdateParams = {
         id: Number(req.params.id),
         name: req.body.name,
         description: req.body.description,
@@ -183,7 +183,7 @@ router.put(
 
       // 비즈니스 로직 호출
 
-      const result = await facilityGroupService.edit(params, logFormat);
+      const result = await zoneService.edit(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.EDIT);
@@ -203,17 +203,17 @@ router.put(
   }
 );
 
-// facilityGroup 삭제
+// zone 삭제
 router.delete(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<FacilityGroupDeleteParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<ZoneDeleteParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: FacilityGroupDeleteParams = {
+      const params: ZoneDeleteParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -229,7 +229,7 @@ router.delete(
       }
 
       // 비즈니스 로직 호출
-      const result = await facilityGroupService.delete(params, logFormat);
+      const result = await zoneService.delete(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.DELETE);
