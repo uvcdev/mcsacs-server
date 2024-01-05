@@ -7,35 +7,33 @@ import {
   DeletedResult,
   getOrderby,
 } from '../../lib/resUtil';
-import Facility, {
-  FacilityAttributes,
-  FacilityInsertParams,
-  FacilitySelectListParams,
-  FacilitySelectListQuery,
-  // FacilitySelectAllParams,
-  // FacilitySelectAllQuery,
-  FacilitySelectInfoParams,
-  FacilitySelectOneParams,
-  FacilitySelectOneCodeParams,
-  FacilityUpdateParams,
-  FacilityUpdateStateParams,
-  // FacilityUpdateLiveStateParams,
-  // FacilityUpdateRunningStateParams,
-  FacilityDeleteParams,
-} from '../../models/operation/facility';
+import FacilityGroup, {
+  FacilityGroupAttributes,
+  FacilityGroupInsertParams,
+  FacilityGroupSelectListParams,
+  FacilityGroupSelectListQuery,
+  // FacilityGroupSelectAllParams,
+  // FacilityGroupSelectAllQuery,
+  FacilityGroupSelectInfoParams,
+  FacilityGroupSelectOneParams,
+  FacilityGroupSelectOneCodeParams,
+  FacilityGroupUpdateParams,
+  // FacilityGroupUpdateLiveStateParams,
+  // FacilityGroupUpdateRunningStateParams,
+  FacilityGroupDeleteParams,
+} from '../../models/operation/facilityGroup';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
-import FacilityGroup, { FacilityGroupAttributesInclude } from '../../models/operation/facilityGroup';
-// import FacilityInterrupt, { FacilityInterruptAttributesInclude } from '../../models/operation/facilityInterrupt';
-// import FacilityMaintenance, { FacilityMaintenanceAttributesInclude } from '../../models/operation/facilityMaintenance';
-// import FacilityMaintenanceHistory, {
-//   FacilityMaintenanceHistoryAttributesInclude,
-// } from '../../models/operation/facilityMaintenanceHistory';
+// import FacilityGroupInterrupt, { FacilityGroupInterruptAttributesInclude } from '../../models/operation/facilityGroupInterrupt';
+// import FacilityGroupMaintenance, { FacilityGroupMaintenanceAttributesInclude } from '../../models/operation/facilityGroupMaintenance';
+// import FacilityGroupMaintenanceHistory, {
+//   FacilityGroupMaintenanceHistoryAttributesInclude,
+// } from '../../models/operation/facilityGroupMaintenanceHistory';
 
 const dao = {
-  insert(params: FacilityInsertParams): Promise<InsertedResult> {
+  insert(params: FacilityGroupInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      Facility.create(params)
+      FacilityGroup.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -44,9 +42,9 @@ const dao = {
         });
     });
   },
-  selectList(params: FacilitySelectListParams): Promise<SelectedListResult<FacilityAttributes>> {
+  selectList(params: FacilityGroupSelectListParams): Promise<SelectedListResult<FacilityGroupAttributes>> {
     // DB에 넘길 최종 쿼리 세팅
-    const setQuery: FacilitySelectListQuery = {};
+    const setQuery: FacilityGroupSelectListQuery = {};
     // 1. where조건 세팅
     if (params.ids) {
       setQuery.where = {
@@ -54,22 +52,10 @@ const dao = {
         id: params.ids, // 'in' 검색
       };
     }
-    if (params.code) {
-      setQuery.where = {
-        ...setQuery.where,
-        code: { [Op.like]: `%${params.code}%` }, // 'like' 검색
-      };
-    }
     if (params.name) {
       setQuery.where = {
         ...setQuery.where,
         name: { [Op.like]: `%${params.name}%` }, // 'like' 검색
-      };
-    }
-    if (params.state) {
-      setQuery.where = {
-        ...setQuery.where,
-        state: params.state, // '=' 검색
       };
     }
     // 2. limit, offset 세팅
@@ -79,16 +65,15 @@ const dao = {
     setQuery.order = getOrderby(params.order);
 
     return new Promise((resolve, reject) => {
-      Facility.findAndCountAll({
+      FacilityGroup.findAndCountAll({
         ...setQuery,
-        attributes: { exclude: ['description'] }, // 해당 필드 제외
         distinct: true,
         include: [
-          {
-            model: FacilityGroup,
-            as: 'FacilityGroup',
-            attributes: FacilityGroupAttributesInclude,
-          },
+          // {
+          //   model: FacilityGroupGroup,
+          //   as: 'FacilityGroupGroup',
+          //   attributes: FacilityGroupGroupAttributesInclude,
+          // },
           // {
           //   model: Zone,
           //   as: 'Zone',
@@ -104,9 +89,9 @@ const dao = {
         });
     });
   },
-  // selectAll(params: FacilitySelectAllParams): Promise<SelectedAllResult<FacilityAttributes>> {
+  // selectAll(params: FacilityGroupSelectAllParams): Promise<SelectedAllResult<FacilityGroupAttributes>> {
   //   // DB에 넘길 최종 쿼리 세팅
-  //   const setQuery: FacilitySelectAllQuery = {};
+  //   const setQuery: FacilityGroupSelectAllQuery = {};
   //   // 1. where조건 세팅
   //   if (params.companyIds) {
   //     setQuery.where = {
@@ -116,7 +101,7 @@ const dao = {
   //   }
 
   //   return new Promise((resolve, reject) => {
-  //     Facility.findAll({
+  //     FacilityGroup.findAll({
   //       ...setQuery,
   //       order: [['code', 'ASC']],
   //     })
@@ -128,15 +113,15 @@ const dao = {
   //       });
   //   });
   // },
-  selectInfo(params: FacilitySelectInfoParams): Promise<FacilityAttributes | null> {
+  selectInfo(params: FacilityGroupSelectInfoParams): Promise<FacilityGroupAttributes | null> {
     return new Promise((resolve, reject) => {
-      Facility.findByPk(params.id, {
+      FacilityGroup.findByPk(params.id, {
         include: [
-          {
-            model: FacilityGroup,
-            as: 'FacilityGroup',
-            attributes: FacilityGroupAttributesInclude,
-          },
+          // {
+          //   model: FacilityGroupGroup,
+          //   as: 'FacilityGroupGroup',
+          //   attributes: FacilityGroupGroupAttributesInclude,
+          // },
           // {
           //   model: Zone,
           //   as: 'Zone',
@@ -167,9 +152,9 @@ const dao = {
           // },
           // 히스토리가 많이 쌓이므로 페이징 처리 하기위해 별도로 호출 한다.
           // {
-          //   model: FacilityInterrupt,
-          //   as: 'FacilityInterrupts',
-          //   attributes: FacilityInterruptAttributesInclude,
+          //   model: FacilityGroupInterrupt,
+          //   as: 'FacilityGroupInterrupts',
+          //   attributes: FacilityGroupInterruptAttributesInclude,
           //   include: [
           //     {
           //       model: User,
@@ -185,14 +170,14 @@ const dao = {
           // },
           // 히스토리가 많이 쌓이므로 페이징 처리 하기위해 별도로 호출 한다.
           // {
-          //   model: FacilityMaintenance,
-          //   as: 'FacilityMaintenances',
-          //   attributes: FacilityMaintenanceAttributesInclude,
+          //   model: FacilityGroupMaintenance,
+          //   as: 'FacilityGroupMaintenances',
+          //   attributes: FacilityGroupMaintenanceAttributesInclude,
           //   include: [
           //     {
-          //       model: FacilityMaintenanceHistory,
-          //       as: 'FacilityMaintenanceHistories',
-          //       attributes: FacilityMaintenanceHistoryAttributesInclude,
+          //       model: FacilityGroupMaintenanceHistory,
+          //       as: 'FacilityGroupMaintenanceHistories',
+          //       attributes: FacilityGroupMaintenanceHistoryAttributesInclude,
           //     },
           //   ],
           // },
@@ -206,9 +191,9 @@ const dao = {
         });
     });
   },
-  selectOne(params: FacilitySelectOneParams): Promise<FacilityAttributes | null> {
+  selectOne(params: FacilityGroupSelectOneParams): Promise<FacilityGroupAttributes | null> {
     return new Promise((resolve, reject) => {
-      Facility.findOne({
+      FacilityGroup.findOne({
         where: { id: params.id },
       })
         .then((selectedOne) => {
@@ -219,9 +204,9 @@ const dao = {
         });
     });
   },
-  selectOneCode(params: FacilitySelectOneCodeParams): Promise<FacilityAttributes | null> {
+  selectOneCode(params: FacilityGroupSelectOneCodeParams): Promise<FacilityGroupAttributes | null> {
     return new Promise((resolve, reject) => {
-      Facility.findOne({
+      FacilityGroup.findOne({
         where: { code: params.code },
         attributes: { exclude: ['description'] }, // 해당 필드 제외
       })
@@ -233,9 +218,9 @@ const dao = {
         });
     });
   },
-  selectAllTags(): Promise<SelectedAllResult<FacilityAttributes>> {
+  selectAllTags(): Promise<SelectedAllResult<FacilityGroupAttributes>> {
     return new Promise((resolve, reject) => {
-      Facility.findAll({
+      FacilityGroup.findAll({
         where: {
           tags: { [Op.not]: null },
         },
@@ -249,9 +234,9 @@ const dao = {
         });
     });
   },
-  update(params: FacilityUpdateParams): Promise<UpdatedResult> {
+  update(params: FacilityGroupUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      Facility.update(params, { where: { id: params.id } })
+      FacilityGroup.update(params, { where: { id: params.id } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })
@@ -260,36 +245,9 @@ const dao = {
         });
     });
   },
-  updateState(params: FacilityUpdateStateParams): Promise<UpdatedResult> {
+  delete(params: FacilityGroupDeleteParams): Promise<DeletedResult> {
     return new Promise((resolve, reject) => {
-      Facility.update(params, {
-        where: { id: params.id },
-      })
-        .then(([updated]) => {
-          resolve({ updatedCount: updated });
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-  updateStateTransac(params: FacilityUpdateStateParams, transaction: Transaction): Promise<UpdatedResult> {
-    return new Promise((resolve, reject) => {
-      Facility.update(params, {
-        where: { id: params.id },
-        transaction,
-      })
-        .then(([updated]) => {
-          resolve({ updatedCount: updated });
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-  delete(params: FacilityDeleteParams): Promise<DeletedResult> {
-    return new Promise((resolve, reject) => {
-      Facility.destroy({
+      FacilityGroup.destroy({
         where: { id: params.id },
       })
         .then((deleted) => {
