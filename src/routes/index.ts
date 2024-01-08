@@ -14,6 +14,7 @@ import { router as fileRouter } from './common/file';
 import { router as userRouter } from './common/user';
 import { router as commonCodeRouter } from './common/commonCode';
 import { router as tokenHistoryRouter } from './common/tokenHistory';
+import { router as settingRouter } from './common/setting';
 // dashboard
 import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
 import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
@@ -181,6 +182,7 @@ router.use('/files', fileRouter);
 router.use('/users', userRouter);
 router.use('/common-codes', commonCodeRouter);
 router.use('/token-histories', tokenHistoryRouter);
+router.use('/settings', settingRouter);
 // dashboard
 router.use('/daily-statistics', dailyStatisticRouter);
 router.use('/monthly-statistics', monthlyStatisticRouter);

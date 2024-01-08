@@ -7,6 +7,7 @@ import User from './common/user';
 import TokenHistory from './common/tokenHistory';
 import File from './common/file';
 import EventHistory from './common/eventHistory';
+import Setting from './common/setting';
 
 // dashboard
 import DailyStatistic from './dashboard/dailyStatistic';
@@ -26,6 +27,7 @@ const db = {
   TokenHistory,
   File,
   EventHistory,
+  Setting,
   /* dashboard */
   DailyStatistic,
   MonthlyStatistic,
