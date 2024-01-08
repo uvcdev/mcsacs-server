@@ -1,7 +1,7 @@
 import { Model, DataTypes, WhereOptions, Order, JSON } from 'sequelize';
 import { sequelize } from '../sequelize';
 
-export interface MonthlyStatisticAttribute {
+export interface MonthlyStatisticAttributes {
   id: number;
   type: string | null;
   data: JSON | null;
@@ -12,15 +12,15 @@ export interface MonthlyStatisticAttribute {
   deletedAt: Date | null;
 }
 
-class MonthlyStatistic extends Model implements MonthlyStatisticAttribute {
-  public readonly id!: MonthlyStatisticAttribute['id'];
-  public type!: MonthlyStatisticAttribute['type'];
-  public data!: MonthlyStatisticAttribute['data'];
-  public year!: MonthlyStatisticAttribute['year'];
-  public month!: MonthlyStatisticAttribute['month'];
-  public readonly createdAt!: MonthlyStatisticAttribute['createdAt'];
-  public readonly updatedAt!: MonthlyStatisticAttribute['updatedAt'];
-  public readonly deletedAt!: MonthlyStatisticAttribute['deletedAt'];
+class MonthlyStatistic extends Model implements MonthlyStatisticAttributes {
+  public readonly id!: MonthlyStatisticAttributes['id'];
+  public type!: MonthlyStatisticAttributes['type'];
+  public data!: MonthlyStatisticAttributes['data'];
+  public year!: MonthlyStatisticAttributes['year'];
+  public month!: MonthlyStatisticAttributes['month'];
+  public readonly createdAt!: MonthlyStatisticAttributes['createdAt'];
+  public readonly updatedAt!: MonthlyStatisticAttributes['updatedAt'];
+  public readonly deletedAt!: MonthlyStatisticAttributes['deletedAt'];
 }
 
 MonthlyStatistic.init(
@@ -67,7 +67,7 @@ export interface MonthlyStatisticSelectListParams {
 }
 
 export interface MonthlyStatisticSelectListQuery {
-  where?: WhereOptions<MonthlyStatisticAttribute>;
+  where?: WhereOptions<MonthlyStatisticAttributes>;
   limit?: number;
   offset?: number;
   order?: Order;
@@ -76,13 +76,13 @@ export interface MonthlyStatisticSelectListQuery {
 
 // update
 export interface MonthlyStatisticUpdateParams {
-  id?: MonthlyStatisticAttribute['id'];
+  id?: MonthlyStatisticAttributes['id'];
   data?: JSON | null;
 }
 
 // delete
 export interface MonthlyStatisticDeleteParams {
-  id?: MonthlyStatisticAttribute['id'];
+  id?: MonthlyStatisticAttributes['id'];
 }
 
 

@@ -17,6 +17,7 @@ import { router as commonCodeRouter } from './common/commonCode';
 import { router as tokenHistoryRouter } from './common/tokenHistory';
 import { router as settingRouter } from './common/setting';
 import { router as alarmEmailRouter } from './common/alarmEmail';
+import { router as mcsAlarmRouter } from './common/mcsAlarm';
 // dashboard
 import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
 import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
@@ -190,6 +191,8 @@ router.use('/users', userRouter);
 router.use('/common-codes', commonCodeRouter);
 router.use('/token-histories', tokenHistoryRouter);
 router.use('/settings', settingRouter);
+router.use('/alarm-emails', alarmEmailRouter);
+router.use('/mcs-alarms', mcsAlarmRouter);
 // dashboard
 router.use('/daily-statistics', dailyStatisticRouter);
 router.use('/monthly-statistics', monthlyStatisticRouter);
@@ -202,6 +205,5 @@ router.use('/workOrders', workOrderRouter);
 //timescale
 router.use('/logs', logRouter);
 router.use('/system-logs', systemLogRouter);
-router.use('/alarm-emails', alarmEmailRouter);
 
 export { router };

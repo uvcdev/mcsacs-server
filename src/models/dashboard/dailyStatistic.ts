@@ -1,7 +1,7 @@
 import { Model, DataTypes, WhereOptions, Order, JSON } from 'sequelize';
 import { sequelize } from '../sequelize';
 
-export interface DailyStatisticAttribute {
+export interface DailyStatisticAttributes {
   id: number;
   type: string | null;
   data: JSON | null;
@@ -13,16 +13,16 @@ export interface DailyStatisticAttribute {
   deletedAt: Date | null;
 }
 
-class DailyStatistic extends Model implements DailyStatisticAttribute {
-  public readonly id!: DailyStatisticAttribute['id'];
-  public type!: DailyStatisticAttribute['type'];
-  public data!: DailyStatisticAttribute['data'];
-  public year!: DailyStatisticAttribute['year'];
-  public month!: DailyStatisticAttribute['month'];
-  public day!: DailyStatisticAttribute['day'];
-  public readonly createdAt!: DailyStatisticAttribute['createdAt'];
-  public readonly updatedAt!: DailyStatisticAttribute['updatedAt'];
-  public readonly deletedAt!: DailyStatisticAttribute['deletedAt'];
+class DailyStatistic extends Model implements DailyStatisticAttributes {
+  public readonly id!: DailyStatisticAttributes['id'];
+  public type!: DailyStatisticAttributes['type'];
+  public data!: DailyStatisticAttributes['data'];
+  public year!: DailyStatisticAttributes['year'];
+  public month!: DailyStatisticAttributes['month'];
+  public day!: DailyStatisticAttributes['day'];
+  public readonly createdAt!: DailyStatisticAttributes['createdAt'];
+  public readonly updatedAt!: DailyStatisticAttributes['updatedAt'];
+  public readonly deletedAt!: DailyStatisticAttributes['deletedAt'];
 }
 
 DailyStatistic.init(
@@ -73,7 +73,7 @@ export interface DailyStatisticSelectListParams {
 }
 
 export interface DailyStatisticSelectListQuery {
-  where?: WhereOptions<DailyStatisticAttribute>;
+  where?: WhereOptions<DailyStatisticAttributes>;
   limit?: number;
   offset?: number;
   order?: Order;
@@ -82,13 +82,13 @@ export interface DailyStatisticSelectListQuery {
 
 // update
 export interface DailyStatisticUpdateParams {
-  id?: DailyStatisticAttribute['id'];
+  id?: DailyStatisticAttributes['id'];
   data?: JSON | null;
 }
 
 // delete
 export interface DailyStatisticDeleteParams {
-  id?: DailyStatisticAttribute['id'];
+  id?: DailyStatisticAttributes['id'];
 }
 
 /* 인터페이스 정의 끝 */

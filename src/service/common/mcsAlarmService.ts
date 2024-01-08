@@ -1,19 +1,20 @@
 import { logging, LogFormat } from '../../lib/logging';
 import { InsertedResult, SelectedListResult, UpdatedResult, DeletedResult } from '../../lib/resUtil';
 import {
-  DailyStatisticInsertParams,
-  DailyStatisticSelectListParams,
-  DailyStatisticUpdateParams,
-  DailyStatisticDeleteParams,
-  DailyStatisticAttributes,
-} from '../../models/dashboard/dailyStatistic';
-import { dao as dailyStatisticDao } from '../../dao/dashboard/dailyStatisticDao';
+  McsAlarmInsertParams,
+  McsAlarmSelectListParams,
+  McsAlarmSelectInfoParams,
+  McsAlarmUpdateParams,
+  McsAlarmDeleteParams,
+  McsAlarmAttributes,
+} from '../../models/common/mcsAlarm';
+import { dao as mcsAlarmDao } from '../../dao/common/mcsAlarmDao';
 
 const service = {
-  async reg(params: DailyStatisticInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
+  async reg(params: McsAlarmInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
     try {
-      result = await dailyStatisticDao.insert(params);
+      result = await mcsAlarmDao.insert(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -26,12 +27,12 @@ const service = {
     });
   },
   async list(
-    params: DailyStatisticSelectListParams,
+    params: McsAlarmSelectListParams,
     logFormat: LogFormat<unknown>
-  ): Promise<SelectedListResult<DailyStatisticAttributes>> {
-    let result: SelectedListResult<DailyStatisticAttributes>;
+  ): Promise<SelectedListResult<McsAlarmAttributes>> {
+    let result: SelectedListResult<McsAlarmAttributes>;
     try {
-      result = await dailyStatisticDao.selectList(params);
+      result = await mcsAlarmDao.selectList(params);
 
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
@@ -44,10 +45,29 @@ const service = {
       resolve(result);
     });
   },
-  async edit(params: DailyStatisticUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+  // selectInfo
+  async info(params: McsAlarmSelectInfoParams, logFormat: LogFormat<unknown>): Promise<McsAlarmAttributes | null> {
+    let result: McsAlarmAttributes | null;
+
+    try {
+      result = await mcsAlarmDao.selectInfo(params);
+      logging.METHOD_ACTION(logFormat, __filename, params, result);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, params, err);
+
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+  async edit(params: McsAlarmUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
     try {
-      result = await dailyStatisticDao.update(params);
+      result = await mcsAlarmDao.update(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -59,10 +79,10 @@ const service = {
       resolve(result);
     });
   },
-  async delete(params: DailyStatisticDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
+  async delete(params: McsAlarmDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
     let result: DeletedResult;
     try {
-      result = await dailyStatisticDao.delete(params);
+      result = await mcsAlarmDao.delete(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);

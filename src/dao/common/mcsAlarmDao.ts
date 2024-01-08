@@ -1,18 +1,19 @@
 import { InsertedResult, SelectedListResult, UpdatedResult, DeletedResult } from '../../lib/resUtil';
-import Setting, {
-  SettingInsertParams,
-  SettingSelectListParams,
-  SettingSelectListQuery,
-  SettingUpdateParams,
-  SettingDeleteParams,
-  SettingAttributes,
-  SettingSelectInfoParams,
-} from '../../models/common/setting';
+import McsAlarm, {
+  McsAlarmInsertParams,
+  McsAlarmSelectListParams,
+  McsAlarmSelectListQuery,
+  McsAlarmUpdateParams,
+  McsAlarmDeleteParams,
+  McsAlarmAttributes,
+  McsAlarmSelectInfoParams,
+} from '../../models/common/mcsAlarm';
+import Facility, { FacilityAttributesInclude } from '../../models/operation/facility';
 
 const dao = {
-  insert(params: SettingInsertParams): Promise<InsertedResult> {
+  insert(params: McsAlarmInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      Setting.create(params)
+      McsAlarm.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -21,8 +22,8 @@ const dao = {
         });
     });
   },
-  selectList(params: SettingSelectListParams): Promise<SelectedListResult<SettingAttributes>> {
-    const setQuery: SettingSelectListQuery = {};
+  selectList(params: McsAlarmSelectListParams): Promise<SelectedListResult<McsAlarmAttributes>> {
+    const setQuery: McsAlarmSelectListQuery = {};
 
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;
@@ -35,11 +36,30 @@ const dao = {
         id: params.ids, // 'in'검색,
       };
     }
+    if (params.facilityId) {
+      setQuery.where = {
+        ...setQuery.where,
+        facilityId: params.facilityId, // 'in'검색,
+      };
+    }
+    if (params.state) {
+      setQuery.where = {
+        ...setQuery.where,
+        state: params.state, // 'in'검색,
+      };
+    }
 
     return new Promise((resolve, reject) => {
-      Setting.findAndCountAll({
+      McsAlarm.findAndCountAll({
         ...setQuery,
         distinct: true,
+        include: [
+          {
+            model: Facility,
+            as: 'Facility',
+            attributes: FacilityAttributesInclude,
+          }
+        ]
       })
         .then((selectedList) => {
           resolve(selectedList);
@@ -49,14 +69,14 @@ const dao = {
         });
     });
   },
-  selectInfo(params: SettingSelectInfoParams): Promise<SettingAttributes | null> {
+  selectInfo(params: McsAlarmSelectInfoParams): Promise<McsAlarmAttributes | null> {
     return new Promise((resolve, reject) => {
-      Setting.findByPk(params.id, {
+      McsAlarm.findByPk(params.id, {
         include: [
           // {
-          //   model: SettingGroup,
-          //   as: 'SettingGroup',
-          //   attributes: SettingGroupAttributesInclude,
+          //   model: McsAlarmGroup,
+          //   as: 'McsAlarmGroup',
+          //   attributes: McsAlarmGroupAttributesInclude,
           // },
         ],
       })
@@ -68,9 +88,9 @@ const dao = {
         });
     });
   },
-  update(params: SettingUpdateParams): Promise<UpdatedResult> {
+  update(params: McsAlarmUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      Setting.update(params, { where: { id: params.id } })
+      McsAlarm.update(params, { where: { id: params.id } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })
@@ -79,9 +99,9 @@ const dao = {
         });
     });
   },
-  delete(params: SettingDeleteParams): Promise<DeletedResult> {
+  delete(params: McsAlarmDeleteParams): Promise<DeletedResult> {
     return new Promise((resolve, reject) => {
-      Setting.destroy({
+      McsAlarm.destroy({
         where: { id: params.id },
       })
         .then((deleted) => {

@@ -1,7 +1,7 @@
 import { Model, DataTypes, WhereOptions, Order, JSON } from 'sequelize';
 import { sequelize } from '../sequelize';
 
-export interface SettingAttribute {
+export interface SettingAttributes {
   id: number;
   system: string;
   type: string;
@@ -11,14 +11,14 @@ export interface SettingAttribute {
   deletedAt: Date | null;
 }
 
-class Setting extends Model implements SettingAttribute {
-  public readonly id!: SettingAttribute['id'];
-  public system!: SettingAttribute['system'];
-  public type!: SettingAttribute['type'];
-  public data!: SettingAttribute['data'];
-  public readonly createdAt!: SettingAttribute['createdAt'];
-  public readonly updatedAt!: SettingAttribute['updatedAt'];
-  public readonly deletedAt!: SettingAttribute['deletedAt'];
+class Setting extends Model implements SettingAttributes {
+  public readonly id!: SettingAttributes['id'];
+  public system!: SettingAttributes['system'];
+  public type!: SettingAttributes['type'];
+  public data!: SettingAttributes['data'];
+  public readonly createdAt!: SettingAttributes['createdAt'];
+  public readonly updatedAt!: SettingAttributes['updatedAt'];
+  public readonly deletedAt!: SettingAttributes['deletedAt'];
 }
 
 export const SystemDefaults = {
@@ -71,7 +71,7 @@ export interface SettingSelectListParams {
 }
 
 export interface SettingSelectListQuery {
-  where?: WhereOptions<SettingAttribute>;
+  where?: WhereOptions<SettingAttributes>;
   limit?: number;
   offset?: number;
   order?: Order;
@@ -86,7 +86,7 @@ export interface SettingSelectInfoParams {
 
 // update
 export interface SettingUpdateParams {
-  id?: SettingAttribute['id'];
+  id?: SettingAttributes['id'];
   system?: string;
   type?: string;
   data?: JSON | null;
@@ -94,7 +94,7 @@ export interface SettingUpdateParams {
 
 // delete
 export interface SettingDeleteParams {
-  id?: SettingAttribute['id'];
+  id?: SettingAttributes['id'];
 }
 
 /* 인터페이스 정의 끝 */

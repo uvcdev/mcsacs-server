@@ -6,7 +6,7 @@ import {
   SettingSelectInfoParams,
   SettingUpdateParams,
   SettingDeleteParams,
-  SettingAttribute,
+  SettingAttributes,
 } from '../../models/common/setting';
 import { dao as settingDao } from '../../dao/common/settingDao';
 
@@ -29,8 +29,8 @@ const service = {
   async list(
     params: SettingSelectListParams,
     logFormat: LogFormat<unknown>
-  ): Promise<SelectedListResult<SettingAttribute>> {
-    let result: SelectedListResult<SettingAttribute>;
+  ): Promise<SelectedListResult<SettingAttributes>> {
+    let result: SelectedListResult<SettingAttributes>;
     try {
       result = await settingDao.selectList(params);
 
@@ -46,8 +46,8 @@ const service = {
     });
   },
   // selectInfo
-  async info(params: SettingSelectInfoParams, logFormat: LogFormat<unknown>): Promise<SettingAttribute | null> {
-    let result: SettingAttribute | null;
+  async info(params: SettingSelectInfoParams, logFormat: LogFormat<unknown>): Promise<SettingAttributes | null> {
+    let result: SettingAttributes | null;
 
     try {
       result = await settingDao.selectInfo(params);

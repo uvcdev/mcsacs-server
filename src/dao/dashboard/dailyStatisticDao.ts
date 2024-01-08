@@ -5,7 +5,7 @@ import DailyStatistic, {
   DailyStatisticSelectListQuery,
   DailyStatisticUpdateParams,
   DailyStatisticDeleteParams,
-  DailyStatisticAttribute,
+  DailyStatisticAttributes,
 } from '../../models/dashboard/dailyStatistic';
 
 const dao = {
@@ -20,7 +20,7 @@ const dao = {
         });
     });
   },
-  selectList(params: DailyStatisticSelectListParams): Promise<SelectedListResult<DailyStatisticAttribute>> {
+  selectList(params: DailyStatisticSelectListParams): Promise<SelectedListResult<DailyStatisticAttributes>> {
     const setQuery: DailyStatisticSelectListQuery = {};
 
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;

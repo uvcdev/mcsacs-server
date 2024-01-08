@@ -163,9 +163,9 @@ export interface FacilityUpdateParams {
   zoneId?: number;
   code?: string;
   name?: string;
-  system?: string | null;
+  system?: FacilityAttributes['system'] | null;
   state?: string | null;
-  type?: string | null;
+  type?: FacilityAttributes['type'] | null;
   serial?: string | null;
   ip?: string | null;
   port?: string | null;
