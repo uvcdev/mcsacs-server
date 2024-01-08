@@ -23,6 +23,7 @@ import { router as facilityRouter } from './operation/facility';
 import { router as facilityGroupRouter } from './operation/facilityGroup';
 import { router as zoneRouter } from './operation/zone';
 import { router as materialRouter } from './operation/material';
+import { router as workOrderRouter } from './operation/workOrder';
 
 dotenv.config();
 
@@ -192,4 +193,5 @@ router.use('/facilities', facilityRouter);
 router.use('/facility-groups', facilityGroupRouter);
 router.use('/zones', zoneRouter);
 router.use('/materials', materialRouter);
+router.use('/workOrders', workOrderRouter);
 export { router };

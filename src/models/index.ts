@@ -18,6 +18,7 @@ import Facility from './operation/facility';
 import FacilityGroup from './operation/facilityGroup';
 import Zone from './operation/zone';
 import Material from './operation/material';
+import WorkOrder from './operation/workOrder';
 
 export * from './sequelize';
 
@@ -37,6 +38,7 @@ const db = {
   FacilityGroup,
   Zone,
   Material,
+  WorkOrder,
 };
 
 export type dbType = typeof db;
@@ -50,3 +52,8 @@ export type dbType = typeof db;
 // Facility
 Facility.belongsTo(FacilityGroup, { foreignKey: { name: 'facilityGroupId' }, onDelete: 'SET NULL', as: 'FacilityGroup' });
 Facility.belongsTo(Zone, { foreignKey: { name: 'zoneId' }, onDelete: 'SET NULL', as: 'Zone' });
+
+// WorkOrder
+WorkOrder.belongsTo(Facility, { foreignKey: { name: 'fromFacilityId' }, onDelete: 'SET NULL', as: 'FromFacility' });
+WorkOrder.belongsTo(Facility, { foreignKey: { name: 'toFacilityId' }, onDelete: 'SET NULL', as: 'ToFacility' });
+WorkOrder.belongsTo(Material, { foreignKey: { name: 'materialId' }, onDelete: 'SET NULL', as: 'Material' });
