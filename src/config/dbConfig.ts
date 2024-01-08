@@ -19,4 +19,13 @@ const dbConfig: DBConfig = {
   dialect: process.env.DB_DIALECT as 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql',
 };
 
-export default dbConfig;
+const logDbConfig: DBConfig = {
+  username: process.env.LOG_DB_ID || '',
+  password: process.env.LOG_DB_PASS || '',
+  database: process.env.LOG_DB_DATABASE || '',
+  host: process.env.LOG_DB_HOST || '',
+  port: Number(process.env.LOG_DB_PORT || '5432'),
+  dialect: process.env.LOG_DB_DIALECT as 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql',
+};
+
+export { dbConfig, logDbConfig };

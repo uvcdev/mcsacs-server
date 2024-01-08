@@ -1,7 +1,5 @@
 // Models(순서 중요 - references설정 때문)
 // common
-
-// import Destination from './common/destination';
 import CommonCode from './common/commonCode';
 import User from './common/user';
 import TokenHistory from './common/tokenHistory';
@@ -19,6 +17,10 @@ import FacilityGroup from './operation/facilityGroup';
 import Zone from './operation/zone';
 import Material from './operation/material';
 import WorkOrder from './operation/workOrder';
+
+// timescale
+import Log from './timescale/log';
+import SystemLog from './timescale/systemLog';
 
 export * from './sequelize';
 
@@ -39,6 +41,9 @@ const db = {
   Zone,
   Material,
   WorkOrder,
+  /* timescale */
+  Log,
+  SystemLog,
 };
 
 export type dbType = typeof db;

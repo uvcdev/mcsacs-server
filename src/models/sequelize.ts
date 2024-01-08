@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import dbConfig from '../config/dbConfig';
+import { dbConfig, logDbConfig } from '../config/dbConfig';
 
 // if (NODE_ENV설정에 따라 구분되는 경우에는 아래와 같이 처리 한다.)
 // dotenv.config();
@@ -25,5 +25,20 @@ const sequelize = new Sequelize(database, username, password, {
   logging: process.env.SEQUELIZE_LOGGING !== 'false',
 });
 
-export { sequelize };
+const logSequelize = new Sequelize(logDbConfig.database, logDbConfig.username, logDbConfig.password, {
+  host: logDbConfig.host,
+  port: logDbConfig.port,
+  dialect: logDbConfig.dialect,
+  pool: {
+    max: 30,
+    min: 0,
+  },
+  dialectOptions: {
+    options: {
+      requestTimeout: 15000,
+    },
+  },
+  logging: process.env.SEQUELIZE_LOGGING !== 'false',
+});
+export { sequelize, logSequelize };
 export default sequelize;

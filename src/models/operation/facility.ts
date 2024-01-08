@@ -8,9 +8,9 @@ export interface FacilityAttributes {
   zoneId: number;
   code: string;
   name: string;
-  system: string | null;
+  system: 'WCS' | 'EQP';
   state: string | null;
-  type: string | null;
+  type: 'in' | 'out';
   serial: string | null;
   ip: number | null;
   port: number | null;
@@ -105,9 +105,9 @@ export interface FacilityInsertParams {
   zoneId: number;
   code: string;
   name: string;
-  system: string | null;
+  system: FacilityAttributes['system'] | null;
   state: string | null;
-  type: string | null;
+  type: FacilityAttributes['type'] | null;
   serial: string | null;
   ip: string | null;
   port: number | null;
@@ -122,9 +122,9 @@ export interface FacilitySelectListParams {
   zondeIds?: Array<number> | null;
   code?: string | null;
   name?: string | null;
-  system?: string | null;
+  system?: FacilityAttributes['system'] | null;
   state?: string | null;
-  type?: string | null;
+  type?: FacilityAttributes['type'] | null;
   serial?: string | null;
   ip?: string | null;
   port?: number | null;

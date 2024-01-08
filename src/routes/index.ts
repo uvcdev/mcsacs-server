@@ -5,6 +5,7 @@ import path from 'path';
 import * as dotenv from 'dotenv';
 import { isActionKey } from '../lib/middleware';
 import { makeResponseSuccess as resSuccess, responseType as resType } from '../lib/resUtil';
+
 // common
 import { router as mqttRouter } from './common/mqtt';
 import { router as redisRouter } from './common/redis';
@@ -24,6 +25,9 @@ import { router as facilityGroupRouter } from './operation/facilityGroup';
 import { router as zoneRouter } from './operation/zone';
 import { router as materialRouter } from './operation/material';
 import { router as workOrderRouter } from './operation/workOrder';
+// timescale
+import { logRouter } from './timescale/log';
+import { systemLogRouter } from './timescale/systemLog';
 
 dotenv.config();
 
@@ -194,4 +198,7 @@ router.use('/facility-groups', facilityGroupRouter);
 router.use('/zones', zoneRouter);
 router.use('/materials', materialRouter);
 router.use('/workOrders', workOrderRouter);
+//timescale
+router.use('/logs', logRouter);
+router.use('/system-logs', systemLogRouter);
 export { router };

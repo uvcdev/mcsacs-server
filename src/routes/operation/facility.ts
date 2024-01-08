@@ -99,7 +99,7 @@ router.get(
         zondeIds: req.query.zondeIds ? ((req.query.zondeIds as unknown) as string).split(',').map((i) => Number(i)) : null,
         code: req.query.code,
         name: req.query.name,
-        system: req.query.name,
+        system: req.query.system,
         state: req.query.state,
         type: req.query.type,
         serial: req.query.serial,
