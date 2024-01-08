@@ -17,6 +17,7 @@ import MonthlyStatistic from './dashboard/monthlyStatistic';
 import Facility from './operation/facility';
 import FacilityGroup from './operation/facilityGroup';
 import Zone from './operation/zone';
+import Material from './operation/material';
 
 export * from './sequelize';
 
@@ -35,6 +36,7 @@ const db = {
   Facility,
   FacilityGroup,
   Zone,
+  Material,
 };
 
 export type dbType = typeof db;
