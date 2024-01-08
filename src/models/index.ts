@@ -6,6 +6,7 @@ import TokenHistory from './common/tokenHistory';
 import File from './common/file';
 import EventHistory from './common/eventHistory';
 import Setting from './common/setting';
+import AlarmEmail from './common/alarmEmail';
 
 // dashboard
 import DailyStatistic from './dashboard/dailyStatistic';
@@ -32,6 +33,7 @@ const db = {
   File,
   EventHistory,
   Setting,
+  AlarmEmail,
   /* dashboard */
   DailyStatistic,
   MonthlyStatistic,
@@ -52,6 +54,8 @@ export type dbType = typeof db;
 // 'belongsTo'관계는 반드시 표현할 것
 
 /* common */
+// AlarmEmail
+AlarmEmail.belongsTo(User, { foreignKey: { name: 'UserId' }, onDelete: 'SET NULL', as: 'User' });
 
 /* operation */
 // Facility

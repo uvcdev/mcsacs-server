@@ -16,6 +16,7 @@ import { router as userRouter } from './common/user';
 import { router as commonCodeRouter } from './common/commonCode';
 import { router as tokenHistoryRouter } from './common/tokenHistory';
 import { router as settingRouter } from './common/setting';
+import { router as alarmEmailRouter } from './common/alarmEmail';
 // dashboard
 import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
 import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
@@ -201,4 +202,6 @@ router.use('/workOrders', workOrderRouter);
 //timescale
 router.use('/logs', logRouter);
 router.use('/system-logs', systemLogRouter);
+router.use('/alarm-emails', alarmEmailRouter);
+
 export { router };
