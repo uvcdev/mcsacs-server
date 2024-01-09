@@ -52,6 +52,7 @@
     "mqtt": "^4.3.7",
     "multer": "^1.4.4",
     "node-schedule": "^2.1.1",
+    "nodemailer": "^6.9.8",
     "password-validator": "^5.3.0",
     "performant-array-to-tree": "^1.11.0",
     "pg": "^8.8.0",
@@ -70,6 +71,7 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
+    "@types/nodemailer": "^6.4.14",
     "@types/web-push": "^3.6.3",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",

@@ -9,6 +9,9 @@ import {
   McsAlarmAttributes,
 } from '../../models/common/mcsAlarm';
 import { dao as mcsAlarmDao } from '../../dao/common/mcsAlarmDao';
+import { dao as alarmEmailDao } from '../../dao/common/alarmEmailDao';
+import { sendMail } from '../../lib/mailUtil';
+import { UserAttributes } from '../../models/common/user';
 
 const service = {
   async reg(params: McsAlarmInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
@@ -41,6 +44,32 @@ const service = {
         reject(err);
       });
     }
+
+    // email 전송
+    try {
+
+      // todo: 알람발생시 전송하는 로직 추가
+
+      const Receivers = await alarmEmailDao.selectList({});
+      const userids: Array<string> = [];
+      for (let i = 0; i < Receivers.rows.length; i++) {
+        const userid = ((Receivers.rows[i] as unknown) as { User: UserAttributes }).User.userid
+        userids.push(userid)
+      }
+      const message = `000 에서 000 사유로 알람 발생하였습니다.`;
+      const alarmInsertParams = {
+        userId: userids,
+        message: message,
+      };
+      sendMail(userids, [alarmInsertParams]);
+
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, params, err);
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
     return new Promise((resolve) => {
       resolve(result);
     });
