@@ -1,21 +1,53 @@
 // Models(순서 중요 - references설정 때문)
 // common
-
-// import Destination from './common/destination';
 import CommonCode from './common/commonCode';
 import User from './common/user';
 import TokenHistory from './common/tokenHistory';
 import File from './common/file';
+import EventHistory from './common/eventHistory';
+import Setting from './common/setting';
+import AlarmEmail from './common/alarmEmail';
+import McsAlarm from './common/mcsAlarm';
 
-//
+// dashboard
+import DailyStatistic from './dashboard/dailyStatistic';
+import MonthlyStatistic from './dashboard/monthlyStatistic';
+
+// operation
+import Facility from './operation/facility';
+import FacilityGroup from './operation/facilityGroup';
+import Zone from './operation/zone';
+import Material from './operation/material';
+import WorkOrder from './operation/workOrder';
+
+// timescale
+import Log from './timescale/log';
+import SystemLog from './timescale/systemLog';
 
 export * from './sequelize';
 
 const db = {
+  /* common */
   CommonCode,
   User,
   TokenHistory,
   File,
+  EventHistory,
+  Setting,
+  AlarmEmail,
+  McsAlarm,
+  /* dashboard */
+  DailyStatistic,
+  MonthlyStatistic,
+  /* operation */
+  Facility,
+  FacilityGroup,
+  Zone,
+  Material,
+  WorkOrder,
+  /* timescale */
+  Log,
+  SystemLog,
 };
 
 export type dbType = typeof db;
@@ -24,3 +56,18 @@ export type dbType = typeof db;
 // 'belongsTo'관계는 반드시 표현할 것
 
 /* common */
+// AlarmEmail
+AlarmEmail.belongsTo(User, { foreignKey: { name: 'UserId' }, onDelete: 'SET NULL', as: 'User' });
+
+// McsAlarm
+McsAlarm.belongsTo(Facility, { foreignKey: { name: 'FacilityId' }, onDelete: 'SET NULL', as: 'Facility' });
+
+/* operation */
+// Facility
+Facility.belongsTo(FacilityGroup, { foreignKey: { name: 'facilityGroupId' }, onDelete: 'SET NULL', as: 'FacilityGroup' });
+Facility.belongsTo(Zone, { foreignKey: { name: 'zoneId' }, onDelete: 'SET NULL', as: 'Zone' });
+
+// WorkOrder
+WorkOrder.belongsTo(Facility, { foreignKey: { name: 'fromFacilityId' }, onDelete: 'SET NULL', as: 'FromFacility' });
+WorkOrder.belongsTo(Facility, { foreignKey: { name: 'toFacilityId' }, onDelete: 'SET NULL', as: 'ToFacility' });
+WorkOrder.belongsTo(Material, { foreignKey: { name: 'materialId' }, onDelete: 'SET NULL', as: 'Material' });

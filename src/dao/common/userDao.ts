@@ -40,6 +40,12 @@ const dao = {
     // DB에 넘길 최종 쿼리 세팅
     const setQuery: UserSelectListQuery = {};
     // 1. where조건 세팅
+    if (params.ids) {
+      setQuery.where = {
+        ...setQuery.where,
+        id: params.ids, // 'in' 검색
+      };
+    }
     if (params.userid) {
       setQuery.where = {
         ...setQuery.where,
@@ -180,7 +186,7 @@ const dao = {
   selectUser(params: UserLoginParams): Promise<UserAttributes | null> {
     return new Promise((resolve, reject) => {
       User.findOne({
-        attributes: ['id', 'companyId', 'userid', 'password', 'name', 'auth'],
+        attributes: ['id', 'userid', 'password', 'name'],
         where: { userid: params.userid },
       })
         .then((selectedOne) => {

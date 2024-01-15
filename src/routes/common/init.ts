@@ -10,7 +10,7 @@ import {
   ErrorClass,
 } from '../../lib/resUtil';
 import { isActionKey } from '../../lib/middleware';
-import { sequelize } from '../../models';
+import { logSequelize, sequelize } from '../../models';
 import { service as userService } from '../../service/common/userService';
 import { service as commonCodeService } from '../../service/common/commonCodeService';
 import { initUser, initCommonCodes } from '../../config/initData';
@@ -41,6 +41,55 @@ router.post('/tables', isActionKey, (req: Request, res: Response) => {
                 DB_DATABASE: process.env.DB_DATABASE,
                 DB_ID: process.env.DB_ID,
                 DB_DIALECT: process.env.DB_DIALECT,
+              },
+            },
+          },
+          resType.FREESTYLE
+        );
+        logging.RESPONSE_DATA(logFormat, resJson);
+
+        return res.status(resJson.status).json(resJson);
+      })
+      .catch((err) => {
+        const resJson = resError(err);
+        logging.RESPONSE_DATA(logFormat, resJson);
+
+        return res.status(resJson.status).json(resJson);
+      });
+  } catch (err) {
+    // 에러 응답값 세팅
+    const resJson = resError(err);
+    logging.RESPONSE_DATA(logFormat, resJson);
+
+    return res.status(resJson.status).json(resJson);
+  }
+});
+
+// 로그 테이블 생성
+router.post('/log-tables', isActionKey, (req: Request, res: Response) => {
+  const logFormat = makeLogFormat(req);
+
+  try {
+    logging.REQUEST_PARAM(logFormat);
+
+    // table 생성
+    logSequelize
+      .sync({
+        force: false,
+      })
+      .then(async () => {
+        await logSequelize.query(`SELECT create_hypertable('logs', 'created_at');`);
+        // 최종 응답 값 세팅
+        const resJson = resSuccess(
+          {
+            result: {
+              action: 'created tables',
+              DB: {
+                LOG_DB_HOST: process.env.LOG_DB_HOST,
+                LOG_DB_PORT: process.env.LOG_DB_PORT,
+                LOG_DB_DATABASE: process.env.LOG_DB_DATABASE,
+                LOG_DB_ID: process.env.LOG_DB_ID,
+                LOG_DB_DIALECT: process.env.LOG_DB_DIALECT,
               },
             },
           },

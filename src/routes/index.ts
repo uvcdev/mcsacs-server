@@ -5,6 +5,7 @@ import path from 'path';
 import * as dotenv from 'dotenv';
 import { isActionKey } from '../lib/middleware';
 import { makeResponseSuccess as resSuccess, responseType as resType } from '../lib/resUtil';
+
 // common
 import { router as mqttRouter } from './common/mqtt';
 import { router as redisRouter } from './common/redis';
@@ -14,6 +15,21 @@ import { router as fileRouter } from './common/file';
 import { router as userRouter } from './common/user';
 import { router as commonCodeRouter } from './common/commonCode';
 import { router as tokenHistoryRouter } from './common/tokenHistory';
+import { router as settingRouter } from './common/setting';
+import { router as alarmEmailRouter } from './common/alarmEmail';
+import { router as mcsAlarmRouter } from './common/mcsAlarm';
+// dashboard
+import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
+import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
+// operation
+import { router as facilityRouter } from './operation/facility';
+import { router as facilityGroupRouter } from './operation/facilityGroup';
+import { router as zoneRouter } from './operation/zone';
+import { router as materialRouter } from './operation/material';
+import { router as workOrderRouter } from './operation/workOrder';
+// timescale
+import { logRouter } from './timescale/log';
+import { systemLogRouter } from './timescale/systemLog';
 
 dotenv.config();
 
@@ -174,5 +190,20 @@ router.use('/files', fileRouter);
 router.use('/users', userRouter);
 router.use('/common-codes', commonCodeRouter);
 router.use('/token-histories', tokenHistoryRouter);
+router.use('/settings', settingRouter);
+router.use('/alarm-emails', alarmEmailRouter);
+router.use('/mcs-alarms', mcsAlarmRouter);
+// dashboard
+router.use('/daily-statistics', dailyStatisticRouter);
+router.use('/monthly-statistics', monthlyStatisticRouter);
+// operation
+router.use('/facilities', facilityRouter);
+router.use('/facility-groups', facilityGroupRouter);
+router.use('/zones', zoneRouter);
+router.use('/materials', materialRouter);
+router.use('/workOrders', workOrderRouter);
+//timescale
+router.use('/logs', logRouter);
+router.use('/system-logs', systemLogRouter);
 
 export { router };

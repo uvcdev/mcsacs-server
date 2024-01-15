@@ -112,7 +112,7 @@ export interface UserInsertParams {
 
 // selectList
 export interface UserSelectListParams {
-  companyIds?: Array<number> | null;
+  ids?: Array<number> | null;
   userid?: string | null;
   name?: string | null;
   active?: boolean | null;
