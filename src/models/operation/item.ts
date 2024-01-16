@@ -2,7 +2,7 @@ import { Model, DataTypes, WhereOptions, Order } from 'sequelize';
 import { sequelize } from '../sequelize';
 
 // 기본 interface
-export interface MaterialAttributes {
+export interface ItemAttributes {
   id: number;
   code: string;
   type: string | null;
@@ -11,16 +11,16 @@ export interface MaterialAttributes {
   deletedAt: Date | null;
 }
 
-class Material extends Model implements MaterialAttributes {
-  public readonly id!: MaterialAttributes['id'];
-  public code!: MaterialAttributes['code'];
-  public type!: MaterialAttributes['type'];
-  public readonly createdAt!: MaterialAttributes['createdAt'];
-  public readonly updatedAt!: MaterialAttributes['updatedAt'];
-  public readonly deletedAt!: MaterialAttributes['deletedAt'];
+class Item extends Model implements ItemAttributes {
+  public readonly id!: ItemAttributes['id'];
+  public code!: ItemAttributes['code'];
+  public type!: ItemAttributes['type'];
+  public readonly createdAt!: ItemAttributes['createdAt'];
+  public readonly updatedAt!: ItemAttributes['updatedAt'];
+  public readonly deletedAt!: ItemAttributes['deletedAt'];
 }
 
-Material.init(
+Item.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -46,13 +46,13 @@ Material.init(
 );
 
 // insert
-export interface MaterialInsertParams {
+export interface ItemInsertParams {
   code: string;
   type: string | null;
 }
 
 // selectList
-export interface MaterialSelectListParams {
+export interface ItemSelectListParams {
   ids?: Array<number> | null;
   code?: string | null;
   type?: string | null;
@@ -61,46 +61,46 @@ export interface MaterialSelectListParams {
   order?: string;
 }
 
-export interface MaterialSelectListQuery {
-  where?: WhereOptions<MaterialAttributes>;
+export interface ItemSelectListQuery {
+  where?: WhereOptions<ItemAttributes>;
   limit?: number;
   offset?: number;
   order?: Order;
 }
 
 // selectInfo
-export interface MaterialSelectInfoParams {
+export interface ItemSelectInfoParams {
   id?: number;
 }
 
 // selectOne
-export interface MaterialSelectOneParams {
+export interface ItemSelectOneParams {
   id?: number;
 }
 
-// selectOneMaterial
-export interface MaterialSelectOneCodeParams {
+// selectOneItem
+export interface ItemSelectOneCodeParams {
   code?: string;
 }
 
 // update
-export interface MaterialUpdateParams {
+export interface ItemUpdateParams {
   id?: number;
   code?: string;
   type?: string | null;
 }
 
 // delete
-export interface MaterialDeleteParams {
+export interface ItemDeleteParams {
   id?: number;
 }
 
 // include attributes
-export const MaterialAttributesInclude = [
+export const ItemAttributesInclude = [
   'id',
   'code',
   'type',
   'createdAt',
 ];
 
-export default Material;
+export default Item;

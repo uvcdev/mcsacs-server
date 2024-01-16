@@ -23,7 +23,7 @@ import WorkOrder, {
 } from '../../models/operation/workOrder';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
-import Material, { MaterialAttributesInclude } from '../../models/operation/material';
+import Item, { ItemAttributesInclude } from '../../models/operation/item';
 import Facility, { FacilityAttributesInclude } from '../../models/operation/facility';
 // import WorkOrderInterrupt, { WorkOrderInterruptAttributesInclude } from '../../models/operation/workOrderInterrupt';
 // import WorkOrderMaintenance, { WorkOrderMaintenanceAttributesInclude } from '../../models/operation/workOrderMaintenance';
@@ -71,16 +71,10 @@ const dao = {
         code: params.code, // '=' 검색
       };
     }
-    if (params.materialId) {
+    if (params.itemId) {
       setQuery.where = {
         ...setQuery.where,
-        materialId: params.materialId, // '=' 검색
-      };
-    }
-    if (params.materialId) {
-      setQuery.where = {
-        ...setQuery.where,
-        materialId: params.materialId, // '=' 검색
+        itemId: params.itemId, // '=' 검색
       };
     }
     if (params.state) {
@@ -111,9 +105,9 @@ const dao = {
             attributes: FacilityAttributesInclude,
           },
           {
-            model: Material,
-            as: 'Material',
-            attributes: MaterialAttributesInclude,
+            model: Item,
+            as: 'Item',
+            attributes: ItemAttributesInclude,
           },
         ],
       })
@@ -164,9 +158,9 @@ const dao = {
             attributes: FacilityAttributesInclude,
           },
           {
-            model: Material,
-            as: 'Material',
-            attributes: MaterialAttributesInclude,
+            model: Item,
+            as: 'Item',
+            attributes: ItemAttributesInclude,
           },
         ],
       })

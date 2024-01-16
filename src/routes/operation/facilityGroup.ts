@@ -33,14 +33,15 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityGroup
   try {
     // 요청 파라미터
     const params: FacilityGroupInsertParams = {
+      code: req.body.code,
       name: req.body.name,
       description: req.body.description,
     };
     logging.REQUEST_PARAM(logFormat);
 
     // 입력값 체크
-    if (!params.name) {
-      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (name)');
+    if (!params.name && !params.code) {
+      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (name, code)');
 
       const resJson = resError(err);
       logging.RESPONSE_DATA(logFormat, resJson);
@@ -80,6 +81,7 @@ router.get(
       // 요청 파라미터
       const params: FacilityGroupSelectListParams = {
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+        code: req.query.code,
         name: req.query.name,
         limit: Number(req.query.limit || 'NaN'),
         offset: Number(req.query.offset || 'NaN'),
@@ -166,14 +168,15 @@ router.put(
       // 요청 파라미터
       const params: FacilityGroupUpdateParams = {
         id: Number(req.params.id),
+        code: req.body.code,
         name: req.body.name,
         description: req.body.description,
       };
       logging.REQUEST_PARAM(logFormat);
 
       // 입력값 체크
-      if (!params.name) {
-        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (name)');
+      if (!params.name && !params.code) {
+        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (name, code)');
 
         const resJson = resError(err);
         logging.RESPONSE_DATA(logFormat, resJson);

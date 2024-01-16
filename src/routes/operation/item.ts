@@ -12,27 +12,27 @@ import {
 } from '../../lib/resUtil';
 import { Payload } from '../../lib/tokenUtil';
 import {
-  MaterialInsertParams,
-  MaterialSelectListParams,
-  MaterialSelectInfoParams,
-  MaterialUpdateParams,
-  MaterialDeleteParams,
-} from '../../models/operation/material';
+  ItemInsertParams,
+  ItemSelectListParams,
+  ItemSelectInfoParams,
+  ItemUpdateParams,
+  ItemDeleteParams,
+} from '../../models/operation/item';
 import { service as eventHistoryService } from '../../service/common/eventHistoryService';
-import { service as materialService } from '../../service/operation/materialService';
+import { service as itemService } from '../../service/operation/itemService';
 
 const router = express.Router();
 
-const TABLE_NAME = 'materials'; // 이벤트 히스토리를 위한 테이블 명
+const TABLE_NAME = 'items'; // 이벤트 히스토리를 위한 테이블 명
 
-// material 등록
-router.post('/', isLoggedIn, async (req: Request<unknown, unknown, MaterialInsertParams, unknown>, res: Response) => {
+// item 등록
+router.post('/', isLoggedIn, async (req: Request<unknown, unknown, ItemInsertParams, unknown>, res: Response) => {
   const logFormat = makeLogFormat(req);
   const tokenUser = (req as { decoded?: Payload }).decoded;
 
   try {
     // 요청 파라미터
-    const params: MaterialInsertParams = {
+    const params: ItemInsertParams = {
       code: req.body.code,
       type: req.body.type,
     };
@@ -49,7 +49,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, MaterialInser
     }
 
     // 비즈니스 로직 호출
-    const result = await materialService.reg(params, logFormat);
+    const result = await itemService.reg(params, logFormat);
 
     // 최종 응답 값 세팅
     const resJson = resSuccess(result, resType.REG);
@@ -68,17 +68,17 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, MaterialInser
   }
 });
 
-// material 리스트 조회
+// item 리스트 조회
 router.get(
   '/',
   isLoggedIn,
-  async (req: Request<unknown, unknown, unknown, MaterialSelectListParams>, res: Response) => {
+  async (req: Request<unknown, unknown, unknown, ItemSelectListParams>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: MaterialSelectListParams = {
+      const params: ItemSelectListParams = {
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         code: req.query.code,
         type: req.query.type,
@@ -89,7 +89,7 @@ router.get(
       logging.REQUEST_PARAM(logFormat);
 
       // 비즈니스 로직 호출
-      const result = await materialService.list(params, logFormat);
+      const result = await itemService.list(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.LIST);
@@ -109,17 +109,17 @@ router.get(
   }
 );
 
-// material 상세정보 조회
+// item 상세정보 조회
 router.get(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<MaterialSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<ItemSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: MaterialSelectInfoParams = {
+      const params: ItemSelectInfoParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -135,7 +135,7 @@ router.get(
       }
 
       // 비즈니스 로직 호출
-      const result = await materialService.info(params, logFormat);
+      const result = await itemService.info(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.INFO);
@@ -155,17 +155,17 @@ router.get(
   }
 );
 
-// material 정보 수정
+// item 정보 수정
 router.put(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<MaterialUpdateParams, unknown, MaterialUpdateParams, unknown>, res: Response) => {
+  async (req: Request<ItemUpdateParams, unknown, ItemUpdateParams, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: MaterialUpdateParams = {
+      const params: ItemUpdateParams = {
         id: Number(req.params.id),
         code: req.body.code,
         type: req.body.type,
@@ -184,7 +184,7 @@ router.put(
 
       // 비즈니스 로직 호출
 
-      const result = await materialService.edit(params, logFormat);
+      const result = await itemService.edit(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.EDIT);
@@ -204,17 +204,17 @@ router.put(
   }
 );
 
-// material 삭제
+// item 삭제
 router.delete(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<MaterialDeleteParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<ItemDeleteParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: MaterialDeleteParams = {
+      const params: ItemDeleteParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -230,7 +230,7 @@ router.delete(
       }
 
       // 비즈니스 로직 호출
-      const result = await materialService.delete(params, logFormat);
+      const result = await itemService.delete(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.DELETE);

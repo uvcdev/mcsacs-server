@@ -7,7 +7,7 @@ export interface WorkOrderAttributes {
   fromFacilityId: number | null;
   toFacilityId: number;
   code: string;
-  materialId: number;
+  itemId: number;
   level: number | null;
   state: string | null;
   description: string | null;
@@ -21,7 +21,7 @@ class WorkOrder extends Model implements WorkOrderAttributes {
   public fromFacilityId!: WorkOrderAttributes['fromFacilityId'];
   public toFacilityId!: WorkOrderAttributes['toFacilityId'];
   public code!: WorkOrderAttributes['code'];
-  public materialId!: WorkOrderAttributes['materialId'];
+  public itemId!: WorkOrderAttributes['itemId'];
   public level!: WorkOrderAttributes['level'];
   public state!: WorkOrderAttributes['state'];
   public description!: WorkOrderAttributes['description'];
@@ -48,7 +48,7 @@ WorkOrder.init(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    materialId: {
+    itemId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -77,7 +77,7 @@ export interface WorkOrderInsertParams {
   fromFacilityId: number | null;
   toFacilityId: number;
   code: string;
-  materialId: number;
+  itemId: number;
   level: number | null;
   state: string | null;
   description: string | null;
@@ -89,7 +89,7 @@ export interface WorkOrderSelectListParams {
   fromFacilityId?: number | null;
   toFacilityId?: number | null;
   code?: string | null;
-  materialId?: number | null;
+  itemId?: number | null;
   state?: string | null;
   limit?: number;
   offset?: number;
@@ -124,7 +124,7 @@ export interface WorkOrderUpdateParams {
   fromFacilityId?: number | null;
   toFacilityId?: number;
   code?: string;
-  materialId?: number;
+  itemId?: number;
   level?: number | null;
   state?: string | null;
   description?: string | null;
@@ -141,7 +141,7 @@ export const WorkOrderAttributesInclude = [
   'fromFacilityid',
   'toFacilityid',
   'code',
-  'materialId',
+  'itemId',
   'level',
   'state',
   'description',

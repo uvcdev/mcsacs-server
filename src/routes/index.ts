@@ -25,7 +25,7 @@ import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
 import { router as facilityRouter } from './operation/facility';
 import { router as facilityGroupRouter } from './operation/facilityGroup';
 import { router as zoneRouter } from './operation/zone';
-import { router as materialRouter } from './operation/material';
+import { router as itemRouter } from './operation/item';
 import { router as workOrderRouter } from './operation/workOrder';
 // timescale
 import { logRouter } from './timescale/log';
@@ -200,7 +200,7 @@ router.use('/monthly-statistics', monthlyStatisticRouter);
 router.use('/facilities', facilityRouter);
 router.use('/facility-groups', facilityGroupRouter);
 router.use('/zones', zoneRouter);
-router.use('/materials', materialRouter);
+router.use('/items', itemRouter);
 router.use('/workOrders', workOrderRouter);
 //timescale
 router.use('/logs', logRouter);

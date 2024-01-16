@@ -7,32 +7,32 @@ import {
   DeletedResult,
   getOrderby,
 } from '../../lib/resUtil';
-import Material, {
-  MaterialAttributes,
-  MaterialInsertParams,
-  MaterialSelectListParams,
-  MaterialSelectListQuery,
-  // MaterialSelectAllParams,
-  // MaterialSelectAllQuery,
-  MaterialSelectInfoParams,
-  MaterialSelectOneParams,
-  MaterialUpdateParams,
-  // MaterialUpdateLiveStateParams,
-  // MaterialUpdateRunningStateParams,
-  MaterialDeleteParams,
-} from '../../models/operation/material';
+import Item, {
+  ItemAttributes,
+  ItemInsertParams,
+  ItemSelectListParams,
+  ItemSelectListQuery,
+  // ItemSelectAllParams,
+  // ItemSelectAllQuery,
+  ItemSelectInfoParams,
+  ItemSelectOneParams,
+  ItemUpdateParams,
+  // ItemUpdateLiveStateParams,
+  // ItemUpdateRunningStateParams,
+  ItemDeleteParams,
+} from '../../models/operation/item';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
-// import MaterialInterrupt, { MaterialInterruptAttributesInclude } from '../../models/operation/materialInterrupt';
-// import MaterialMaintenance, { MaterialMaintenanceAttributesInclude } from '../../models/operation/materialMaintenance';
-// import MaterialMaintenanceHistory, {
-//   MaterialMaintenanceHistoryAttributesInclude,
-// } from '../../models/operation/materialMaintenanceHistory';
+// import ItemInterrupt, { ItemInterruptAttributesInclude } from '../../models/operation/itemInterrupt';
+// import ItemMaintenance, { ItemMaintenanceAttributesInclude } from '../../models/operation/itemMaintenance';
+// import ItemMaintenanceHistory, {
+//   ItemMaintenanceHistoryAttributesInclude,
+// } from '../../models/operation/itemMaintenanceHistory';
 
 const dao = {
-  insert(params: MaterialInsertParams): Promise<InsertedResult> {
+  insert(params: ItemInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      Material.create(params)
+      Item.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -41,9 +41,9 @@ const dao = {
         });
     });
   },
-  selectList(params: MaterialSelectListParams): Promise<SelectedListResult<MaterialAttributes>> {
+  selectList(params: ItemSelectListParams): Promise<SelectedListResult<ItemAttributes>> {
     // DB에 넘길 최종 쿼리 세팅
-    const setQuery: MaterialSelectListQuery = {};
+    const setQuery: ItemSelectListQuery = {};
     // 1. where조건 세팅
     if (params.ids) {
       setQuery.where = {
@@ -79,14 +79,14 @@ const dao = {
     setQuery.order = getOrderby(params.order);
 
     return new Promise((resolve, reject) => {
-      Material.findAndCountAll({
+      Item.findAndCountAll({
         ...setQuery,
         distinct: true,
         include: [
           // {
-          //   model: MaterialGroup,
-          //   as: 'MaterialGroup',
-          //   attributes: MaterialGroupAttributesInclude,
+          //   model: ItemGroup,
+          //   as: 'ItemGroup',
+          //   attributes: ItemGroupAttributesInclude,
           // },
           // {
           //   model: Zone,
@@ -103,9 +103,9 @@ const dao = {
         });
     });
   },
-  // selectAll(params: MaterialSelectAllParams): Promise<SelectedAllResult<MaterialAttributes>> {
+  // selectAll(params: ItemSelectAllParams): Promise<SelectedAllResult<ItemAttributes>> {
   //   // DB에 넘길 최종 쿼리 세팅
-  //   const setQuery: MaterialSelectAllQuery = {};
+  //   const setQuery: ItemSelectAllQuery = {};
   //   // 1. where조건 세팅
   //   if (params.companyIds) {
   //     setQuery.where = {
@@ -115,7 +115,7 @@ const dao = {
   //   }
 
   //   return new Promise((resolve, reject) => {
-  //     Material.findAll({
+  //     Item.findAll({
   //       ...setQuery,
   //       order: [['code', 'ASC']],
   //     })
@@ -127,14 +127,14 @@ const dao = {
   //       });
   //   });
   // },
-  selectInfo(params: MaterialSelectInfoParams): Promise<MaterialAttributes | null> {
+  selectInfo(params: ItemSelectInfoParams): Promise<ItemAttributes | null> {
     return new Promise((resolve, reject) => {
-      Material.findByPk(params.id, {
+      Item.findByPk(params.id, {
         include: [
           // {
-          //   model: MaterialGroup,
-          //   as: 'MaterialGroup',
-          //   attributes: MaterialGroupAttributesInclude,
+          //   model: ItemGroup,
+          //   as: 'ItemGroup',
+          //   attributes: ItemGroupAttributesInclude,
           // },
           // {
           //   model: Zone,
@@ -166,9 +166,9 @@ const dao = {
           // },
           // 히스토리가 많이 쌓이므로 페이징 처리 하기위해 별도로 호출 한다.
           // {
-          //   model: MaterialInterrupt,
-          //   as: 'MaterialInterrupts',
-          //   attributes: MaterialInterruptAttributesInclude,
+          //   model: ItemInterrupt,
+          //   as: 'ItemInterrupts',
+          //   attributes: ItemInterruptAttributesInclude,
           //   include: [
           //     {
           //       model: User,
@@ -184,14 +184,14 @@ const dao = {
           // },
           // 히스토리가 많이 쌓이므로 페이징 처리 하기위해 별도로 호출 한다.
           // {
-          //   model: MaterialMaintenance,
-          //   as: 'MaterialMaintenances',
-          //   attributes: MaterialMaintenanceAttributesInclude,
+          //   model: ItemMaintenance,
+          //   as: 'ItemMaintenances',
+          //   attributes: ItemMaintenanceAttributesInclude,
           //   include: [
           //     {
-          //       model: MaterialMaintenanceHistory,
-          //       as: 'MaterialMaintenanceHistories',
-          //       attributes: MaterialMaintenanceHistoryAttributesInclude,
+          //       model: ItemMaintenanceHistory,
+          //       as: 'ItemMaintenanceHistories',
+          //       attributes: ItemMaintenanceHistoryAttributesInclude,
           //     },
           //   ],
           // },
@@ -205,9 +205,9 @@ const dao = {
         });
     });
   },
-  selectOne(params: MaterialSelectOneParams): Promise<MaterialAttributes | null> {
+  selectOne(params: ItemSelectOneParams): Promise<ItemAttributes | null> {
     return new Promise((resolve, reject) => {
-      Material.findOne({
+      Item.findOne({
         where: { id: params.id },
       })
         .then((selectedOne) => {
@@ -218,9 +218,9 @@ const dao = {
         });
     });
   },
-  update(params: MaterialUpdateParams): Promise<UpdatedResult> {
+  update(params: ItemUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      Material.update(params, { where: { id: params.id } })
+      Item.update(params, { where: { id: params.id } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })
@@ -229,9 +229,9 @@ const dao = {
         });
     });
   },
-  delete(params: MaterialDeleteParams): Promise<DeletedResult> {
+  delete(params: ItemDeleteParams): Promise<DeletedResult> {
     return new Promise((resolve, reject) => {
-      Material.destroy({
+      Item.destroy({
         where: { id: params.id },
       })
         .then((deleted) => {

@@ -8,27 +8,27 @@ import {
   UpdatedResult,
 } from '../../lib/resUtil';
 import {
-  MaterialAttributes,
-  MaterialDeleteParams,
-  MaterialInsertParams,
-  MaterialSelectInfoParams,
-  MaterialSelectListParams,
-  MaterialUpdateParams,
-} from '../../models/operation/material';
-// import { MaterialUserJoinInsertParams } from '../../models/operation/materialUserJoin';
-import { dao as materialDao } from '../../dao/operation/materialDao';
-// import { dao as materialUserJoinDao } from '../../dao/operation/materialUserJoinDao';
+  ItemAttributes,
+  ItemDeleteParams,
+  ItemInsertParams,
+  ItemSelectInfoParams,
+  ItemSelectListParams,
+  ItemUpdateParams,
+} from '../../models/operation/item';
+// import { ItemUserJoinInsertParams } from '../../models/operation/itemUserJoin';
+import { dao as itemDao } from '../../dao/operation/itemDao';
+// import { dao as itemUserJoinDao } from '../../dao/operation/itemUserJoinDao';
 import { makeRegularCodeDao } from '../../lib/usefullToolUtil';
 import * as process from 'process';
 
 const service = {
   // insert
-  async reg(params: MaterialInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
+  async reg(params: ItemInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
 
     // 1. 설비 정보 입력
     try {
-      result = await materialDao.insert(params);
+      result = await itemDao.insert(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -39,24 +39,24 @@ const service = {
     }
 
     // (promise 2-1)설비당 작업자 입력
-    // const promiseInsertMaterialUserJoin = async (
-    //   materialId: InsertedResult['insertedId'],
-    //   userIds: MaterialInsertParams['userIds']
+    // const promiseInsertItemUserJoin = async (
+    //   itemId: InsertedResult['insertedId'],
+    //   userIds: ItemInsertParams['userIds']
     // ): Promise<BulkInsertedOrUpdatedResult> => {
     //   let insertedIds: BulkInsertedOrUpdatedResult;
 
-    //   const paramList: Array<MaterialUserJoinInsertParams> = [];
+    //   const paramList: Array<ItemUserJoinInsertParams> = [];
     //   if (userIds && userIds.length > 0) {
     //     for (let i = 0; i < userIds.length; i += 1) {
     //       paramList.push({
-    //         materialId,
+    //         itemId,
     //         userId: userIds[i],
     //       });
     //     }
     //   }
 
     //   try {
-    //     insertedIds = await materialUserJoinDao.bulkInsert(paramList);
+    //     insertedIds = await itemUserJoinDao.bulkInsert(paramList);
     //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
     //   } catch (err) {
     //     logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -73,8 +73,8 @@ const service = {
 
     // 3. (Promise.all)설비당 작업자 입력 처리
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedMaterialUserJoin] = await Promise.all([
-    //   promiseInsertMaterialUserJoin(result.insertedId, params.userIds),
+    // const [insertedItemUserJoin] = await Promise.all([
+    //   promiseInsertItemUserJoin(result.insertedId, params.userIds),
     // ]);
 
     return new Promise((resolve) => {
@@ -83,13 +83,13 @@ const service = {
   },
   // selectList
   async list(
-    params: MaterialSelectListParams,
+    params: ItemSelectListParams,
     logFormat: LogFormat<unknown>
-  ): Promise<SelectedListResult<MaterialAttributes>> {
-    let result: SelectedListResult<MaterialAttributes>;
+  ): Promise<SelectedListResult<ItemAttributes>> {
+    let result: SelectedListResult<ItemAttributes>;
 
     try {
-      result = await materialDao.selectList(params);
+      result = await itemDao.selectList(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -104,11 +104,11 @@ const service = {
     });
   },
   // selectInfo
-  async info(params: MaterialSelectInfoParams, logFormat: LogFormat<unknown>): Promise<MaterialAttributes | null> {
-    let result: MaterialAttributes | null;
+  async info(params: ItemSelectInfoParams, logFormat: LogFormat<unknown>): Promise<ItemAttributes | null> {
+    let result: ItemAttributes | null;
 
     try {
-      result = await materialDao.selectInfo(params);
+      result = await itemDao.selectInfo(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -123,12 +123,12 @@ const service = {
     });
   },
   // update
-  async edit(params: MaterialUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+  async edit(params: ItemUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
 
     // 1. 설비 정보 수정
     try {
-      result = await materialDao.update(params);
+      result = await itemDao.update(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -139,32 +139,32 @@ const service = {
     }
 
     // (Promise 2-1)설비당 작업자 정보 입력
-    // const promiseInsertMaterialUserJoin = async (
-    //   materialId: number,
-    //   userIds: MaterialUpdateParams['userIds']
+    // const promiseInsertItemUserJoin = async (
+    //   itemId: number,
+    //   userIds: ItemUpdateParams['userIds']
     // ): Promise<BulkInsertedOrUpdatedResult> => {
     //   let insertedIds: BulkInsertedOrUpdatedResult;
 
     //   // 설비당 작업정보 일괄 삭제
-    //   const deleteMaterialUserJoinParams = {
-    //     materialId,
+    //   const deleteItemUserJoinParams = {
+    //     itemId,
     //   };
     //   try {
-    //     const deleteMaterialUserJoin = await materialUserJoinDao.deleteForce(deleteMaterialUserJoinParams);
-    //     logging.METHOD_ACTION(logFormat, __filename, deleteMaterialUserJoinParams, deleteMaterialUserJoin);
+    //     const deleteItemUserJoin = await itemUserJoinDao.deleteForce(deleteItemUserJoinParams);
+    //     logging.METHOD_ACTION(logFormat, __filename, deleteItemUserJoinParams, deleteItemUserJoin);
     //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, deleteMaterialUserJoinParams, err);
+    //     logging.ERROR_METHOD(logFormat, __filename, deleteItemUserJoinParams, err);
 
     //     return new Promise((resolve, reject) => {
     //       reject(err);
     //     });
     //   }
 
-    //   const paramList: Array<MaterialUserJoinInsertParams> = [];
+    //   const paramList: Array<ItemUserJoinInsertParams> = [];
     //   if (userIds && userIds.length > 0) {
     //     for (let i = 0; i < userIds.length; i += 1) {
     //       paramList.push({
-    //         materialId,
+    //         itemId,
     //         userId: userIds[i],
     //       });
     //     }
@@ -172,7 +172,7 @@ const service = {
 
     //   // 설비당 작업자 입력
     //   try {
-    //     insertedIds = await materialUserJoinDao.bulkInsert(paramList);
+    //     insertedIds = await itemUserJoinDao.bulkInsert(paramList);
     //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
     //   } catch (err) {
     //     logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -189,8 +189,8 @@ const service = {
 
     // (Promise.all)설비당 작업자 입력 처리
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedMaterialUserJoin] = await Promise.all([
-    //   promiseInsertMaterialUserJoin(params.id ? params.id : 0, params.userIds ? params.userIds : []),
+    // const [insertedItemUserJoin] = await Promise.all([
+    //   promiseInsertItemUserJoin(params.id ? params.id : 0, params.userIds ? params.userIds : []),
     // ]);
 
     return new Promise((resolve) => {
@@ -198,11 +198,11 @@ const service = {
     });
   },
   // update
-  // async editLiveState(params: MaterialUpdateLiveStateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+  // async editLiveState(params: ItemUpdateLiveStateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
   //   let result: UpdatedResult;
 
   //   try {
-  //     result = await materialDao.updateLiveState(params);
+  //     result = await itemDao.updateLiveState(params);
   //     logging.METHOD_ACTION(logFormat, __filename, params, result);
   //   } catch (err) {
   //     logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -217,11 +217,11 @@ const service = {
   //   });
   // },
   // delete
-  async delete(params: MaterialDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
+  async delete(params: ItemDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
     let result: DeletedResult;
 
     try {
-      result = await materialDao.delete(params);
+      result = await itemDao.delete(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);

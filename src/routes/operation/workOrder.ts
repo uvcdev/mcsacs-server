@@ -36,7 +36,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, WorkOrderInse
       fromFacilityId: req.body.fromFacilityId,
       toFacilityId: req.body.toFacilityId,
       code: req.body.code,
-      materialId: req.body.materialId,
+      itemId: req.body.itemId,
       level: req.body.level,
       state: req.body.state,
       description: req.body.description,
@@ -44,8 +44,8 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, WorkOrderInse
     logging.REQUEST_PARAM(logFormat);
 
     // 입력값 체크
-    if (!params.toFacilityId || !params.code || !params.materialId) {
-      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (toFacilityId, code, materialId)');
+    if (!params.toFacilityId || !params.code || !params.itemId) {
+      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (toFacilityId, code, itemId)');
 
       const resJson = resError(err);
       logging.RESPONSE_DATA(logFormat, resJson);
@@ -88,7 +88,7 @@ router.get(
         fromFacilityId: req.query.fromFacilityId,
         toFacilityId: req.query.toFacilityId,
         code: req.query.code,
-        materialId: req.query.materialId,
+        itemId: req.query.itemId,
         state: req.query.state,
         limit: Number(req.query.limit || 'NaN'),
         offset: Number(req.query.offset || 'NaN'),
@@ -178,7 +178,7 @@ router.put(
         fromFacilityId: req.body.fromFacilityId,
         toFacilityId: req.body.toFacilityId,
         code: req.body.code,
-        materialId: req.body.materialId,
+        itemId: req.body.itemId,
         level: req.body.level,
         state: req.body.state,
         description: req.body.description,
@@ -186,8 +186,8 @@ router.put(
       logging.REQUEST_PARAM(logFormat);
 
       // 입력값 체크
-      if (!params.toFacilityId || !params.code || !params.materialId) {
-        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (toFacilityId, code, materialId)');
+      if (!params.toFacilityId || !params.code || !params.itemId) {
+        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (toFacilityId, code, itemId)');
 
         const resJson = resError(err);
         logging.RESPONSE_DATA(logFormat, resJson);

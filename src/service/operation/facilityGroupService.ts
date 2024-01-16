@@ -1,4 +1,5 @@
 import { LogFormat, logging } from '../../lib/logging';
+import { restapiConfig } from '../../config/restapiConfig';
 import {
   BulkInsertedOrUpdatedResult,
   DeletedResult,
@@ -20,8 +21,35 @@ import { dao as facilityGroupDao } from '../../dao/operation/facilityGroupDao';
 // import { dao as facilityGroupUserJoinDao } from '../../dao/operation/facilityGroupUserJoinDao';
 import { makeRegularCodeDao } from '../../lib/usefullToolUtil';
 import * as process from 'process';
+import superagent from 'superagent';
 
+const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
+let accessToken = '';
 const service = {
+  // restapi login
+  async restapiLogin(logFormat: LogFormat<unknown>): Promise<Record<string, any>> {
+    let result: Record<string, any>;
+
+    try {
+      result = await superagent.post(`${restapiUrl}/auths/token`).send({
+        userid: restapiConfig.id,
+        password: restapiConfig.pass,
+      });
+      accessToken = JSON.parse(result.text).data.accessToken;
+      result = { accessToken };
+      logging.METHOD_ACTION(logFormat, __filename, null, result);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, null, err);
+
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
   // insert
   async reg(params: FacilityGroupInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
@@ -38,44 +66,26 @@ const service = {
       });
     }
 
-    // (promise 2-1)설비당 작업자 입력
-    // const promiseInsertFacilityGroupUserJoin = async (
-    //   facilityGroupId: InsertedResult['insertedId'],
-    //   userIds: FacilityGroupInsertParams['userIds']
-    // ): Promise<BulkInsertedOrUpdatedResult> => {
-    //   let insertedIds: BulkInsertedOrUpdatedResult;
+    // 2. ACS 테이블 입력
+    try {
+      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      const params = {
+        name: 'mcsTestName',
+        data: '',
+        tag: 'mcsTestTag1',
+      };
 
-    //   const paramList: Array<FacilityGroupUserJoinInsertParams> = [];
-    //   if (userIds && userIds.length > 0) {
-    //     for (let i = 0; i < userIds.length; i += 1) {
-    //       paramList.push({
-    //         facilityGroupId,
-    //         userId: userIds[i],
-    //       });
-    //     }
-    //   }
+      const response = await superagent.post(`${restapiUrl}/maps`).set('access-token', accessToken).send(params);
+      const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
-    //   try {
-    //     insertedIds = await facilityGroupUserJoinDao.bulkInsert(paramList);
-    //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, params, err);
+      logging.METHOD_ACTION(logFormat, __filename, null, responseData);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, null, err);
 
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
-
-    //   return new Promise((resolve) => {
-    //     resolve(insertedIds);
-    //   });
-    // };
-
-    // 3. (Promise.all)설비당 작업자 입력 처리
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedFacilityGroupUserJoin] = await Promise.all([
-    //   promiseInsertFacilityGroupUserJoin(result.insertedId, params.userIds),
-    // ]);
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
 
     return new Promise((resolve) => {
       resolve(result);
@@ -138,60 +148,26 @@ const service = {
       });
     }
 
-    // (Promise 2-1)설비당 작업자 정보 입력
-    // const promiseInsertFacilityGroupUserJoin = async (
-    //   facilityGroupId: number,
-    //   userIds: FacilityGroupUpdateParams['userIds']
-    // ): Promise<BulkInsertedOrUpdatedResult> => {
-    //   let insertedIds: BulkInsertedOrUpdatedResult;
+    // 2. Update ACS facilityGroup table
+    try {
+      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      const params = {
+        name: '1st_floor_yujin',
+        data: '',
+        tag: 'mcsTestTag',
+      };
 
-    //   // 설비당 작업정보 일괄 삭제
-    //   const deleteFacilityGroupUserJoinParams = {
-    //     facilityGroupId,
-    //   };
-    //   try {
-    //     const deleteFacilityGroupUserJoin = await facilityGroupUserJoinDao.deleteForce(deleteFacilityGroupUserJoinParams);
-    //     logging.METHOD_ACTION(logFormat, __filename, deleteFacilityGroupUserJoinParams, deleteFacilityGroupUserJoin);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, deleteFacilityGroupUserJoinParams, err);
+      const response = await superagent.put(`${restapiUrl}/maps/name/:name`).set('access-token', accessToken).send(params);
+      const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
+      logging.METHOD_ACTION(logFormat, __filename, null, responseData);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, null, err);
 
-    //   const paramList: Array<FacilityGroupUserJoinInsertParams> = [];
-    //   if (userIds && userIds.length > 0) {
-    //     for (let i = 0; i < userIds.length; i += 1) {
-    //       paramList.push({
-    //         facilityGroupId,
-    //         userId: userIds[i],
-    //       });
-    //     }
-    //   }
-
-    //   // 설비당 작업자 입력
-    //   try {
-    //     insertedIds = await facilityGroupUserJoinDao.bulkInsert(paramList);
-    //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, params, err);
-
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
-
-    //   return new Promise((resolve) => {
-    //     resolve(insertedIds);
-    //   });
-    // };
-
-    // (Promise.all)설비당 작업자 입력 처리
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedFacilityGroupUserJoin] = await Promise.all([
-    //   promiseInsertFacilityGroupUserJoin(params.id ? params.id : 0, params.userIds ? params.userIds : []),
-    // ]);
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
 
     return new Promise((resolve) => {
       resolve(result);

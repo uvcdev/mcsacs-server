@@ -17,7 +17,7 @@ import MonthlyStatistic from './dashboard/monthlyStatistic';
 import Facility from './operation/facility';
 import FacilityGroup from './operation/facilityGroup';
 import Zone from './operation/zone';
-import Material from './operation/material';
+import Item from './operation/item';
 import WorkOrder from './operation/workOrder';
 
 // timescale
@@ -43,7 +43,7 @@ const db = {
   Facility,
   FacilityGroup,
   Zone,
-  Material,
+  Item,
   WorkOrder,
   /* timescale */
   Log,
@@ -70,4 +70,4 @@ Facility.belongsTo(Zone, { foreignKey: { name: 'zoneId' }, onDelete: 'SET NULL',
 // WorkOrder
 WorkOrder.belongsTo(Facility, { foreignKey: { name: 'fromFacilityId' }, onDelete: 'SET NULL', as: 'FromFacility' });
 WorkOrder.belongsTo(Facility, { foreignKey: { name: 'toFacilityId' }, onDelete: 'SET NULL', as: 'ToFacility' });
-WorkOrder.belongsTo(Material, { foreignKey: { name: 'materialId' }, onDelete: 'SET NULL', as: 'Material' });
+WorkOrder.belongsTo(Item, { foreignKey: { name: 'itemId' }, onDelete: 'SET NULL', as: 'Item' });

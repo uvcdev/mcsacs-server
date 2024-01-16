@@ -4,6 +4,7 @@ import { sequelize } from '../sequelize';
 // 기본 interface
 export interface FacilityGroupAttributes {
   id: number;
+  code: string;
   name: string;
   description: string | null;
   createdAt: Date;
@@ -13,6 +14,7 @@ export interface FacilityGroupAttributes {
 
 class FacilityGroup extends Model implements FacilityGroupAttributes {
   public readonly id!: FacilityGroupAttributes['id'];
+  public code!: FacilityGroupAttributes['code'];
   public name!: FacilityGroupAttributes['name'];
   public description!: FacilityGroupAttributes['description'];
   public readonly createdAt!: FacilityGroupAttributes['createdAt'];
@@ -26,6 +28,11 @@ FacilityGroup.init(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+    },
+    code: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: 'unique_code'
     },
     name: {
       type: DataTypes.STRING(50),
@@ -47,6 +54,7 @@ FacilityGroup.init(
 
 // insert
 export interface FacilityGroupInsertParams {
+  code: string;
   name: string;
   description: string | null;
 }
@@ -54,6 +62,7 @@ export interface FacilityGroupInsertParams {
 // selectList
 export interface FacilityGroupSelectListParams {
   ids?: Array<number> | null;
+  code?: string | null;
   name?: string | null;
   limit?: number;
   offset?: number;
@@ -80,6 +89,7 @@ export interface FacilityGroupSelectOneParams {
 // update
 export interface FacilityGroupUpdateParams {
   id?: number;
+  code?: string;
   name?: string;
   description?: string | null;
 }
@@ -92,6 +102,7 @@ export interface FacilityGroupDeleteParams {
 // include attributes
 export const FacilityGroupAttributesInclude = [
   'id',
+  'code',
   'name',
   'description',
   'createdAt',
