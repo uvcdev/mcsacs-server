@@ -69,13 +69,7 @@ const service = {
     // 2. ACS 테이블 입력
     try {
       const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const params = {
-        name: 'mcsTestName',
-        data: '',
-        tag: 'mcsTestTag1',
-      };
-
-      const response = await superagent.post(`${restapiUrl}/maps`).set('access-token', accessToken).send(params);
+      const response = await superagent.post(`${restapiUrl}/facility-groups`).set('access-token', accessToken).send(params);
       const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
       logging.METHOD_ACTION(logFormat, __filename, null, responseData);
@@ -151,13 +145,7 @@ const service = {
     // 2. Update ACS facilityGroup table
     try {
       const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const params = {
-        name: '1st_floor_yujin',
-        data: '',
-        tag: 'mcsTestTag',
-      };
-
-      const response = await superagent.put(`${restapiUrl}/maps/name/:name`).set('access-token', accessToken).send(params);
+      const response = await superagent.put(`${restapiUrl}/facility-groups/code/:code`).set('access-token', accessToken).send(params);
       const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
       logging.METHOD_ACTION(logFormat, __filename, null, responseData);

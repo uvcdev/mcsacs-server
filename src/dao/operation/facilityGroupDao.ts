@@ -51,6 +51,12 @@ const dao = {
         id: params.ids, // 'in' 검색
       };
     }
+    if (params.code) {
+      setQuery.where = {
+        ...setQuery.where,
+        code: { [Op.like]: `%${params.code}%` }, // 'like' 검색
+      };
+    }
     if (params.name) {
       setQuery.where = {
         ...setQuery.where,
