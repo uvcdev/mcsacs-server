@@ -30,8 +30,8 @@ systemLogRouter.get('/', isLoggedIn, async (req: Request<unknown, unknown, unkno
     const params: SystemLogSelectListParams = {
       facilityCode: req.query.facilityCode,
       facilityName: req.query.facilityName,
-      from: req.query.from,
-      to: req.query.to,
+      send: req.query.send,
+      recv: req.query.recv,
       type: req.query.type,
       createdAtFrom: req.query.createdAtFrom,
       createdAtTo: req.query.createdAtTo,
@@ -51,8 +51,8 @@ systemLogRouter.get('/', isLoggedIn, async (req: Request<unknown, unknown, unkno
     void systemLogDao.insert({
       facilityCode: null,
       facilityName: null,
-      from: 'mcs',
-      to: 'acs',
+      send: 'mcs',
+      recv: 'acs',
       type: 'debug',
       request: logFormat,
       response: logFormat,

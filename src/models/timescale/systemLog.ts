@@ -7,8 +7,8 @@ export interface SystemLogAttributes {
   id: number;
   facilityCode: string | null;
   facilityName: string | null;
-  from: 'mcs' | 'wcs' | 'eqp' | 'acs';
-  to: 'mcs' | 'wcs' | 'eqp' | 'acs';
+  send: 'mcs' | 'wcs' | 'eqp' | 'acs';
+  recv: 'mcs' | 'wcs' | 'eqp' | 'acs';
   type: 'debug' | 'warning' | 'info';
   request: Record<string, any> | null;
   response: Record<string, any> | null;
@@ -19,8 +19,8 @@ class SystemLog extends Model implements SystemLogAttributes {
   public readonly id!: SystemLogAttributes['id'];
   public facilityCode!: SystemLogAttributes['facilityCode'];
   public facilityName!: SystemLogAttributes['facilityName'];
-  public from!: SystemLogAttributes['from'];
-  public to!: SystemLogAttributes['to'];
+  public send!: SystemLogAttributes['send'];
+  public recv!: SystemLogAttributes['recv'];
   public type!: SystemLogAttributes['type'];
   public request!: SystemLogAttributes['request'];
   public response!: SystemLogAttributes['response'];
@@ -44,11 +44,11 @@ SystemLog.init(
     facilityName: {
       type: DataTypes.STRING(50),
     },
-    from: {
-      type: DataTypes.STRING(3),
+    send: {
+      type: DataTypes.STRING(10),
     },
-    to: {
-      type: DataTypes.STRING(3),
+    recv: {
+      type: DataTypes.STRING(10),
     },
     type: {
       type: DataTypes.STRING(7),
@@ -76,8 +76,8 @@ SystemLog.init(
 export interface SystemLogInsertParams {
   facilityCode: string | null;
   facilityName: string | null;
-  from: SystemLogAttributes['from'];
-  to: SystemLogAttributes['to'];
+  send: SystemLogAttributes['send'];
+  recv: SystemLogAttributes['recv'];
   type: SystemLogAttributes['type'];
   request: Record<string, any> | null;
   response: Record<string, any> | null;
@@ -87,8 +87,8 @@ export interface SystemLogInsertParams {
 export interface SystemLogSelectListParams {
   facilityCode?: string | null;
   facilityName?: string | null;
-  from?: SystemLogAttributes['from'];
-  to?: SystemLogAttributes['to'];
+  send?: SystemLogAttributes['send'];
+  recv?: SystemLogAttributes['recv'];
   type?: SystemLogAttributes['type'];
   createdAtFrom?: Date | null;
   createdAtTo?: Date | null;

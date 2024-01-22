@@ -51,7 +51,7 @@ Log.init(
       type: DataTypes.STRING(50),
     },
     system: {
-      type: DataTypes.STRING(3),
+      type: DataTypes.STRING(10),
     },
     type: {
       type: DataTypes.STRING(7),

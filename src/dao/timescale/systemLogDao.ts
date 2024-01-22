@@ -45,16 +45,16 @@ const systemLogDao = {
         facilityName: { [Op.like]: `%${params.facilityName}%` }, // 'like' 검색
       };
     }
-    if (params.from) {
+    if (params.send) {
       setQuery.where = {
         ...setQuery.where,
-        from: { [Op.like]: `%${params.from}%` }, // 'like' 검색
+        send: { [Op.like]: `%${params.send}%` }, // 'like' 검색
       };
     }
-    if (params.to) {
+    if (params.recv) {
       setQuery.where = {
         ...setQuery.where,
-        to: { [Op.like]: `%${params.to}%` }, // 'like' 검색
+        recv: { [Op.like]: `%${params.recv}%` }, // 'like' 검색
       };
     }
     if (params.type) {
