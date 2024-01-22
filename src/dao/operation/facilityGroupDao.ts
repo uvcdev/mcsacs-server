@@ -30,9 +30,9 @@ import User, { UserAttributesInclude } from '../../models/common/user';
 // } from '../../models/operation/facilityGroupMaintenanceHistory';
 
 const dao = {
-  insert(params: FacilityGroupInsertParams): Promise<InsertedResult> {
+  insert(params: FacilityGroupInsertParams, transaction: Transaction | undefined = undefined): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.create(params)
+      FacilityGroup.create(params, { transaction: transaction })
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -209,9 +209,9 @@ const dao = {
         });
     });
   },
-  update(params: FacilityGroupUpdateParams): Promise<UpdatedResult> {
+  update(params: FacilityGroupUpdateParams, transaction: Transaction | undefined = undefined): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      FacilityGroup.update(params, { where: { id: params.id } })
+      FacilityGroup.update(params, { where: { id: params.id }, transaction: transaction })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })

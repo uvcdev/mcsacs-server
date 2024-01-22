@@ -5,7 +5,8 @@ import { sequelize } from '../sequelize';
 export interface FacilityAttributes {
   id: number;
   facilityGroupId: number;
-  zoneId: number;
+  zoneId: number | null;
+  dockingZoneId: number | null;
   code: string;
   name: string;
   system: 'WCS' | 'EQP';
@@ -15,6 +16,7 @@ export interface FacilityAttributes {
   ip: number | null;
   port: number | null;
   active: boolean | null;
+  alwaysFill: boolean | null;
   description: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -25,6 +27,7 @@ class Facility extends Model implements FacilityAttributes {
   public readonly id!: FacilityAttributes['id'];
   public facilityGroupId!: FacilityAttributes['facilityGroupId'];
   public zoneId!: FacilityAttributes['zoneId'];
+  public dockingZoneId!: FacilityAttributes['dockingZoneId'];
   public code!: FacilityAttributes['code'];
   public name!: FacilityAttributes['name'];
   public system!: FacilityAttributes['system'];
@@ -34,6 +37,7 @@ class Facility extends Model implements FacilityAttributes {
   public ip!: FacilityAttributes['ip'];
   public port!: FacilityAttributes['port'];
   public active!: FacilityAttributes['active'];
+  public alwaysFill!: FacilityAttributes['alwaysFill'];
   public description!: FacilityAttributes['description'];
   public readonly createdAt!: FacilityAttributes['createdAt'];
   public readonly updatedAt!: FacilityAttributes['updatedAt'];
@@ -53,7 +57,9 @@ Facility.init(
     },
     zoneId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+    },
+    dockingZoneId: {
+      type: DataTypes.INTEGER,
     },
     code: {
       type: DataTypes.STRING(50),
@@ -85,6 +91,10 @@ Facility.init(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    alwaysFill: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
     description: {
       type: DataTypes.STRING(255),
     },
@@ -103,6 +113,7 @@ Facility.init(
 export interface FacilityInsertParams {
   facilityGroupId: number;
   zoneId: number;
+  dockingZoneId: number;
   code: string;
   name: string;
   system: FacilityAttributes['system'] | null;
@@ -112,6 +123,7 @@ export interface FacilityInsertParams {
   ip: string | null;
   port: number | null;
   active: boolean;
+  alwaysFill: boolean;
   description: string | null;
 }
 
@@ -120,6 +132,7 @@ export interface FacilitySelectListParams {
   ids?: Array<number> | null;
   facilityGroupIds?: Array<number> | null;
   zondeIds?: Array<number> | null;
+  dockingZoneIds?: Array<number> | null;
   code?: string | null;
   name?: string | null;
   system?: FacilityAttributes['system'] | null;
@@ -129,6 +142,7 @@ export interface FacilitySelectListParams {
   ip?: string | null;
   port?: number | null;
   active?: boolean | null;
+  alwaysFill?: boolean | null;
   limit?: number;
   offset?: number;
   order?: string;
@@ -161,6 +175,7 @@ export interface FacilityUpdateParams {
   id?: number;
   facilityGroupId?: number;
   zoneId?: number;
+  dockingZoneId?: number;
   code?: string;
   name?: string;
   system?: FacilityAttributes['system'] | null;
@@ -170,6 +185,7 @@ export interface FacilityUpdateParams {
   ip?: string | null;
   port?: string | null;
   active?: boolean;
+  alwaysFill?: boolean;
   description?: string | null;
 }
 
@@ -189,6 +205,7 @@ export const FacilityAttributesInclude = [
   'id',
   'facilityGroupId',
   'zoneId',
+  'dockingZoneId',
   'code',
   'name',
   'system',
@@ -198,6 +215,7 @@ export const FacilityAttributesInclude = [
   'ip',
   'port',
   'active',
+  'alwaysFill',
   'description',
   'createdAt',
 ];

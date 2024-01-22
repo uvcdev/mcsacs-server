@@ -35,6 +35,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityInser
     const params: FacilityInsertParams = {
       facilityGroupId: req.body.facilityGroupId,
       zoneId: req.body.zoneId,
+      dockingZoneId: req.body.dockingZoneId,
       code: req.body.code,
       name: req.body.name,
       system: req.body.system,
@@ -44,6 +45,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityInser
       ip: req.body.ip,
       port: req.body.port,
       active: req.body.active,
+      alwaysFill: req.body.alwaysFill,
       description: req.body.description,
     };
     logging.REQUEST_PARAM(logFormat);
@@ -51,11 +53,10 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityInser
     // 입력값 체크
     if (
       !(typeof params.facilityGroupId === 'number' && params.facilityGroupId > 0) ||
-      !(typeof params.zoneId === 'number' && params.zoneId > 0) ||
       !params.code ||
       !params.name
     ) {
-      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (facilityGroupId, zoneId, code, name)');
+      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (facilityGroupId, code, name)');
 
       const resJson = resError(err);
       logging.RESPONSE_DATA(logFormat, resJson);
@@ -97,6 +98,7 @@ router.get(
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         facilityGroupIds: req.query.facilityGroupIds ? ((req.query.facilityGroupIds as unknown) as string).split(',').map((i) => Number(i)) : null,
         zondeIds: req.query.zondeIds ? ((req.query.zondeIds as unknown) as string).split(',').map((i) => Number(i)) : null,
+        dockingZoneIds: req.query.dockingZoneIds ? ((req.query.dockingZoneIds as unknown) as string).split(',').map((i) => Number(i)) : null,
         code: req.query.code,
         name: req.query.name,
         system: req.query.system,
@@ -106,6 +108,7 @@ router.get(
         ip: req.query.ip,
         port: req.query.port,
         active: req.query.active,
+        alwaysFill: req.query.alwaysFill,
         limit: Number(req.query.limit || 'NaN'),
         offset: Number(req.query.offset || 'NaN'),
         order: req.query.order,
@@ -193,6 +196,7 @@ router.put(
         id: Number(req.params.id),
         facilityGroupId: req.body.facilityGroupId,
         zoneId: req.body.zoneId,
+        dockingZoneId: req.body.dockingZoneId,
         code: req.body.code,
         name: req.body.name,
         system: req.body.system,
@@ -202,16 +206,16 @@ router.put(
         ip: req.body.ip,
         port: req.body.port,
         active: req.body.active,
+        alwaysFill: req.body.alwaysFill,
         description: req.body.description,
       };
       logging.REQUEST_PARAM(logFormat);
 
       // 입력값 체크
       if (!(typeof params.facilityGroupId === 'number' && params.facilityGroupId > 0)
-        || !(typeof params.zoneId === 'number' && params.zoneId > 0)
         || !params.code
         || !params.name) {
-        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (facilityGroupId, zoneId, code, name)');
+        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (facilityGroupId, code, name)');
 
         const resJson = resError(err);
         logging.RESPONSE_DATA(logFormat, resJson);

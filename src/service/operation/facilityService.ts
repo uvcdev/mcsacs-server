@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { LogFormat, logging } from '../../lib/logging';
 import {
   BulkInsertedOrUpdatedResult,
@@ -20,67 +21,66 @@ import { dao as facilityDao } from '../../dao/operation/facilityDao';
 // import { dao as facilityUserJoinDao } from '../../dao/operation/facilityUserJoinDao';
 import { makeRegularCodeDao } from '../../lib/usefullToolUtil';
 import * as process from 'process';
+import superagent from 'superagent';
+import { restapiConfig } from '../../config/restapiConfig';
+import { sequelize } from '../../models';
+
+const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
+let accessToken = '';
 
 const service = {
-  // insert
-  async reg(params: FacilityInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
-    let result: InsertedResult;
+  // restapi login
+  async restapiLogin(logFormat: LogFormat<unknown>): Promise<Record<string, any>> {
+    let result: Record<string, any>;
 
-    // 1. 설비 정보 입력
     try {
-      // code 칼럼 정량화
-      const codeHeader = 'FAC';
-
-      params.code = await makeRegularCodeDao('code', codeHeader, facilityDao);
-
-      result = await facilityDao.insert(params);
-      logging.METHOD_ACTION(logFormat, __filename, params, result);
+      result = await superagent.post(`${restapiUrl}/auths/token`).send({
+        userid: restapiConfig.id,
+        password: restapiConfig.pass,
+      });
+      accessToken = JSON.parse(result.text).data.accessToken;
+      result = { accessToken };
+      logging.METHOD_ACTION(logFormat, __filename, null, result);
     } catch (err) {
-      logging.ERROR_METHOD(logFormat, __filename, params, err);
+      logging.ERROR_METHOD(logFormat, __filename, null, err);
 
       return new Promise((resolve, reject) => {
         reject(err);
       });
     }
 
-    // (promise 2-1)설비당 작업자 입력
-    // const promiseInsertFacilityUserJoin = async (
-    //   facilityId: InsertedResult['insertedId'],
-    //   userIds: FacilityInsertParams['userIds']
-    // ): Promise<BulkInsertedOrUpdatedResult> => {
-    //   let insertedIds: BulkInsertedOrUpdatedResult;
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+  // insert
+  async reg(params: FacilityInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
+    let result: InsertedResult;
+    const transaction: Transaction = await sequelize.transaction();
 
-    //   const paramList: Array<FacilityUserJoinInsertParams> = [];
-    //   if (userIds && userIds.length > 0) {
-    //     for (let i = 0; i < userIds.length; i += 1) {
-    //       paramList.push({
-    //         facilityId,
-    //         userId: userIds[i],
-    //       });
-    //     }
-    //   }
+    // 1. 설비 정보 입력
+    try {
+      // code 칼럼 정량화
+      const codeHeader = 'FAC';
+      params.code = await makeRegularCodeDao('code', codeHeader, facilityDao);
+      result = await facilityDao.insert(params, transaction);
+      logging.METHOD_ACTION(logFormat, __filename, params, result);
 
-    //   try {
-    //     insertedIds = await facilityUserJoinDao.bulkInsert(paramList);
-    //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, params, err);
+      // ACS 테이블 입력
+      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken,).send(params);
+      const responseData: Record<string, any> = JSON.parse(response.text).Data;
+      logging.METHOD_ACTION(logFormat, __filename, params, responseData);
 
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
+      await transaction.commit(); // 트랜잭션 커밋
+    } catch (err) {
+      await transaction.rollback(); // 트랜잭션 롤백
+      logging.ERROR_METHOD(logFormat, __filename, params, err);
 
-    //   return new Promise((resolve) => {
-    //     resolve(insertedIds);
-    //   });
-    // };
-
-    // 3. (Promise.all)설비당 작업자 입력 처리
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedFacilityUserJoin] = await Promise.all([
-    //   promiseInsertFacilityUserJoin(result.insertedId, params.userIds),
-    // ]);
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
 
     return new Promise((resolve) => {
       resolve(result);
@@ -130,73 +130,28 @@ const service = {
   // update
   async edit(params: FacilityUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
+    // const transaction: Transaction = await sequelize.transaction();
 
     // 1. 설비 정보 수정
     try {
       result = await facilityDao.update(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
+
+      // ACS 테이블 입력
+      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      const response = await superagent.put(`${restapiUrl}/facilities/code/:code`).set('access-token', accessToken).send(params);
+      const responseData: Record<string, any> = JSON.parse(response.text).Data;
+
+      logging.METHOD_ACTION(logFormat, __filename, null, responseData);
+      // await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
+      // await transaction.rollback(); // 트랜잭션 롤백
       logging.ERROR_METHOD(logFormat, __filename, params, err);
 
       return new Promise((resolve, reject) => {
         reject(err);
       });
     }
-
-    // (Promise 2-1)설비당 작업자 정보 입력
-    // const promiseInsertFacilityUserJoin = async (
-    //   facilityId: number,
-    //   userIds: FacilityUpdateParams['userIds']
-    // ): Promise<BulkInsertedOrUpdatedResult> => {
-    //   let insertedIds: BulkInsertedOrUpdatedResult;
-
-    //   // 설비당 작업정보 일괄 삭제
-    //   const deleteFacilityUserJoinParams = {
-    //     facilityId,
-    //   };
-    //   try {
-    //     const deleteFacilityUserJoin = await facilityUserJoinDao.deleteForce(deleteFacilityUserJoinParams);
-    //     logging.METHOD_ACTION(logFormat, __filename, deleteFacilityUserJoinParams, deleteFacilityUserJoin);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, deleteFacilityUserJoinParams, err);
-
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
-
-    //   const paramList: Array<FacilityUserJoinInsertParams> = [];
-    //   if (userIds && userIds.length > 0) {
-    //     for (let i = 0; i < userIds.length; i += 1) {
-    //       paramList.push({
-    //         facilityId,
-    //         userId: userIds[i],
-    //       });
-    //     }
-    //   }
-
-    //   // 설비당 작업자 입력
-    //   try {
-    //     insertedIds = await facilityUserJoinDao.bulkInsert(paramList);
-    //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, params, err);
-
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
-
-    //   return new Promise((resolve) => {
-    //     resolve(insertedIds);
-    //   });
-    // };
-
-    // (Promise.all)설비당 작업자 입력 처리
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedFacilityUserJoin] = await Promise.all([
-    //   promiseInsertFacilityUserJoin(params.id ? params.id : 0, params.userIds ? params.userIds : []),
-    // ]);
 
     return new Promise((resolve) => {
       resolve(result);
