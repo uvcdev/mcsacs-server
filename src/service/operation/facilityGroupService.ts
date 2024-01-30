@@ -154,7 +154,9 @@ const service = {
 
       logging.METHOD_ACTION(logFormat, __filename, null, responseData);
 
+      await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
+      await transaction.rollback(); // 트랜잭션 롤백
       logging.ERROR_METHOD(logFormat, __filename, params, err);
 
       return new Promise((resolve, reject) => {

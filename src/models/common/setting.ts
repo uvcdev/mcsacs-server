@@ -38,6 +38,7 @@ Setting.init(
     },
     type: {
       type: DataTypes.STRING(20),
+      unique: true,
     },
     data: {
       type: DataTypes.JSONB,

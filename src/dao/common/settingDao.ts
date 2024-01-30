@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { InsertedResult, SelectedListResult, UpdatedResult, DeletedResult } from '../../lib/resUtil';
 import Setting, {
   SettingInsertParams,
@@ -10,9 +11,9 @@ import Setting, {
 } from '../../models/common/setting';
 
 const dao = {
-  insert(params: SettingInsertParams): Promise<InsertedResult> {
+  insert(params: SettingInsertParams, transaction: Transaction): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      Setting.create(params)
+      Setting.create(params, { transaction })
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -68,9 +69,9 @@ const dao = {
         });
     });
   },
-  update(params: SettingUpdateParams): Promise<UpdatedResult> {
+  update(params: SettingUpdateParams, transaction: Transaction): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      Setting.update(params, { where: { id: params.id } })
+      Setting.update(params, { where: { id: params.id }, transaction })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })

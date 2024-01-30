@@ -5,9 +5,9 @@ import { sequelize } from '../sequelize';
 export interface WorkOrderAttributes {
   id: number;
   fromFacilityId: number | null;
-  toFacilityId: number;
+  toFacilityId: number | null;
   code: string;
-  itemId: number;
+  itemId: number | null;
   level: number | null;
   state: string | null;
   description: string | null;
@@ -42,7 +42,6 @@ WorkOrder.init(
     },
     toFacilityId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
     },
     code: {
       type: DataTypes.STRING(50),
@@ -50,7 +49,6 @@ WorkOrder.init(
     },
     itemId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
     },
     level: {
       type: DataTypes.INTEGER,
@@ -75,9 +73,9 @@ WorkOrder.init(
 // insert
 export interface WorkOrderInsertParams {
   fromFacilityId: number | null;
-  toFacilityId: number;
+  toFacilityId: number | null;
   code: string;
-  itemId: number;
+  itemId: number | null;
   level: number | null;
   state: string | null;
   description: string | null;
@@ -122,9 +120,9 @@ export interface WorkOrderSelectOneCodeParams {
 export interface WorkOrderUpdateParams {
   id?: number;
   fromFacilityId?: number | null;
-  toFacilityId?: number;
+  toFacilityId?: number | null;
   code?: string;
-  itemId?: number;
+  itemId?: number | null;
   level?: number | null;
   state?: string | null;
   description?: string | null;
