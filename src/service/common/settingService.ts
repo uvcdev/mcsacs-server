@@ -84,7 +84,7 @@ const service = {
         })
         .then(async () => {
           await logSequelize.query(`SELECT remove_retention_policy('logs');
-                                    SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} minutes');`);
+                                    SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} ');`);
           // 최종 응답 값 세팅
           const resJson = resSuccess(
             {
@@ -189,7 +189,7 @@ const service = {
         })
         .then(async () => {
           await logSequelize.query(`SELECT remove_retention_policy('logs');
-                                    SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} minutes');`);
+                                    SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} months');`);
           // 최종 응답 값 세팅
           const resJson = resSuccess(
             {
