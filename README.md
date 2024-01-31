@@ -12,3 +12,4 @@
 ## v0.0.1-cyk
 
 - facilityGroup, facility 입력/수정시 acs에도 동일하게 입력
+- 알람 보관 주기 등록/수정 기능(로그 삭제 기능 포함)
