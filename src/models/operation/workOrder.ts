@@ -7,10 +7,26 @@ export interface WorkOrderAttributes {
   fromFacilityId: number | null;
   toFacilityId: number | null;
   code: string;
+  fromAmrId: number | null;
   itemId: number | null;
   level: number | null;
-  state: string | null;
+  state:
+  | 'registered'
+  | 'pending'
+  | 'assigned1'
+  | 'assigned2'
+  | 'working1'
+  | 'working2'
+  | 'canceled1'
+  | 'canceled2'
+  | 'aborted1'
+  | 'aborted2'
+  | 'completed1'
+  | 'completed2';
+  cancelUserId: number | null;
+  cancelDate: Date | null;
   description: string | null;
+  type: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -21,10 +37,14 @@ class WorkOrder extends Model implements WorkOrderAttributes {
   public fromFacilityId!: WorkOrderAttributes['fromFacilityId'];
   public toFacilityId!: WorkOrderAttributes['toFacilityId'];
   public code!: WorkOrderAttributes['code'];
+  public fromAmrId!: WorkOrderAttributes['fromAmrId'];
   public itemId!: WorkOrderAttributes['itemId'];
   public level!: WorkOrderAttributes['level'];
   public state!: WorkOrderAttributes['state'];
+  public cancelUserId!: WorkOrderAttributes['cancelUserId'];
+  public cancelDate!: WorkOrderAttributes['cancelDate'];
   public description!: WorkOrderAttributes['description'];
+  public type!: WorkOrderAttributes['type'];
   public readonly createdAt!: WorkOrderAttributes['createdAt'];
   public readonly updatedAt!: WorkOrderAttributes['updatedAt'];
   public readonly deletedAt!: WorkOrderAttributes['deletedAt'];
@@ -45,7 +65,11 @@ WorkOrder.init(
     },
     code: {
       type: DataTypes.STRING(50),
+      unique: true,
       allowNull: false,
+    },
+    fromAmrId: {
+      type: DataTypes.INTEGER,
     },
     itemId: {
       type: DataTypes.INTEGER,
@@ -55,9 +79,19 @@ WorkOrder.init(
     },
     state: {
       type: DataTypes.STRING(20),
+      defaultValue: 'registered',
+    },
+    cancelUserId: {
+      type: DataTypes.INTEGER,
+    },
+    cancelDate: {
+      type: DataTypes.DATE,
     },
     description: {
       type: DataTypes.STRING(255),
+    },
+    type: {
+      type: DataTypes.STRING(3),
     },
   },
   {
@@ -72,13 +106,19 @@ WorkOrder.init(
 
 // insert
 export interface WorkOrderInsertParams {
+  id?: number | null;
   fromFacilityId: number | null;
   toFacilityId: number | null;
   code: string;
+  fromAmrId: number | null;
   itemId: number | null;
+  itemCode?: string | null;
   level: number | null;
-  state: string | null;
+  state: WorkOrderAttributes['state'];
+  cancelUserId: number;
+  cancelDate: Date | null;
   description: string | null;
+  type: string | null;
 }
 
 // selectList
@@ -87,8 +127,12 @@ export interface WorkOrderSelectListParams {
   fromFacilityId?: number | null;
   toFacilityId?: number | null;
   code?: string | null;
+  fromAmrId?: number | null;
   itemId?: number | null;
   state?: string | null;
+  cancelUserId?: number | null;
+  cancelDate?: Date | null;
+  type?: string | null;
   limit?: number;
   offset?: number;
   order?: string;
@@ -122,10 +166,14 @@ export interface WorkOrderUpdateParams {
   fromFacilityId?: number | null;
   toFacilityId?: number | null;
   code?: string;
+  fromAmrId?: number | null;
   itemId?: number | null;
   level?: number | null;
-  state?: string | null;
+  state?: WorkOrderAttributes['state'];
+  cancelUserId?: number | null;
+  cancelDate?: Date | null;
   description?: string | null;
+  type?: string | null;
 }
 
 // delete
@@ -136,13 +184,17 @@ export interface WorkOrderDeleteParams {
 // include attributes
 export const WorkOrderAttributesInclude = [
   'id',
-  'fromFacilityid',
-  'toFacilityid',
+  'fromFacilityId',
+  'toFacilityId',
   'code',
+  'fromAmrId',
   'itemId',
   'level',
   'state',
+  'cancelUserId',
+  'cancelDate',
   'description',
+  'type',
   'createdAt',
 ];
 

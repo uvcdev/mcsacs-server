@@ -43,6 +43,19 @@ const dao = {
         });
     });
   },
+  insertTransac(params: WorkOrderInsertParams, transaction: Transaction): Promise<InsertedResult> {
+    return new Promise((resolve, reject) => {
+      WorkOrder.create(params, {
+        transaction,
+      })
+        .then((inserted) => {
+          resolve({ insertedId: inserted.id });
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
   selectList(params: WorkOrderSelectListParams): Promise<SelectedListResult<WorkOrderAttributes>> {
     // DB에 넘길 최종 쿼리 세팅
     const setQuery: WorkOrderSelectListQuery = {};

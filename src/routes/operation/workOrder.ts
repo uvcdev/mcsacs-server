@@ -36,16 +36,20 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, WorkOrderInse
       fromFacilityId: req.body.fromFacilityId,
       toFacilityId: req.body.toFacilityId,
       code: req.body.code,
+      fromAmrId: req.body.fromAmrId,
       itemId: req.body.itemId,
       level: req.body.level,
       state: req.body.state,
+      cancelUserId: req.body.cancelUserId,
+      cancelDate: req.body.cancelDate,
       description: req.body.description,
+      type: req.body.type,
     };
     logging.REQUEST_PARAM(logFormat);
 
     // 입력값 체크
-    if (!params.toFacilityId || !params.code || !params.itemId) {
-      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (toFacilityId, code, itemId)');
+    if (!params.code) {
+      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (code)');
 
       const resJson = resError(err);
       logging.RESPONSE_DATA(logFormat, resJson);

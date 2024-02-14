@@ -20,6 +20,7 @@ import Item, {
   // ItemUpdateLiveStateParams,
   // ItemUpdateRunningStateParams,
   ItemDeleteParams,
+  ItemSelectOneCodeParams,
 } from '../../models/operation/item';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
@@ -33,6 +34,19 @@ const dao = {
   insert(params: ItemInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
       Item.create(params)
+        .then((inserted) => {
+          resolve({ insertedId: inserted.id });
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  insertTransac(params: ItemInsertParams, transaction: Transaction): Promise<InsertedResult> {
+    return new Promise((resolve, reject) => {
+      Item.create(params, {
+        transaction,
+      })
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -199,6 +213,19 @@ const dao = {
       })
         .then((selectedInfo) => {
           resolve(selectedInfo);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  selectOneCode(params: ItemSelectOneCodeParams): Promise<ItemAttributes | null> {
+    return new Promise((resolve, reject) => {
+      Item.findOne({
+        where: { code: params?.code },
+      })
+        .then((selectedOne) => {
+          resolve(selectedOne);
         })
         .catch((err) => {
           reject(err);

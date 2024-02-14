@@ -4,6 +4,8 @@ import mqtt, { IClientOptions } from 'mqtt';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import { service as workOrderService } from '../service/operation/workOrderService';
+
 // mqtt접속 환경
 type MqttConfig = {
   host: string;
@@ -16,6 +18,14 @@ const mqttConfig: MqttConfig = {
   port: Number(process.env.MQTT_PORT || '1883'),
   topic: process.env.MQTT_TOPIC || 'mes',
 };
+
+export enum MqttTopics {
+  WorkerStatus = 'feedback_worker_status',
+  WorkHistory = 'work_history',
+  Docking = 'docking',
+  AlarmRegist = 'alarm/regist',
+  AlarmClear = 'alarm/clear',
+}
 
 // broker에 접속될 클라이언트 아이디(unique필요)
 const clientId = 'mes_' + Math.random().toString(16).substr(2, 8);
@@ -41,7 +51,25 @@ export const receiveMqtt = (): void => {
       });
 
       // mqtt 구독
-      client.subscribe(`${topic}/#`, (err) => {
+      // client.subscribe(`${topic}/#`, (err) => {
+      //   logging.MQTT_LOG({
+      //     title: 'mqtt subscribe',
+      //     topic,
+      //     message: null,
+      //   });
+
+      //   if (err) {
+      //     logging.MQTT_ERROR({
+      //       title: 'mqtt subscribe error',
+      //       topic,
+      //       message: null,
+      //       error: err,
+      //     });
+      //   }
+      // });
+
+      // mcs mqtt 구독
+      client.subscribe(`imcs/#`, (err) => {
         logging.MQTT_LOG({
           title: 'mqtt subscribe',
           topic,
@@ -61,16 +89,32 @@ export const receiveMqtt = (): void => {
 
     // 메세지 수신
     client.on('message', (messageTopic, messageOrg) => {
-      // 내가 발행한 것은 로그 기록하지 말자
-      if (messageTopic.split('/').length >= 3 && messageTopic.split('/')[2] !== 'server') {
-        logging.MQTT_LOG({
-          title: 'receive message',
-          topic: messageTopic,
-          message: messageOrg.toString(),
-        });
-      }
       try {
-        const messageJson = JSON.parse(messageOrg.toString()); // messageOrg는 json형태의 string으로 받도록 한다.
+        const topicSplit = messageTopic.split('/');
+
+        if (topicSplit.length >= 3) {
+          const serverTopic = topicSplit[0];
+          const logicTopic = topicSplit[1];
+          const targetId = topicSplit[2];
+          const message = messageOrg.toString();
+          logging.MQTT_LOG({
+            title: 'receive message',
+            topic: messageTopic,
+            message: messageOrg.toString(),
+          });
+
+          // 1. imcs에서  메세지 처리
+          if (serverTopic === 'imcs' && logicTopic === 'notify') {
+            const messageJson = JSON.parse(message);
+            logging.MQTT_DEBUG({
+              title: 'imcs message',
+              topic: messageTopic,
+              message: messageJson,
+            });
+
+            void workOrderService.regWorkOrder(messageJson);
+          }
+        }
       } catch (err) {
         logging.MQTT_ERROR({
           title: 'mqtt message error',
