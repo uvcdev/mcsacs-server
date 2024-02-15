@@ -1,7 +1,7 @@
 import { Model, DataTypes, WhereOptions, Order, JSON } from 'sequelize';
 import { sequelize } from '../sequelize';
 
-export interface McsAlarmAttributes {
+export interface AlarmAttributes {
   id: number;
   facilityId: number;
   data: JSON | null;
@@ -11,17 +11,17 @@ export interface McsAlarmAttributes {
   deletedAt: Date | null;
 }
 
-class McsAlarm extends Model implements McsAlarmAttributes {
-  public readonly id!: McsAlarmAttributes['id'];
-  public facilityId!: McsAlarmAttributes['facilityId'];
-  public data!: McsAlarmAttributes['data'];
-  public state!: McsAlarmAttributes['state'];
-  public readonly createdAt!: McsAlarmAttributes['createdAt'];
-  public readonly updatedAt!: McsAlarmAttributes['updatedAt'];
-  public readonly deletedAt!: McsAlarmAttributes['deletedAt'];
+class Alarm extends Model implements AlarmAttributes {
+  public readonly id!: AlarmAttributes['id'];
+  public facilityId!: AlarmAttributes['facilityId'];
+  public data!: AlarmAttributes['data'];
+  public state!: AlarmAttributes['state'];
+  public readonly createdAt!: AlarmAttributes['createdAt'];
+  public readonly updatedAt!: AlarmAttributes['updatedAt'];
+  public readonly deletedAt!: AlarmAttributes['deletedAt'];
 }
 
-McsAlarm.init(
+Alarm.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -51,23 +51,23 @@ McsAlarm.init(
 
 /* 인터페이스 정의 시작 */
 // insert
-export interface McsAlarmInsertParams {
+export interface AlarmInsertParams {
   facilityId: number;
   data: string | null;
-  state: McsAlarmAttributes['state'] | null;
+  state: AlarmAttributes['state'] | null;
 }
 
-export interface McsAlarmSelectListParams {
+export interface AlarmSelectListParams {
   ids?: Array<number> | null;
   facilityId?: number;
-  state?: McsAlarmAttributes['state'] | null;
+  state?: AlarmAttributes['state'] | null;
   limit?: number;
   offset?: number;
   attributes?: Array<string>;
 }
 
-export interface McsAlarmSelectListQuery {
-  where?: WhereOptions<McsAlarmAttributes>;
+export interface AlarmSelectListQuery {
+  where?: WhereOptions<AlarmAttributes>;
   limit?: number;
   offset?: number;
   order?: Order;
@@ -76,23 +76,23 @@ export interface McsAlarmSelectListQuery {
 
 
 // selectInfo
-export interface McsAlarmSelectInfoParams {
+export interface AlarmSelectInfoParams {
   id?: number;
 }
 
 // update
-export interface McsAlarmUpdateParams {
-  id?: McsAlarmAttributes['id'];
+export interface AlarmUpdateParams {
+  id?: AlarmAttributes['id'];
   facilityId?: number;
   data?: JSON | null;
-  state?: McsAlarmAttributes['state'] | null;
+  state?: AlarmAttributes['state'] | null;
 }
 
 // delete
-export interface McsAlarmDeleteParams {
-  id?: McsAlarmAttributes['id'];
+export interface AlarmDeleteParams {
+  id?: AlarmAttributes['id'];
 }
 
 /* 인터페이스 정의 끝 */
 
-export default McsAlarm;
+export default Alarm;

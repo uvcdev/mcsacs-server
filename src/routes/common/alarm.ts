@@ -12,26 +12,26 @@ import {
   DeletedResult,
 } from '../../lib/resUtil';
 import {
-  McsAlarmDeleteParams,
-  McsAlarmInsertParams,
-  McsAlarmSelectListParams,
-  McsAlarmSelectInfoParams,
-  McsAlarmUpdateParams,
-} from '../../models/common/mcsAlarm';
-import { service as mcsAlarmService } from '../../service/common/mcsAlarmService';
+  AlarmDeleteParams,
+  AlarmInsertParams,
+  AlarmSelectListParams,
+  AlarmSelectInfoParams,
+  AlarmUpdateParams,
+} from '../../models/common/alarm';
+import { service as alarmService } from '../../service/common/alarmService';
 import { service as eventHistoryService } from '../../service/common/eventHistoryService';
 import { Payload } from '../../lib/tokenUtil';
 
 const router = express.Router();
 
-const TABLE_NAME = 'mcsAlarms'; // 이벤트 히스토리를 위한 테이블 명
+const TABLE_NAME = 'alarms'; // 이벤트 히스토리를 위한 테이블 명
 
-// McsAlarm 등록
-router.post('/', isLoggedIn, async (req: Request<unknown, unknown, McsAlarmInsertParams, unknown>, res: Response) => {
+// Alarm 등록
+router.post('/', isLoggedIn, async (req: Request<unknown, unknown, AlarmInsertParams, unknown>, res: Response) => {
   const logFormat = makeLogFormat(req);
   const tokenUser = (req as { decoded?: Payload }).decoded;
   try {
-    const params: McsAlarmInsertParams = {
+    const params: AlarmInsertParams = {
       facilityId: req.body.facilityId,
       state: req.body.state,
       data: req.body.data || null,
@@ -43,7 +43,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, McsAlarmInser
     }
 
     // 비즈니스 로직 호출
-    const result = await mcsAlarmService.reg(params, logFormat);
+    const result = await alarmService.reg(params, logFormat);
 
     // 최종 응답 값 세팅
     const resJson = resSuccess(result, resType.REG);
@@ -61,15 +61,15 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, McsAlarmInser
   }
 });
 
-// McsAlarm 리스트 조회
+// Alarm 리스트 조회
 router.get(
   '/',
   isLoggedIn,
-  async (req: Request<unknown, unknown, unknown, McsAlarmSelectListParams>, res: Response) => {
+  async (req: Request<unknown, unknown, unknown, AlarmSelectListParams>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
-      const params: McsAlarmSelectListParams = {
+      const params: AlarmSelectListParams = {
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         facilityId: req.query.facilityId,
         state: req.query.state,
@@ -78,7 +78,7 @@ router.get(
       };
       logging.REQUEST_PARAM(logFormat);
       // 비즈니스 로직 호출
-      const result = await mcsAlarmService.list(params, logFormat);
+      const result = await alarmService.list(params, logFormat);
       // 최종 응답값 세팅
       // front test 필요
       const resJson = resSuccess(result, resType.LIST);
@@ -95,17 +95,17 @@ router.get(
   }
 );
 
-// mcsAlarm 상세정보 조회
+// alarm 상세정보 조회
 router.get(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<McsAlarmSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<AlarmSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: McsAlarmSelectInfoParams = {
+      const params: AlarmSelectInfoParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -121,7 +121,7 @@ router.get(
       }
 
       // 비즈니스 로직 호출
-      const result = await mcsAlarmService.info(params, logFormat);
+      const result = await alarmService.info(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.INFO);
@@ -141,15 +141,15 @@ router.get(
   }
 );
 
-// McsAlarm 정보 수정
+// Alarm 정보 수정
 router.put(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<McsAlarmUpdateParams, unknown, McsAlarmUpdateParams, unknown>, res: Response) => {
+  async (req: Request<AlarmUpdateParams, unknown, AlarmUpdateParams, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
-      const params: McsAlarmUpdateParams = {
+      const params: AlarmUpdateParams = {
         id: Number(req.params.id),
         facilityId: req.body.facilityId,
         state: req.body.state,
@@ -167,7 +167,7 @@ router.put(
       }
 
       // 비즈니스 로직 호출
-      const result = await mcsAlarmService.edit(params, logFormat);
+      const result = await alarmService.edit(params, logFormat);
 
       // 최종 응답값 세팅
       const resJson = resSuccess(result, resType.EDIT);
@@ -185,16 +185,16 @@ router.put(
   }
 );
 
-// McsAlarm 삭제
+// Alarm 삭제
 router.delete(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<McsAlarmDeleteParams, unknown, McsAlarmDeleteParams, unknown>, res: Response) => {
+  async (req: Request<AlarmDeleteParams, unknown, AlarmDeleteParams, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
       // 요청 파라미터
-      const params: McsAlarmDeleteParams = {
+      const params: AlarmDeleteParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -209,7 +209,7 @@ router.delete(
       }
 
       // 비즈니스 로직 호출
-      const result: DeletedResult = await mcsAlarmService.delete(params, logFormat);
+      const result: DeletedResult = await alarmService.delete(params, logFormat);
 
       // 최종 응답값 세팅
       const resJson = resSuccess(result, resType.DELETE);
