@@ -7,7 +7,7 @@ import File from './common/file';
 import EventHistory from './common/eventHistory';
 import Setting from './common/setting';
 import AlarmEmail from './common/alarmEmail';
-import Alarm from './common/alarm';
+import McsAlarm from './common/mcsAlarm';
 
 // dashboard
 import DailyStatistic from './dashboard/dailyStatistic';
@@ -35,7 +35,7 @@ const db = {
   EventHistory,
   Setting,
   AlarmEmail,
-  Alarm,
+  McsAlarm,
   /* dashboard */
   DailyStatistic,
   MonthlyStatistic,
@@ -60,7 +60,7 @@ export type dbType = typeof db;
 AlarmEmail.belongsTo(User, { foreignKey: { name: 'UserId' }, onDelete: 'SET NULL', as: 'User' });
 
 // Alarm
-Alarm.belongsTo(Facility, { foreignKey: { name: 'FacilityId' }, onDelete: 'SET NULL', as: 'Facility' });
+McsAlarm.belongsTo(Facility, { foreignKey: { name: 'FacilityId' }, onDelete: 'SET NULL', as: 'Facility' });
 
 /* operation */
 // Facility

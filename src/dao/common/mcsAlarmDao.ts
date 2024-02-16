@@ -1,19 +1,19 @@
 import { InsertedResult, SelectedListResult, UpdatedResult, DeletedResult } from '../../lib/resUtil';
-import Alarm, {
-  AlarmInsertParams,
-  AlarmSelectListParams,
-  AlarmSelectListQuery,
-  AlarmUpdateParams,
-  AlarmDeleteParams,
-  AlarmAttributes,
-  AlarmSelectInfoParams,
-} from '../../models/common/alarm';
+import McsAlarm, {
+  McsAlarmInsertParams,
+  McsAlarmSelectListParams,
+  McsAlarmSelectListQuery,
+  McsAlarmUpdateParams,
+  McsAlarmDeleteParams,
+  McsAlarmAttributes,
+  McsAlarmSelectInfoParams,
+} from '../../models/common/mcsAlarm';
 import Facility, { FacilityAttributesInclude } from '../../models/operation/facility';
 
 const dao = {
-  insert(params: AlarmInsertParams): Promise<InsertedResult> {
+  insert(params: McsAlarmInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      Alarm.create(params)
+      McsAlarm.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -22,8 +22,8 @@ const dao = {
         });
     });
   },
-  selectList(params: AlarmSelectListParams): Promise<SelectedListResult<AlarmAttributes>> {
-    const setQuery: AlarmSelectListQuery = {};
+  selectList(params: McsAlarmSelectListParams): Promise<SelectedListResult<McsAlarmAttributes>> {
+    const setQuery: McsAlarmSelectListQuery = {};
 
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;
@@ -50,7 +50,7 @@ const dao = {
     }
 
     return new Promise((resolve, reject) => {
-      Alarm.findAndCountAll({
+      McsAlarm.findAndCountAll({
         ...setQuery,
         distinct: true,
         include: [
@@ -69,9 +69,9 @@ const dao = {
         });
     });
   },
-  selectInfo(params: AlarmSelectInfoParams): Promise<AlarmAttributes | null> {
+  selectInfo(params: McsAlarmSelectInfoParams): Promise<McsAlarmAttributes | null> {
     return new Promise((resolve, reject) => {
-      Alarm.findByPk(params.id, {
+      McsAlarm.findByPk(params.id, {
         include: [
           // {
           //   model: AlarmGroup,
@@ -88,9 +88,9 @@ const dao = {
         });
     });
   },
-  update(params: AlarmUpdateParams): Promise<UpdatedResult> {
+  update(params: McsAlarmUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      Alarm.update(params, { where: { id: params.id } })
+      McsAlarm.update(params, { where: { id: params.id } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })
@@ -99,9 +99,9 @@ const dao = {
         });
     });
   },
-  delete(params: AlarmDeleteParams): Promise<DeletedResult> {
+  delete(params: McsAlarmDeleteParams): Promise<DeletedResult> {
     return new Promise((resolve, reject) => {
-      Alarm.destroy({
+      McsAlarm.destroy({
         where: { id: params.id },
       })
         .then((deleted) => {

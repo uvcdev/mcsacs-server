@@ -12,13 +12,13 @@ import {
   DeletedResult,
 } from '../../lib/resUtil';
 import {
-  AlarmDeleteParams,
-  AlarmInsertParams,
-  AlarmSelectListParams,
-  AlarmSelectInfoParams,
-  AlarmUpdateParams,
-} from '../../models/common/alarm';
-import { service as alarmService } from '../../service/common/alarmService';
+  McsAlarmDeleteParams,
+  McsAlarmInsertParams,
+  McsAlarmSelectListParams,
+  McsAlarmSelectInfoParams,
+  McsAlarmUpdateParams,
+} from '../../models/common/mcsAlarm';
+import { service as alarmService } from '../../service/common/mcsAlarmService';
 import { service as eventHistoryService } from '../../service/common/eventHistoryService';
 import { Payload } from '../../lib/tokenUtil';
 
@@ -27,11 +27,11 @@ const router = express.Router();
 const TABLE_NAME = 'alarms'; // 이벤트 히스토리를 위한 테이블 명
 
 // Alarm 등록
-router.post('/', isLoggedIn, async (req: Request<unknown, unknown, AlarmInsertParams, unknown>, res: Response) => {
+router.post('/', isLoggedIn, async (req: Request<unknown, unknown, McsAlarmInsertParams, unknown>, res: Response) => {
   const logFormat = makeLogFormat(req);
   const tokenUser = (req as { decoded?: Payload }).decoded;
   try {
-    const params: AlarmInsertParams = {
+    const params: McsAlarmInsertParams = {
       facilityId: req.body.facilityId,
       state: req.body.state,
       data: req.body.data || null,
@@ -65,11 +65,11 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, AlarmInsertPa
 router.get(
   '/',
   isLoggedIn,
-  async (req: Request<unknown, unknown, unknown, AlarmSelectListParams>, res: Response) => {
+  async (req: Request<unknown, unknown, unknown, McsAlarmSelectListParams>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
-      const params: AlarmSelectListParams = {
+      const params: McsAlarmSelectListParams = {
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         facilityId: req.query.facilityId,
         state: req.query.state,
@@ -99,13 +99,13 @@ router.get(
 router.get(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<AlarmSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<McsAlarmSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: AlarmSelectInfoParams = {
+      const params: McsAlarmSelectInfoParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -145,11 +145,11 @@ router.get(
 router.put(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<AlarmUpdateParams, unknown, AlarmUpdateParams, unknown>, res: Response) => {
+  async (req: Request<McsAlarmUpdateParams, unknown, McsAlarmUpdateParams, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
-      const params: AlarmUpdateParams = {
+      const params: McsAlarmUpdateParams = {
         id: Number(req.params.id),
         facilityId: req.body.facilityId,
         state: req.body.state,
@@ -189,12 +189,12 @@ router.put(
 router.delete(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<AlarmDeleteParams, unknown, AlarmDeleteParams, unknown>, res: Response) => {
+  async (req: Request<McsAlarmDeleteParams, unknown, McsAlarmDeleteParams, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
       // 요청 파라미터
-      const params: AlarmDeleteParams = {
+      const params: McsAlarmDeleteParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);

@@ -1,14 +1,14 @@
 import { logging, LogFormat } from '../../lib/logging';
 import { InsertedResult, SelectedListResult, UpdatedResult, DeletedResult } from '../../lib/resUtil';
 import {
-  AlarmInsertParams,
-  AlarmSelectListParams,
-  AlarmSelectInfoParams,
-  AlarmUpdateParams,
-  AlarmDeleteParams,
-  AlarmAttributes,
-} from '../../models/common/alarm';
-import { dao as alarmDao } from '../../dao/common/alarmDao';
+  McsAlarmInsertParams,
+  McsAlarmSelectListParams,
+  McsAlarmSelectInfoParams,
+  McsAlarmUpdateParams,
+  McsAlarmDeleteParams,
+  McsAlarmAttributes,
+} from '../../models/common/mcsAlarm';
+import { dao as mcsAlarmDao } from '../../dao/common/mcsAlarmDao';
 import { dao as alarmEmailDao } from '../../dao/common/alarmEmailDao';
 import { sendMail } from '../../lib/mailUtil';
 import { UserAttributes } from '../../models/common/user';
@@ -18,12 +18,25 @@ import { RedisKeys, useRedisUtil } from '../../lib/redisUtil';
 const redisUtil = useRedisUtil();
 
 const service = {
-  async reg(params: AlarmInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
+  async reg(params: McsAlarmInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
     try {
-      result = await alarmDao.insert(params);
+      result = await mcsAlarmDao.insert(params);
 
       // sendMqtt(`${MqttTopics.AlarmRegist}/${result.insertedId}`, JSON.stringify(params));
+      // const amr = await redisUtil.hgetObject<AmrAttributesDeep>(RedisKeys.InfoAmrById, params.amrId.toString());
+      // if (!amr) {
+      //   const error = `redis에 ${RedisKeys.InfoAmrById}, ${params.amrId} 데이터가 없습니다.`;
+      //   logging.ACTION_ERROR({
+      //     filename: 'alarmService.ts.reg',
+      //     error: error,
+      //     params: null,
+      //     result: false,
+      //   });
+      //   return new Promise((resolve, reject) => {
+      //     reject(new Error(error));
+      //   });
+      // }
       console.log(1)
       redisUtil.hset("k2", "f1", "01");
       console.log(2)
@@ -52,12 +65,12 @@ const service = {
     });
   },
   async list(
-    params: AlarmSelectListParams,
+    params: McsAlarmSelectListParams,
     logFormat: LogFormat<unknown>
-  ): Promise<SelectedListResult<AlarmAttributes>> {
-    let result: SelectedListResult<AlarmAttributes>;
+  ): Promise<SelectedListResult<McsAlarmAttributes>> {
+    let result: SelectedListResult<McsAlarmAttributes>;
     try {
-      result = await alarmDao.selectList(params);
+      result = await mcsAlarmDao.selectList(params);
 
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
@@ -97,11 +110,11 @@ const service = {
     });
   },
   // selectInfo
-  async info(params: AlarmSelectInfoParams, logFormat: LogFormat<unknown>): Promise<AlarmAttributes | null> {
-    let result: AlarmAttributes | null;
+  async info(params: McsAlarmSelectInfoParams, logFormat: LogFormat<unknown>): Promise<McsAlarmAttributes | null> {
+    let result: McsAlarmAttributes | null;
 
     try {
-      result = await alarmDao.selectInfo(params);
+      result = await mcsAlarmDao.selectInfo(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -115,10 +128,10 @@ const service = {
       resolve(result);
     });
   },
-  async edit(params: AlarmUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+  async edit(params: McsAlarmUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
     try {
-      result = await alarmDao.update(params);
+      result = await mcsAlarmDao.update(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -130,10 +143,10 @@ const service = {
       resolve(result);
     });
   },
-  async delete(params: AlarmDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
+  async delete(params: McsAlarmDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
     let result: DeletedResult;
     try {
-      result = await alarmDao.delete(params);
+      result = await mcsAlarmDao.delete(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
