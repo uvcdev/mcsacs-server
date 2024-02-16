@@ -12,12 +12,34 @@ import { dao as alarmDao } from '../../dao/common/alarmDao';
 import { dao as alarmEmailDao } from '../../dao/common/alarmEmailDao';
 import { sendMail } from '../../lib/mailUtil';
 import { UserAttributes } from '../../models/common/user';
+import { MqttTopics, sendMqtt } from '../../lib/mqttUtil';
+import { RedisKeys, useRedisUtil } from '../../lib/redisUtil';
+
+const redisUtil = useRedisUtil();
 
 const service = {
   async reg(params: AlarmInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
     try {
       result = await alarmDao.insert(params);
+
+      // sendMqtt(`${MqttTopics.AlarmRegist}/${result.insertedId}`, JSON.stringify(params));
+      console.log(1)
+      redisUtil.hset("k2", "f1", "01");
+      console.log(2)
+      // if (!amr) {
+      //   const error = `redis에 ${RedisKeys.InfoAmrById}, ${params.amrId} 데이터가 없습니다.`;
+      //   logging.ACTION_ERROR({
+      //     filename: 'alarmService.ts.reg',
+      //     error: error,
+      //     params: null,
+      //     result: false,
+      //   });
+      //   return new Promise((resolve, reject) => {
+      //     reject(new Error(error));
+      //   });
+      // }
+
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);

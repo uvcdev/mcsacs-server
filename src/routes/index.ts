@@ -192,7 +192,7 @@ router.use('/common-codes', commonCodeRouter);
 router.use('/token-histories', tokenHistoryRouter);
 router.use('/settings', settingRouter);
 router.use('/alarm-emails', alarmEmailRouter);
-router.use('/mcs-alarms', alarmRouter);
+router.use('/alarms', alarmRouter);
 // dashboard
 router.use('/daily-statistics', dailyStatisticRouter);
 router.use('/monthly-statistics', monthlyStatisticRouter);

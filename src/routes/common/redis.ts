@@ -10,7 +10,7 @@ import {
   makeResponseError as resError,
   ErrorClass,
 } from '../../lib/resUtil';
-import { redisFlushall, redisSet, redisHset, redisGet, redisHget } from '../../lib/redisUtil';
+import { redisFlushall, redisSet, redisHset, redisGet, redisHget } from '../../lib/redisUtil_back';
 
 const router = express.Router();
 
