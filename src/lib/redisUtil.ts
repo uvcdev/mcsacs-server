@@ -71,6 +71,8 @@ export enum RedisKeys {
   WorkOrderById = 'work_order_by_id',
   OrdersByFacilityId = 'orders_by_facility_id',
   Setting = 'setting',
+  InfoFacility = 'info_facility',
+  InfoFacilityById = 'info_facility_by_id',
 }
 export enum RedisSettingKeys {
   AmrSetting = 'amrSetting', // amr(로봇) 충전 관련 설정

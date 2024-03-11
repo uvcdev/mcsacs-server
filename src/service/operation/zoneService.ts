@@ -82,10 +82,7 @@ const service = {
     });
   },
   // selectList
-  async list(
-    params: ZoneSelectListParams,
-    logFormat: LogFormat<unknown>
-  ): Promise<SelectedListResult<ZoneAttributes>> {
+  async list(params: ZoneSelectListParams, logFormat: LogFormat<unknown>): Promise<SelectedListResult<ZoneAttributes>> {
     let result: SelectedListResult<ZoneAttributes>;
 
     try {

@@ -64,7 +64,10 @@ const service = {
 
       // ACS 테이블 입력
       const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent.post(`${restapiUrl}/facility-groups`).set('access-token', accessToken).send(params);
+      const response = await superagent
+        .post(`${restapiUrl}/facility-groups`)
+        .set('access-token', accessToken)
+        .send(params);
       const responseData: Record<string, any> = JSON.parse(response.text).Data;
       logging.METHOD_ACTION(logFormat, __filename, params, responseData);
 
@@ -120,7 +123,10 @@ const service = {
     });
   },
   // selectInfo
-  async info(params: FacilityGroupSelectInfoParams, logFormat: LogFormat<unknown>): Promise<FacilityGroupAttributes | null> {
+  async info(
+    params: FacilityGroupSelectInfoParams,
+    logFormat: LogFormat<unknown>
+  ): Promise<FacilityGroupAttributes | null> {
     let result: FacilityGroupAttributes | null;
 
     try {
@@ -149,7 +155,10 @@ const service = {
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
       const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent.put(`${restapiUrl}/facility-groups/code/:code`).set('access-token', accessToken).send(params);
+      const response = await superagent
+        .put(`${restapiUrl}/facility-groups/code/:code`)
+        .set('access-token', accessToken)
+        .send(params);
       const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
       logging.METHOD_ACTION(logFormat, __filename, null, responseData);

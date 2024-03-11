@@ -26,48 +26,52 @@ const router = express.Router();
 const TABLE_NAME = 'facilityGroups'; // 이벤트 히스토리를 위한 테이블 명
 
 // facilityGroup 등록
-router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityGroupInsertParams, unknown>, res: Response) => {
-  const logFormat = makeLogFormat(req);
-  const tokenUser = (req as { decoded?: Payload }).decoded;
+router.post(
+  '/',
+  isLoggedIn,
+  async (req: Request<unknown, unknown, FacilityGroupInsertParams, unknown>, res: Response) => {
+    const logFormat = makeLogFormat(req);
+    const tokenUser = (req as { decoded?: Payload }).decoded;
+    console.log(1);
+    try {
+      // 요청 파라미터
+      const params: FacilityGroupInsertParams = {
+        code: req.body.code,
+        name: req.body.name,
+        description: req.body.description,
+      };
+      logging.REQUEST_PARAM(logFormat);
 
-  try {
-    // 요청 파라미터
-    const params: FacilityGroupInsertParams = {
-      code: req.body.code,
-      name: req.body.name,
-      description: req.body.description,
-    };
-    logging.REQUEST_PARAM(logFormat);
+      // 입력값 체크
+      if (!params.name && !params.code) {
+        const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (name, code)');
 
-    // 입력값 체크
-    if (!params.name && !params.code) {
-      const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (name, code)');
+        const resJson = resError(err);
+        logging.RESPONSE_DATA(logFormat, resJson);
 
+        return res.status(resJson.status).json(resJson);
+      }
+
+      // 비즈니스 로직 호출
+      const result = await facilityGroupService.reg(params, logFormat);
+
+      // 최종 응답 값 세팅
+      const resJson = resSuccess(result, resType.REG);
+      logging.RESPONSE_DATA(logFormat, resJson);
+
+      // 이벤트 로그 기록(비동기)
+      void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'Create', TABLE_NAME);
+
+      return res.status(resJson.status).json(resJson);
+    } catch (err) {
+      // 에러 응답 값 세팅
       const resJson = resError(err);
       logging.RESPONSE_DATA(logFormat, resJson);
 
       return res.status(resJson.status).json(resJson);
     }
-
-    // 비즈니스 로직 호출
-    const result = await facilityGroupService.reg(params, logFormat);
-
-    // 최종 응답 값 세팅
-    const resJson = resSuccess(result, resType.REG);
-    logging.RESPONSE_DATA(logFormat, resJson);
-
-    // 이벤트 로그 기록(비동기)
-    void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'Create', TABLE_NAME);
-
-    return res.status(resJson.status).json(resJson);
-  } catch (err) {
-    // 에러 응답 값 세팅
-    const resJson = resError(err);
-    logging.RESPONSE_DATA(logFormat, resJson);
-
-    return res.status(resJson.status).json(resJson);
   }
-});
+);
 
 // facilityGroup 리스트 조회
 router.get(

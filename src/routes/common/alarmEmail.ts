@@ -38,6 +38,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, AlarmEmailIns
       name: req.body.name,
       userId: req.body.userId ?? tokenUser?.id ?? null,
       description: req.body.description,
+      active: req.body.active,
     };
     logging.REQUEST_PARAM(logFormat);
 
@@ -77,7 +78,6 @@ router.get(
   async (req: Request<unknown, unknown, unknown, AlarmEmailSelectListParams>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
-
     try {
       // 요청 파라미터
       const params: AlarmEmailSelectListParams = {
@@ -85,6 +85,7 @@ router.get(
         email: req.query.email,
         name: req.query.name,
         userIds: req.query.userIds ? ((req.query.userIds as unknown) as string).split(',').map((i) => Number(i)) : null,
+        active: req.query.active,
         createdAtFrom: req.query.createdAtFrom,
         createdAtTo: req.query.createdAtTo,
         limit: Number(req.query.limit || 'NaN'),
@@ -129,7 +130,6 @@ router.get(
   async (req: Request<AlarmEmailSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
-
     try {
       // 요청 파라미터
       const params: AlarmEmailSelectInfoParams = {
@@ -183,6 +183,7 @@ router.put(
         name: req.body.name,
         userId: req.body.userId ?? tokenUser?.id ?? null,
         description: req.body.description,
+        active: req.body.active,
       };
       logging.REQUEST_PARAM(logFormat);
 

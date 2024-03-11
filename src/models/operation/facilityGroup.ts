@@ -32,7 +32,7 @@ FacilityGroup.init(
     code: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      unique: 'unique_code'
+      unique: 'unique_code',
     },
     name: {
       type: DataTypes.STRING(50),
@@ -100,12 +100,6 @@ export interface FacilityGroupDeleteParams {
 }
 
 // include attributes
-export const FacilityGroupAttributesInclude = [
-  'id',
-  'code',
-  'name',
-  'description',
-  'createdAt',
-];
+export const FacilityGroupAttributesInclude = ['id', 'code', 'name', 'description', 'createdAt'];
 
 export default FacilityGroup;

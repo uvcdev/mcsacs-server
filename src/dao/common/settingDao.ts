@@ -11,9 +11,9 @@ import Setting, {
 } from '../../models/common/setting';
 
 const dao = {
-  insert(params: SettingInsertParams, transaction: Transaction): Promise<InsertedResult> {
+  insert(params: SettingInsertParams): Promise<InsertedResult> {
     return new Promise((resolve, reject) => {
-      Setting.create(params, { transaction })
+      Setting.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -69,9 +69,9 @@ const dao = {
         });
     });
   },
-  update(params: SettingUpdateParams, transaction: Transaction): Promise<UpdatedResult> {
+  update(params: SettingUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      Setting.update(params, { where: { id: params.id }, transaction })
+      Setting.update(params, { where: { id: params.id } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });
         })

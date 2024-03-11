@@ -51,11 +51,7 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityInser
     logging.REQUEST_PARAM(logFormat);
 
     // 입력값 체크
-    if (
-      !(typeof params.facilityGroupId === 'number' && params.facilityGroupId > 0) ||
-      !params.code ||
-      !params.name
-    ) {
+    if (!(typeof params.facilityGroupId === 'number' && params.facilityGroupId > 0) || !params.code || !params.name) {
       const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (facilityGroupId, code, name)');
 
       const resJson = resError(err);
@@ -96,9 +92,15 @@ router.get(
       // 요청 파라미터
       const params: FacilitySelectListParams = {
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
-        facilityGroupIds: req.query.facilityGroupIds ? ((req.query.facilityGroupIds as unknown) as string).split(',').map((i) => Number(i)) : null,
-        zondeIds: req.query.zondeIds ? ((req.query.zondeIds as unknown) as string).split(',').map((i) => Number(i)) : null,
-        dockingZoneIds: req.query.dockingZoneIds ? ((req.query.dockingZoneIds as unknown) as string).split(',').map((i) => Number(i)) : null,
+        facilityGroupIds: req.query.facilityGroupIds
+          ? ((req.query.facilityGroupIds as unknown) as string).split(',').map((i) => Number(i))
+          : null,
+        zondeIds: req.query.zondeIds
+          ? ((req.query.zondeIds as unknown) as string).split(',').map((i) => Number(i))
+          : null,
+        dockingZoneIds: req.query.dockingZoneIds
+          ? ((req.query.dockingZoneIds as unknown) as string).split(',').map((i) => Number(i))
+          : null,
         code: req.query.code,
         name: req.query.name,
         system: req.query.system,
@@ -212,9 +214,7 @@ router.put(
       logging.REQUEST_PARAM(logFormat);
 
       // 입력값 체크
-      if (!(typeof params.facilityGroupId === 'number' && params.facilityGroupId > 0)
-        || !params.code
-        || !params.name) {
+      if (!(typeof params.facilityGroupId === 'number' && params.facilityGroupId > 0) || !params.code || !params.name) {
         const err = new ErrorClass(resCode.BAD_REQUEST_NOTNULL, 'Not allowed null (facilityGroupId, code, name)');
 
         const resJson = resError(err);

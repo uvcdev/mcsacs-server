@@ -40,12 +40,6 @@ const dao = {
     // DB에 넘길 최종 쿼리 세팅
     const setQuery: UserSelectListQuery = {};
     // 1. where조건 세팅
-    if (params.ids) {
-      setQuery.where = {
-        ...setQuery.where,
-        id: params.ids, // 'in' 검색
-      };
-    }
     if (params.userid) {
       setQuery.where = {
         ...setQuery.where,
@@ -79,16 +73,7 @@ const dao = {
         },
         attributes: { exclude: ['password'] }, // 해당 필드 제외
         distinct: true,
-        include: [
-          {
-            model: CommonCode,
-            as: 'Eligibilities',
-            attributes: CommonCodeAttributesInclude,
-            through: {
-              attributes: [],
-            },
-          },
-        ],
+        include: [],
       })
         .then((selectedList) => {
           resolve(selectedList);
@@ -102,16 +87,7 @@ const dao = {
     return new Promise((resolve, reject) => {
       User.findByPk(params.id, {
         attributes: { exclude: ['password'] }, // 해당 필드 제외
-        include: [
-          {
-            model: CommonCode,
-            as: 'Eligibilities',
-            attributes: CommonCodeAttributesInclude,
-            through: {
-              attributes: [],
-            },
-          },
-        ],
+        include: [],
       })
         .then((selectedInfo) => {
           resolve(selectedInfo);
@@ -218,7 +194,7 @@ const dao = {
   selectOne(params: UserSelectOneParams): Promise<UserAttributes | null> {
     return new Promise((resolve, reject) => {
       User.findOne({
-        attributes: ['id', 'companyId', 'userid', 'password', 'name', 'auth'],
+        attributes: ['id', 'userid', 'password', 'name'],
         where: { id: params.id },
       })
         .then((selectedOne) => {

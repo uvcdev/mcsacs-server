@@ -62,6 +62,12 @@ const dao = {
         userId: params.userIds, // 'in' 검색
       };
     }
+    if (params.active) {
+      setQuery.where = {
+        ...setQuery.where,
+        active: params.active, // true/false 검색
+      };
+    }
     // 기간 검색 - 등록일
     if (params.createdAtFrom || params.createdAtTo) {
       if (params.createdAtFrom && params.createdAtTo) {

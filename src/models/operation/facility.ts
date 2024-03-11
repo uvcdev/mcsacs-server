@@ -1,5 +1,6 @@
 import { Model, DataTypes, WhereOptions, Order } from 'sequelize';
 import { sequelize } from '../sequelize';
+import { ZoneAttributes } from './zone';
 
 // 기본 interface
 export interface FacilityAttributes {
@@ -21,6 +22,10 @@ export interface FacilityAttributes {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+}
+
+export interface FacilityAttributesDeep extends FacilityAttributes {
+  Zone: ZoneAttributes;
 }
 
 class Facility extends Model implements FacilityAttributes {

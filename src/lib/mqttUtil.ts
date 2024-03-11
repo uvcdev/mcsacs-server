@@ -85,6 +85,24 @@ export const receiveMqtt = (): void => {
           });
         }
       });
+
+      // mcs mqtt 구독
+      client.subscribe(`${topic.includes('MCS')}/#`, (err) => {
+        logging.MQTT_LOG({
+          title: 'mqtt subscribe',
+          topic,
+          message: null,
+        });
+
+        if (err) {
+          logging.MQTT_ERROR({
+            title: 'mqtt subscribe error',
+            topic,
+            message: null,
+            error: err,
+          });
+        }
+      });
     });
 
     // 메세지 수신

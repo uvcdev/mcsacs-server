@@ -72,6 +72,12 @@ const dao = {
         state: params.state, // '=' 검색
       };
     }
+    if (params.facilityGroupIds) {
+      setQuery.where = {
+        ...setQuery.where,
+        facilityGroupId: params.facilityGroupIds, // 'in' 검색
+      };
+    }
     // 2. limit, offset 세팅
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;

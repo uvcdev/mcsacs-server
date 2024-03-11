@@ -23,6 +23,10 @@ import { dao as settingDao } from '../../dao/common/settingDao';
 import { restapiConfig } from '../../config/restapiConfig';
 import superagent from 'superagent';
 import { logSequelize, sequelize } from '../../models';
+import { RedisKeys, useRedisUtil, RedisSettingKeys } from '../../lib/redisUtil';
+import { useTimescaleUtil } from '../../lib/timescaleUtil';
+const redisUtil = useRedisUtil();
+const timescaleUtil = useTimescaleUtil();
 
 const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
 let accessToken = '';
@@ -53,64 +57,34 @@ const service = {
   },
   async reg(params: SettingInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
-    const transaction: Transaction = await sequelize.transaction();
 
     try {
-      result = await settingDao.insert(params, transaction);
+      result = await settingDao.insert(params);
+      void this.redisInit();
+      if (params.type === 'logRetentionPeriod') {
+        try {
+          const logPeriod = (params.data as unknown) as { mcsLog: number };
+          try {
+            const remove = await logSequelize.query(`SELECT remove_retention_policy('logs');`);
+          } catch (err) {
+            const add = await logSequelize.query(
+              `SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog}');`
+            );
+          }
+          const add = await logSequelize.query(`SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog}');`);
+        } catch (err) {
+          // 에러 응답값 세팅
+          const resJson = resError(err);
+          logging.RESPONSE_DATA(logFormat, resJson);
+        }
+      }
+
       logging.METHOD_ACTION(logFormat, __filename, params, result);
-
-      // ACS 테이블 입력
-      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent.post(`${restapiUrl}/settings`).set('access-token', accessToken).send(params);
-      const responseData: Record<string, any> = JSON.parse(response.text).Data;
-      logging.METHOD_ACTION(logFormat, __filename, params, responseData);
-
-      await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
-      await transaction.rollback(); // 트랜잭션 롤백
       logging.ERROR_METHOD(logFormat, __filename, params, err);
       return new Promise((resolve, reject) => {
         reject(err);
       });
-    }
-
-    try {
-      logging.REQUEST_PARAM(logFormat);
-
-      const logPeriod = JSON.parse(JSON.stringify(params["data"]))
-      logSequelize
-        .sync({
-          force: false,
-        })
-        .then(async () => {
-          await logSequelize.query(`SELECT remove_retention_policy('logs');
-                                    SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} ');`);
-          // 최종 응답 값 세팅
-          const resJson = resSuccess(
-            {
-              result: {
-                action: 'adjustment data',
-                DB: {
-                  LOG_DB_HOST: process.env.LOG_DB_HOST,
-                  LOG_DB_PORT: process.env.LOG_DB_PORT,
-                  LOG_DB_DATABASE: process.env.LOG_DB_DATABASE,
-                  LOG_DB_ID: process.env.LOG_DB_ID,
-                  LOG_DB_DIALECT: process.env.LOG_DB_DIALECT,
-                },
-              },
-            },
-            resType.FREESTYLE
-          );
-          logging.RESPONSE_DATA(logFormat, resJson);
-        })
-        .catch((err) => {
-          const resJson = resError(err);
-          logging.RESPONSE_DATA(logFormat, resJson);
-        });
-    } catch (err) {
-      // 에러 응답값 세팅
-      const resJson = resError(err);
-      logging.RESPONSE_DATA(logFormat, resJson);
     }
 
     return new Promise((resolve) => {
@@ -155,67 +129,37 @@ const service = {
       resolve(result);
     });
   },
+  // update
   async edit(params: SettingUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
-    const transaction: Transaction = await sequelize.transaction();
-
     try {
-      result = await settingDao.update(params, transaction);
+      result = await settingDao.update(params);
+      void this.redisInit();
+      if (params.type === 'logRetentionPeriod') {
+        try {
+          const logPeriod = (params.data as unknown) as { mcsLog: number };
+          try {
+            const remove = await logSequelize.query(`SELECT remove_retention_policy('logs');`);
+          } catch (err) {
+            const add = await logSequelize.query(
+              `SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog}');`
+            );
+          }
+          const add = await logSequelize.query(`SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog}');`);
+        } catch (err) {
+          // 에러 응답값 세팅
+          const resJson = resError(err);
+          logging.RESPONSE_DATA(logFormat, resJson);
+        }
+      }
+
       logging.METHOD_ACTION(logFormat, __filename, params, result);
-
-      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      console.log("🚀 ~ edit ~ params:", params)
-      const response = await superagent.put(`${restapiUrl}/settings/type/:type`).set('access-token', accessToken).send(params);
-      const responseData: Record<string, any> = JSON.parse(response.text).Data;
-
-      logging.METHOD_ACTION(logFormat, __filename, null, responseData);
-
-      await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
-      await transaction.rollback(); // 트랜잭션 롤백
       logging.ERROR_METHOD(logFormat, __filename, params, err);
+
       return new Promise((resolve, reject) => {
         reject(err);
       });
-    }
-
-    try {
-      logging.REQUEST_PARAM(logFormat);
-
-      const logPeriod = JSON.parse(JSON.stringify(params["data"]))
-      logSequelize
-        .sync({
-          force: false,
-        })
-        .then(async () => {
-          await logSequelize.query(`SELECT remove_retention_policy('logs');
-                                    SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} months');`);
-          // 최종 응답 값 세팅
-          const resJson = resSuccess(
-            {
-              result: {
-                action: 'adjustment data',
-                DB: {
-                  LOG_DB_HOST: process.env.LOG_DB_HOST,
-                  LOG_DB_PORT: process.env.LOG_DB_PORT,
-                  LOG_DB_DATABASE: process.env.LOG_DB_DATABASE,
-                  LOG_DB_ID: process.env.LOG_DB_ID,
-                  LOG_DB_DIALECT: process.env.LOG_DB_DIALECT,
-                },
-              },
-            },
-            resType.FREESTYLE
-          );
-          logging.RESPONSE_DATA(logFormat, resJson);
-        })
-        .catch((err) => {
-          const resJson = resError(err);
-          logging.RESPONSE_DATA(logFormat, resJson);
-        });
-    } catch (err) {
-      // 에러 응답값 세팅
-      const resJson = resError(err);
-      logging.RESPONSE_DATA(logFormat, resJson);
     }
 
     return new Promise((resolve) => {
@@ -233,6 +177,34 @@ const service = {
         reject(err);
       });
     }
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+  // redis init
+  async redisInit(): Promise<InsertedResult> {
+    let result: InsertedResult;
+    try {
+      redisUtil.del(RedisKeys.Setting);
+      const settingList = await settingDao.selectList({});
+      settingList.rows.forEach((setting) => {
+        redisUtil.hset(RedisKeys.Setting, setting?.type || '', JSON.stringify(setting));
+      });
+
+      logging.ACTION_DEBUG({ filename: 'settingService.ts', error: null, params: null, result: true });
+    } catch (err) {
+      logging.ACTION_ERROR({
+        filename: 'settingService.ts',
+        error: 'redis acs setting값 초기화 실패',
+        params: null,
+        result: false,
+      });
+
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
     return new Promise((resolve) => {
       resolve(result);
     });

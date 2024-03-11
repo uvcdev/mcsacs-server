@@ -10,6 +10,7 @@ import {
 } from '../../lib/resUtil';
 import {
   FacilityAttributes,
+  FacilityAttributesDeep,
   FacilityDeleteParams,
   FacilityInsertParams,
   FacilitySelectInfoParams,
@@ -24,9 +25,38 @@ import * as process from 'process';
 import superagent from 'superagent';
 import { restapiConfig } from '../../config/restapiConfig';
 import { sequelize } from '../../models';
+import { FacilityStatusType } from '../../lib/facilityUtil';
+import { RedisKeys, useRedisUtil } from '../../lib/redisUtil';
 
+const redisUtil = useRedisUtil();
 const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
 let accessToken = '';
+
+// export const redisFacilityInfoUpdate = async (facilityStatus: FacilityStatusType) => {
+//   const facilityInfo = await redisUtil.hgetObject<FacilityAttributesDeep>(RedisKeys.InfoFacility, facilityStatus.id || '');
+//   if (!facilityInfo) {
+//     logging.ACTION_ERROR({
+//       filename: 'facilityService.ts.redisFacilityInfoUpdate',
+//       error: `redis에 ${RedisKeys.InfoFacility}, ${facilityStatus.id} 데이터가 없습니다.`,
+//       params: null,
+//       result: false,
+//     });
+//     return;
+//   }
+//   const newFacilityInfo = await addRealTimeFacilityData(facilityInfo);
+//   const newFacilityInfoString = JSON.stringify(newFacilityInfo);
+//   redisUtil.hset(RedisKeys.InfoFacility, facilityInfo.code || '', newFacilityInfoString);
+//   redisUtil.hset(RedisKeys.InfoFacilityById, facilityInfo.id.toString(), newFacilityInfoString);
+// };
+// const addRealTimeFacilityData = async (facilityData: FacilityAttributesDeep) => {
+//   const realTimeFacilityDataString = await redisUtil.hget(RedisKeys.WorkerStatus, facilityData.code) || '';
+//   if (!realTimeFacilityDataString) {
+//     return (facilityData.RealTime = null);
+//   // }
+//   const realTimeFacilityData = JSON.parse(realTimeFacilityDataString) as FacilityStatusType;
+//   facilityData.RealTime = realTimeFacilityData;
+//   return facilityData;
+// };
 
 const service = {
   // restapi login
@@ -68,9 +98,10 @@ const service = {
 
       // ACS 테이블 입력
       const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken,).send(params);
-      const responseData: Record<string, any> = JSON.parse(response.text).Data;
-      logging.METHOD_ACTION(logFormat, __filename, params, responseData);
+      const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken).send(params);
+      console.log('🚀 ~ reg ~ response:', response);
+      // const responseData: Record<string, any> = JSON.parse(response.text).Data;
+      // logging.METHOD_ACTION(logFormat, __filename, params, responseData);
 
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
@@ -94,6 +125,7 @@ const service = {
     let result: SelectedListResult<FacilityAttributes>;
 
     try {
+      console.log('??');
       result = await facilityDao.selectList(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
@@ -139,7 +171,10 @@ const service = {
 
       // ACS 테이블 입력
       const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent.put(`${restapiUrl}/facilities/code/:code`).set('access-token', accessToken).send(params);
+      const response = await superagent
+        .put(`${restapiUrl}/facilities/code/:code`)
+        .set('access-token', accessToken)
+        .send(params);
       const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
       logging.METHOD_ACTION(logFormat, __filename, null, responseData);

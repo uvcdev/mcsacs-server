@@ -8,6 +8,7 @@ export interface AlarmEmailAttributes {
   name: string;
   userId: number | null;
   description: string | null;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -19,6 +20,7 @@ class AlarmEmail extends Model implements AlarmEmailAttributes {
   public name!: AlarmEmailAttributes['name'];
   public userId!: AlarmEmailAttributes['userId'];
   public description!: AlarmEmailAttributes['description'];
+  public active!: AlarmEmailAttributes['active'];
   public readonly createdAt!: AlarmEmailAttributes['createdAt'];
   public readonly updatedAt!: AlarmEmailAttributes['updatedAt'];
   public readonly deletedAt!: AlarmEmailAttributes['deletedAt'];
@@ -45,6 +47,10 @@ AlarmEmail.init(
     description: {
       type: DataTypes.STRING,
     },
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
   },
   {
     sequelize,
@@ -62,6 +68,7 @@ export interface AlarmEmailInsertParams {
   name: string;
   userId: number | null;
   description: string | null;
+  active: boolean;
 }
 
 // selectList
@@ -70,6 +77,7 @@ export interface AlarmEmailSelectListParams {
   email?: string | null;
   name?: string | null;
   userIds?: number[] | null;
+  active?: boolean | null;
   createdAtFrom?: Date | null;
   createdAtTo?: Date | null;
   limit?: number;
@@ -100,6 +108,7 @@ export interface AlarmEmailUpdateParams {
   name?: string;
   userId?: number | null;
   description?: string;
+  active?: boolean;
 }
 
 // delete
@@ -108,6 +117,6 @@ export interface AlarmEmailDeleteParams {
 }
 
 // include attributes
-export const AlarmEmailAttributesInclude = ['id', 'email', 'name', 'userId', 'description', 'createdAt'];
+export const AlarmEmailAttributesInclude = ['id', 'email', 'name', 'userId', 'description', 'active', 'createdAt'];
 
 export default AlarmEmail;
