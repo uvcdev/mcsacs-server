@@ -142,10 +142,12 @@ const service = {
             const remove = await logSequelize.query(`SELECT remove_retention_policy('logs');`);
           } catch (err) {
             const add = await logSequelize.query(
-              `SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog}');`
+              `SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} day');`
             );
           }
-          const add = await logSequelize.query(`SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog}');`);
+          const add = await logSequelize.query(
+            `SELECT add_retention_policy('logs', INTERVAL '${logPeriod.mcsLog} day');`
+          );
         } catch (err) {
           // 에러 응답값 세팅
           const resJson = resError(err);
