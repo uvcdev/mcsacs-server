@@ -16,7 +16,7 @@ type MqttConfig = {
 const mqttConfig: MqttConfig = {
   host: process.env.MQTT_HOST || '',
   port: Number(process.env.MQTT_PORT || '1883'),
-  topic: process.env.MQTT_TOPIC || 'mes',
+  topic: process.env.MQTT_TOPIC || 'mcs',
 };
 
 export enum MqttTopics {
@@ -25,10 +25,11 @@ export enum MqttTopics {
   Docking = 'docking',
   AlarmRegist = 'alarm/regist',
   AlarmClear = 'alarm/clear',
+  IsAlive = 'is-alive',
 }
 
 // broker에 접속될 클라이언트 아이디(unique필요)
-const clientId = 'mes_' + Math.random().toString(16).substr(2, 8);
+const clientId = 'mcs_' + Math.random().toString(16).substr(2, 8);
 
 const options: IClientOptions = {
   host: mqttConfig.host,
@@ -38,6 +39,17 @@ const options: IClientOptions = {
 
 const client = mqtt.connect(options);
 const topic = mqttConfig.topic;
+
+// 10초마다 서버 상태 acs로 보내기
+if (mqttConfig.host !== '') {
+  setInterval(() => {
+    try {
+      sendMqtt(`${MqttTopics.IsAlive}`, JSON.stringify(true));
+    } catch (error) {
+      error;
+    }
+  }, 10000);
+}
 
 // mqtt 연결, 구독, 메세지 수신
 export const receiveMqtt = (): void => {

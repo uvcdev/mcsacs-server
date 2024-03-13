@@ -197,7 +197,7 @@ const service = {
     } catch (err) {
       logging.ACTION_ERROR({
         filename: 'settingService.ts',
-        error: 'redis acs setting값 초기화 실패',
+        error: 'redis mcs setting값 초기화 실패',
         params: null,
         result: false,
       });
