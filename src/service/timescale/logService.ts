@@ -14,7 +14,12 @@ const logService = {
   async reg(params: LogInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
     try {
-      result = await logDao.insert(params);
+      const tempResult = await logDao.insert(params);
+      if (!tempResult) {
+        result = {} as InsertedResult;
+      } else {
+        result = tempResult;
+      }
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);

@@ -3,6 +3,7 @@ import logger from './logger';
 import { v4 as uuidv4 } from 'uuid';
 import { ResponseJson, responseCode, SelectedInfoResult } from './resUtil';
 import requestIp from 'request-ip';
+import { logDao } from '../dao/timescale/logDao';
 
 export interface LogHeader {
   traceId: string | null; // 외부에서 API를 호출했을때 사용 할 "외부용 추적 키 값" (보통 Front-end에서 생성함)
@@ -48,11 +49,18 @@ interface MqttLogFormat {
   message: unknown;
   error?: unknown;
 }
+type WsLogFormat = {
+  // WebSocket 로그에 필요한 필드들을 정의
+  // 예시:
+  message: string;
+  error?: unknown;
+  // 기타 필요한 필드 추가
+};
 
 // 최종 로그 포맷은 이러하다.
 export interface LogFormat<T> {
   timestamp: string;
-  logLevel: string;
+  type: string;
   logPoint: string;
   traceId: LogHeader['traceId'];
   spanId: LogHeader['spanId'];
@@ -68,7 +76,7 @@ export interface LogFormat<T> {
 export function makeLogFormat(req: RequestLog): LogFormat<unknown> {
   return {
     timestamp: '',
-    logLevel: '',
+    type: '',
     logPoint: '',
     traceId: req.headers && req.headers['trace-id'] ? (req.headers['trace-id'] as string) : null,
     spanId: uuidv4(),
@@ -93,21 +101,21 @@ export function makeLogFormat(req: RequestLog): LogFormat<unknown> {
 export const logging = {
   TEST_LOG(testLog: unknown): void {
     // 용도: 개발 시 디버깅용 로그(실 운영시 사용 금지!)
-    const logLevel = 'debug';
+    const type = 'debug';
 
     const logFormat: TestLogFormat = {
       timestamp: new Date().toISOString(),
       testLog,
     };
-    logger[logLevel](JSON.stringify(logFormat));
+    logger[type](JSON.stringify(logFormat));
   },
   SYSTEM_LOG(systemLog: SystemLog): void {
     // 용도: 시스템용 로그(시스템에서 동작 시 로깅처리)
-    const logLevel = 'info';
+    const type = 'info';
 
     const logFormat: LogFormat<unknown> = {
       timestamp: new Date().toISOString(),
-      logLevel,
+      type,
       logPoint: 'SYSTEM_LOG',
       traceId: '',
       spanId: '',
@@ -137,11 +145,11 @@ export const logging = {
       },
       systemLog,
     };
-    logger[logLevel](JSON.stringify(logFormat));
+    logger[type](JSON.stringify(logFormat));
   },
   SYSTEM_ERROR(systemLog: SystemLog, err: Error): void {
     // 용도: 시스템용 에러 로그(시스템에서 동작 시 로깅처리)
-    const logLevel = 'error';
+    const type = 'error';
 
     const error = {
       message: err instanceof Error ? err.message : '',
@@ -150,7 +158,7 @@ export const logging = {
 
     const logFormat: LogFormat<unknown> = {
       timestamp: new Date().toISOString(),
-      logLevel,
+      type,
       logPoint: 'SYSTEM_ERROR',
       traceId: '',
       spanId: '',
@@ -183,11 +191,11 @@ export const logging = {
         error,
       },
     };
-    logger[logLevel](JSON.stringify(logFormat));
+    logger[type](JSON.stringify(logFormat));
   },
   REQUEST_PARAM(logFormat: LogFormat<unknown>): void {
     // 용도: API 요청(request)시 로깅 처리
-    const logLevel = 'info';
+    const type = 'info';
 
     // 요청값 안에 password가 있으면 '******'로 치환 한다.
     if (logFormat.requestLog.body && 'password' in (logFormat.requestLog.body as { password?: string })) {
@@ -206,14 +214,14 @@ export const logging = {
     const logPrint = {
       ...logFormat,
       timestamp: new Date().toISOString(),
-      logLevel,
+      type,
       logPoint: 'REQUEST_PARAM',
     };
-    logger[logLevel](JSON.stringify(logPrint));
+    logger[type](JSON.stringify(logPrint));
   },
   METHOD_ACTION(logFormat: LogFormat<unknown>, filename: string, params: unknown, result: unknown): void {
     // 용도: 메소드 동작시 로깅 처리
-    const logLevel = 'debug';
+    const type = 'debug';
 
     // 요청값 안에 password가 있으면 '******'로 치환 한다.
     if (logFormat.requestLog.body && 'password' in (logFormat.requestLog.body as { password?: string })) {
@@ -240,7 +248,7 @@ export const logging = {
     const logPrint = {
       ...logFormat,
       timestamp: new Date().toISOString(),
-      logLevel,
+      type,
       logPoint: 'METHOD_ACTION',
       actionLog: {
         filename,
@@ -249,11 +257,11 @@ export const logging = {
         error: null,
       },
     };
-    logger[logLevel](JSON.stringify(logPrint));
+    logger[type](JSON.stringify(logPrint));
   },
   ERROR_METHOD(logFormat: LogFormat<unknown>, filename: string, params: unknown, error: unknown): void {
     // 용도: 예외처리 발생 시 로깅 처리
-    const logLevel = 'error';
+    const type = 'error';
 
     // 요청값 안에 password가 있으면 '******'로 치환 한다.
     if (logFormat.requestLog.body && 'password' in (logFormat.requestLog.body as { password?: string })) {
@@ -283,7 +291,7 @@ export const logging = {
     const logPrint = {
       ...logFormat,
       timestamp: new Date().toISOString(),
-      logLevel,
+      type,
       logPoint: 'ERROR_METHOD',
       actionLog: {
         filename,
@@ -293,11 +301,11 @@ export const logging = {
       },
     };
 
-    logger[logLevel](JSON.stringify(logPrint));
+    logger[type](JSON.stringify(logPrint));
   },
   RESPONSE_DATA(logFormat: LogFormat<unknown>, responseLog: ResponseJson<unknown>): void {
     // 용도: 최종 응답에 대한 로깅 처리
-    const logLevel = 'info';
+    const type = 'info';
 
     // 요청값 안에 password가 있으면 '******'로 치환 한다.
     if (logFormat.requestLog.body && 'password' in (logFormat.requestLog.body as { password?: string })) {
@@ -348,42 +356,48 @@ export const logging = {
 
     const logPrint = {
       ...logFormat,
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'RESPONSE_DATA',
       responseLog,
     };
-    logger[logLevel](JSON.stringify(logPrint));
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'RESPONSE_DATA',
+      data: logPrint,
+    });
   },
   MQTT_LOG(mqttLog: MqttLogFormat): void {
-    const logLevel = 'info';
+    const type = 'info';
 
-    const logFormat = {
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'MQTT_LOG',
-      mqttLog,
-    };
-    logger[logLevel](JSON.stringify(logFormat));
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'MQTT_LOG',
+      data: mqttLog,
+    });
   },
   MQTT_DEBUG(mqttLog: MqttLogFormat): void {
-    const logLevel = 'debug';
+    const type = 'debug';
 
-    const logFormat = {
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'MQTT_DEBUG',
-      mqttLog,
-    };
-    logger[logLevel](JSON.stringify(logFormat));
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'MQTT_DEBUG',
+      data: mqttLog,
+    });
   },
   MQTT_ERROR(mqttLog: MqttLogFormat): void {
-    const logLevel = 'error';
+    const type = 'error';
 
     const logFormat = {
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'MQTT_ERROR',
       mqttLog: {
         ...mqttLog,
         error: {
@@ -392,42 +406,107 @@ export const logging = {
         },
       },
     };
-    logger[logLevel](JSON.stringify(logFormat));
+
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'MQTT_ERROR',
+      data: logFormat,
+    });
+  },
+  WS_LOG(wsLog: WsLogFormat): void {
+    const type = 'info';
+
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'WS_LOG',
+      data: wsLog,
+    });
+  },
+  WS_DEBUG(wsLog: WsLogFormat): void {
+    const type = 'debug';
+
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'WS_DEBUG',
+      data: wsLog,
+    });
+  },
+  WS_ERROR(wsLog: WsLogFormat): void {
+    const type = 'error';
+
+    const logFormat = {
+      wsLog: {
+        ...wsLog,
+        error: {
+          message: wsLog.error instanceof Error ? wsLog.error.message : '',
+          stack: wsLog.error instanceof Error ? wsLog.error.stack : '',
+        },
+      },
+    };
+
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'WS_ERROR',
+      data: logFormat,
+    });
   },
   ACTION_INFO(actionLog: ActionLog): void {
     // 용도: 일반 액션 로그(REQUEST/RESPONSE가 아닌 경우에 대한 로그)
-    const logLevel = 'info';
+    const type = 'info';
 
-    const logFormat = {
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'ACTION_INFO',
-      actionLog,
-    };
-    logger[logLevel](JSON.stringify(logFormat));
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'ACTION_INFO',
+      data: actionLog,
+    });
   },
   ACTION_DEBUG(actionLog: ActionLog): void {
     // 용도: 일반 액션 디버그 로그(REQUEST/RESPONSE가 아닌 경우에 대한 로그)
-    const logLevel = 'debug';
+    const type = 'debug';
 
-    const logFormat = {
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'ACTION_DEBUG',
-      actionLog,
-    };
-    logger[logLevel](JSON.stringify(logFormat));
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'ACTION_DEBUG',
+      data: actionLog,
+    });
   },
   ACTION_ERROR(actionLog: ActionLog): void {
+    // console.log('🚀 ~ ACTION_ERROR ~ actionLog:', actionLog);
     // 용도: 일반 액션 디버그 로그(REQUEST/RESPONSE가 아닌 경우에 대한 로그)
-    const logLevel = 'error';
+    const type = 'error';
 
-    const logFormat = {
-      timestamp: new Date().toISOString(),
-      logLevel,
-      logPoint: 'ACTION_ERROR',
-      actionLog,
-    };
-    logger[logLevel](JSON.stringify(logFormat));
+    void logDao.insert({
+      facilityCode: null,
+      facilityName: null,
+      amrCode: null,
+      amrName: null,
+      type: type,
+      function: 'ACTION_ERROR',
+      data: actionLog,
+    });
   },
 };

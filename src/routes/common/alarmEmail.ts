@@ -99,18 +99,7 @@ router.get(
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.LIST);
-
       logging.RESPONSE_DATA(logFormat, resJson);
-      void logDao.insert({
-        facilityCode: null,
-        facilityName: null,
-        amrCode: null,
-        amrName: null,
-        system: 'mcs',
-        type: 'debug',
-        data: logFormat,
-      });
-      // 이벤트 로그 기록(비동기)
 
       return res.status(resJson.status).json(resJson);
     } catch (err) {

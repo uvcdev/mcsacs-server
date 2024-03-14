@@ -1,6 +1,7 @@
 import { Model, DataTypes, WhereOptions, Order } from 'sequelize';
-import { logSequelize } from '../sequelize';
+// import { logSequelize } from '../sequelize';
 import { UserAttributes } from '../common/user';
+import { logSequelize } from '../sequelize';
 
 // 기본 interface
 export interface LogAttributes {
@@ -9,20 +10,27 @@ export interface LogAttributes {
   facilityName: string | null;
   amrCode: string | null;
   amrName: string | null;
-  system: 'mcs' | 'wcs' | 'eqp' | 'acs';
-  type: 'debug' | 'warning' | 'info';
+  type: type;
+  function: string | null;
   data: Record<string, any> | null;
   createdAt: Date;
 }
 
+export type type = 'debug' | 'info' | 'warning' | 'error';
+export const logLevels: { [key in type]: number } = {
+  error: 1,
+  warning: 2,
+  info: 3,
+  debug: 4,
+};
 class Log extends Model implements LogAttributes {
   public readonly id!: LogAttributes['id'];
   public facilityCode!: LogAttributes['facilityCode'];
   public facilityName!: LogAttributes['facilityName'];
   public amrCode!: LogAttributes['amrCode'];
   public amrName!: LogAttributes['amrName'];
-  public system!: LogAttributes['system'];
-  public type!: LogAttributes['type'];
+  public type!: type;
+  public function!: LogAttributes['function'];
   public data!: LogAttributes['data'];
   public readonly createdAt!: LogAttributes['createdAt'];
 }
@@ -50,11 +58,11 @@ Log.init(
     amrName: {
       type: DataTypes.STRING(50),
     },
-    system: {
-      type: DataTypes.STRING(10),
-    },
     type: {
       type: DataTypes.STRING(7),
+    },
+    function: {
+      type: DataTypes.STRING(20),
     },
     data: {
       type: DataTypes.JSONB,
@@ -78,8 +86,8 @@ export interface LogInsertParams {
   facilityName: string | null;
   amrCode: string | null;
   amrName: string | null;
-  system: LogAttributes['system'];
-  type: LogAttributes['type'];
+  type: type;
+  function: LogAttributes['function'];
   data: Record<string, any> | null;
 }
 
@@ -89,8 +97,8 @@ export interface LogSelectListParams {
   facilityName?: string | null;
   amrCode?: string | null;
   amrName?: string | null;
-  system?: LogAttributes['system'];
-  type?: LogAttributes['type'];
+  type?: type;
+  function?: LogAttributes['function'];
   createdAtFrom?: Date | null;
   createdAtTo?: Date | null;
   limit?: number;
