@@ -62,14 +62,14 @@ const service = {
       result = await facilityGroupDao.insert(params, transaction);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
-      // ACS 테이블 입력
-      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent
-        .post(`${restapiUrl}/facility-groups`)
-        .set('access-token', accessToken)
-        .send(params);
-      const responseData: Record<string, any> = JSON.parse(response.text).Data;
-      logging.METHOD_ACTION(logFormat, __filename, params, responseData);
+      // // ACS 테이블 입력
+      // const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      // const response = await superagent
+      //   .post(`${restapiUrl}/facility-groups`)
+      //   .set('access-token', accessToken)
+      //   .send(params);
+      // const responseData: Record<string, any> = JSON.parse(response.text).Data;
+      // logging.METHOD_ACTION(logFormat, __filename, params, responseData);
 
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
@@ -154,14 +154,14 @@ const service = {
       result = await facilityGroupDao.update(params, transaction);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
-      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent
-        .put(`${restapiUrl}/facility-groups/code/:code`)
-        .set('access-token', accessToken)
-        .send(params);
-      const responseData: Record<string, any> = JSON.parse(response.text).Data;
+      // const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      // const response = await superagent
+      //   .put(`${restapiUrl}/facility-groups/code/:code`)
+      //   .set('access-token', accessToken)
+      //   .send(params);
+      // const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
-      logging.METHOD_ACTION(logFormat, __filename, null, responseData);
+      // logging.METHOD_ACTION(logFormat, __filename, null, responseData);
 
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {

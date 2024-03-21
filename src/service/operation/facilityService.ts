@@ -97,9 +97,8 @@ const service = {
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
       // ACS 테이블 입력
-      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken).send(params);
-      console.log('🚀 ~ reg ~ response:', response);
+      // const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      // const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken).send(params);
       // const responseData: Record<string, any> = JSON.parse(response.text).Data;
       // logging.METHOD_ACTION(logFormat, __filename, params, responseData);
 
@@ -125,7 +124,6 @@ const service = {
     let result: SelectedListResult<FacilityAttributes>;
 
     try {
-      console.log('??');
       result = await facilityDao.selectList(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
@@ -170,14 +168,14 @@ const service = {
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
       // ACS 테이블 입력
-      const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      const response = await superagent
-        .put(`${restapiUrl}/facilities/code/:code`)
-        .set('access-token', accessToken)
-        .send(params);
-      const responseData: Record<string, any> = JSON.parse(response.text).Data;
+      // const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
+      // const response = await superagent
+      //   .put(`${restapiUrl}/facilities/code/:code`)
+      //   .set('access-token', accessToken)
+      //   .send(params);
+      // const responseData: Record<string, any> = JSON.parse(response.text).Data;
 
-      logging.METHOD_ACTION(logFormat, __filename, null, responseData);
+      // logging.METHOD_ACTION(logFormat, __filename, null, responseData);
       // await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
       // await transaction.rollback(); // 트랜잭션 롤백
