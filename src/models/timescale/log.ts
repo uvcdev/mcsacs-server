@@ -11,6 +11,7 @@ export interface LogAttributes {
   amrCode: string | null;
   amrName: string | null;
   type: type;
+  system: 'WCS' | 'EQP';
   function: string | null;
   data: Record<string, any> | null;
   createdAt: Date;
@@ -30,6 +31,7 @@ class Log extends Model implements LogAttributes {
   public amrCode!: LogAttributes['amrCode'];
   public amrName!: LogAttributes['amrName'];
   public type!: type;
+  public system!: LogAttributes['system'];
   public function!: LogAttributes['function'];
   public data!: LogAttributes['data'];
   public readonly createdAt!: LogAttributes['createdAt'];
@@ -67,6 +69,9 @@ Log.init(
     data: {
       type: DataTypes.JSONB,
     },
+    system: {
+      type: DataTypes.STRING(3),
+    },
   },
   {
     sequelize: logSequelize,
@@ -88,6 +93,7 @@ export interface LogInsertParams {
   amrName: string | null;
   type: type;
   function: LogAttributes['function'];
+  system: LogAttributes['system'] | null;
   data: Record<string, any> | null;
 }
 
@@ -97,7 +103,8 @@ export interface LogSelectListParams {
   facilityName?: string | null;
   amrCode?: string | null;
   amrName?: string | null;
-  type?: type;
+  type?: type | null;
+  system?: LogAttributes['system'] | null;
   function?: LogAttributes['function'];
   createdAtFrom?: Date | null;
   createdAtTo?: Date | null;

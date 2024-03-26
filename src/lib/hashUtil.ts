@@ -7,17 +7,17 @@ export function checkPasswordValidator(password: string): boolean {
 
   schema
     .is()
-    .min(8) // 최소 8자리
+    .min(4) // 최소 4자리
     .is()
     .max(50) // 최대 50자리
-    .has()
-    .uppercase() // 영문 대문자 반드시 포함
-    .has()
-    .lowercase() // 영문 소문자 반드시 포함
-    .has()
-    .digits(1) // 숫자 최소 1개 반드시 포함
-    .has()
-    .symbols(1) // 특수문자 최소 1개 반드시 포함
+    // .has()
+    // .uppercase() // 영문 대문자 반드시 포함
+    // .has()
+    // .lowercase() // 영문 소문자 반드시 포함
+    // .has()
+    // .digits(1) // 숫자 최소 1개 반드시 포함
+    // .has()
+    // .symbols(1) // 특수문자 최소 1개 반드시 포함
     .has()
     .not()
     .spaces(); // 공백 허용 안함

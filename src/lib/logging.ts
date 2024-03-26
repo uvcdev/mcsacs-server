@@ -364,6 +364,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'RESPONSE_DATA',
       data: logPrint,
     });
@@ -377,6 +378,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'MQTT_LOG',
       data: mqttLog,
     });
@@ -390,6 +392,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'MQTT_DEBUG',
       data: mqttLog,
     });
@@ -413,6 +416,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'MQTT_ERROR',
       data: logFormat,
     });
@@ -426,6 +430,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'WS_LOG',
       data: wsLog,
     });
@@ -439,6 +444,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'WS_DEBUG',
       data: wsLog,
     });
@@ -462,6 +468,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'WS_ERROR',
       data: logFormat,
     });
@@ -476,6 +483,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'ACTION_INFO',
       data: actionLog,
     });
@@ -490,6 +498,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'ACTION_DEBUG',
       data: actionLog,
     });
@@ -505,6 +514,7 @@ export const logging = {
       amrCode: null,
       amrName: null,
       type: type,
+      system: null,
       function: 'ACTION_ERROR',
       data: actionLog,
     });

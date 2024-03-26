@@ -139,6 +139,7 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, LogSe
       amrCode: req.query.amrCode,
       amrName: req.query.amrName,
       type: req.query.type,
+      system: req.query.system,
       function: req.query.function,
       createdAtFrom: req.query.createdAtFrom,
       createdAtTo: req.query.createdAtTo,
@@ -268,7 +269,8 @@ router.get(
           if (params.createdAtFrom) {
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-${(params.createdAtFrom as unknown) as string}~${new Date().toISOString()}.txt`
+              `attachment; filename=logs-${(params.createdAtFrom as unknown) as string
+              }~${new Date().toLocaleString()}.txt`
             );
           }
           if (params.createdAtTo) {

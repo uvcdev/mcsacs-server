@@ -124,12 +124,18 @@ const logDao = {
         type: { [Op.like]: `%${params.type}%` }, // 'like' 검색
       };
     }
-    // if (params.function) {
-    //   setQuery.where = {
-    //     ...setQuery.where,
-    //     function: { [Op.like]: `%${params.function}%` }, // 'like' 검색
-    //   };
-    // }
+    if (params.function) {
+      setQuery.where = {
+        ...setQuery.where,
+        function: { [Op.like]: `%${params.function}%` }, // 'like' 검색
+      };
+    }
+    if (params.system) {
+      setQuery.where = {
+        ...setQuery.where,
+        system: { [Op.like]: `%${params.system}%` }, // 'like' 검색
+      };
+    }
     // 기간 검색 - 등록일
     if (params.createdAtFrom || params.createdAtTo) {
       if (params.createdAtFrom && params.createdAtTo) {

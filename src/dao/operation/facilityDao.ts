@@ -78,6 +78,24 @@ const dao = {
         facilityGroupId: params.facilityGroupIds, // 'in' 검색
       };
     }
+    if (params.system) {
+      setQuery.where = {
+        ...setQuery.where,
+        system: params.system, // '=' 검색
+      };
+    }
+    if (params.type) {
+      setQuery.where = {
+        ...setQuery.where,
+        type: params.type, // '=' 검색
+      };
+    }
+    if (params.active) {
+      setQuery.where = {
+        ...setQuery.where,
+        active: params.active, // '=' 검색
+      };
+    }
     // 2. limit, offset 세팅
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;
