@@ -59,6 +59,8 @@ const service = {
 
     // 1. 설비 정보 입력
     try {
+      const codeHeader = 'FACG';
+      params.code = await makeRegularCodeDao('code', codeHeader, facilityGroupDao);
       result = await facilityGroupDao.insert(params, transaction);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 

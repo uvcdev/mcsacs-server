@@ -63,6 +63,12 @@ const dao = {
         name: { [Op.like]: `%${params.name}%` }, // 'like' 검색
       };
     }
+    if (params.uniqueName) {
+      setQuery.where = {
+        ...setQuery.where,
+        name: params.uniqueName, // 'like' 검색
+      };
+    }
     // 2. limit, offset 세팅
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;

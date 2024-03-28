@@ -140,6 +140,7 @@ export interface FacilitySelectListParams {
   dockingZoneIds?: Array<number> | null;
   code?: string | null;
   name?: string | null;
+  uniqueName?: string | null;
   system?: FacilityAttributes['system'] | null;
   state?: string | null;
   type?: FacilityAttributes['type'] | null;

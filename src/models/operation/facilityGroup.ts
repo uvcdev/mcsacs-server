@@ -64,6 +64,7 @@ export interface FacilityGroupSelectListParams {
   ids?: Array<number> | null;
   code?: string | null;
   name?: string | null;
+  uniqueName?: string | null;
   limit?: number;
   offset?: number;
   order?: string;

@@ -66,6 +66,12 @@ const dao = {
         name: { [Op.like]: `%${params.name}%` }, // 'like' 검색
       };
     }
+    if (params.uniqueName) {
+      setQuery.where = {
+        ...setQuery.where,
+        name: params.uniqueName, // 'like' 검색
+      };
+    }
     if (params.state) {
       setQuery.where = {
         ...setQuery.where,

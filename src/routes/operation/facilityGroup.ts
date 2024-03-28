@@ -87,6 +87,7 @@ router.get(
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         code: req.query.code,
         name: req.query.name,
+        uniqueName: req.query.uniqueName,
         limit: Number(req.query.limit || 'NaN'),
         offset: Number(req.query.offset || 'NaN'),
         order: req.query.order,

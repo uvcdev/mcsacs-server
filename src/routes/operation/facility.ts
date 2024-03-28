@@ -103,6 +103,7 @@ router.get(
           : null,
         code: req.query.code,
         name: req.query.name,
+        uniqueName: req.query.uniqueName,
         system: req.query.system,
         state: req.query.state,
         type: req.query.type,
