@@ -23,15 +23,15 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
   let whereQuery = '';
   let limitQuery = '';
   let offsetQuery = '';
-  if (params.createdAtFrom || params.createdAtTo || params.type || params.function) {
+  if (params.createdAtFrom || params.createdAtTo || params.logLevel || params.function) {
     whereQuery += 'WHERE';
   }
   if (params.createdAtFrom || params.createdAtTo) {
     if (params.createdAtFrom && params.createdAtTo) {
       whereQuery += ` "Log"."created_at" BETWEEN '${(params.createdAtFrom as unknown) as string}' AND '${(params.createdAtTo as unknown) as string
         }'`;
-      if (params.type) {
-        whereQuery += ` AND "Log"."type" LIKE '%${params.type}%' `;
+      if (params.logLevel) {
+        whereQuery += ` AND "Log"."log_level" LIKE '%${params.logLevel}%' `;
       }
       if (params.function) {
         whereQuery += ` AND "Log"."function" LIKE '%${params.function}%' `;
@@ -44,12 +44,12 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
         whereQuery += ` "Log"."created_at" <= '${(params.createdAtTo as unknown) as string}'`;
       }
 
-      if (params.type || params.function) {
-        if (params.type && params.function) {
-          whereQuery += ` "Log"."type" LIKE '%${params.type}%' AND "Log"."function" LIKE '%${params.function}%'  `;
+      if (params.logLevel || params.function) {
+        if (params.logLevel && params.function) {
+          whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' AND "Log"."function" LIKE '%${params.function}%'  `;
         } else {
-          if (params.type) {
-            whereQuery += ` "Log"."type" LIKE '%${params.type}%' `;
+          if (params.logLevel) {
+            whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' `;
           }
           if (params.function) {
             whereQuery += ` "Log"."function" LIKE '%${params.function}%' `;
@@ -58,12 +58,12 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
       }
     }
   } else {
-    if (params.type || params.function) {
-      if (params.type && params.function) {
-        whereQuery += ` "Log"."type" LIKE '%${params.type}%' AND "Log"."function" LIKE '%${params.function}%'  `;
+    if (params.logLevel || params.function) {
+      if (params.logLevel && params.function) {
+        whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' AND "Log"."function" LIKE '%${params.function}%'  `;
       } else {
-        if (params.type) {
-          whereQuery += ` "Log"."type" LIKE '%${params.type}%' `;
+        if (params.logLevel) {
+          whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' `;
         }
         if (params.function) {
           whereQuery += ` "Log"."function" LIKE '%${params.function}%' `;
@@ -82,9 +82,9 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
 
   const query =
     `SELECT "id", 
-    "created_at" AS "createdAt", "facility_code" AS "facilityCode", 
+    "created_at" AT TIME ZONE 'Asia/Seoul' AS "createdAt", "facility_code" AS "facilityCode", 
     "facility_name" AS "facilityName", "amr_code" AS "amrCode", 
-    "amr_name" AS "amrName", "type" AS "type", 
+    "amr_name" AS "amrName", "log_level" AS "logLevel", 
     "function", "data" FROM "logs" AS "Log" ` +
     whereQuery +
     `ORDER BY "Log"."created_at" DESC ${limitQuery} ${offsetQuery}`;
@@ -138,8 +138,7 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, LogSe
       facilityName: req.query.facilityName,
       amrCode: req.query.amrCode,
       amrName: req.query.amrName,
-      type: req.query.type,
-      system: req.query.system,
+      logLevel: req.query.logLevel,
       function: req.query.function,
       createdAtFrom: req.query.createdAtFrom,
       createdAtTo: req.query.createdAtTo,
@@ -227,7 +226,7 @@ router.get(
         // facilityName: req.query.facilityName,
         // amrCode: req.query.amrCode,
         // amrName: req.query.amrName,
-        type: req.query.type,
+        logLevel: req.query.logLevel,
         function: req.query.function,
         createdAtFrom: req.query.createdAtFrom,
         createdAtTo: req.query.createdAtTo,
@@ -262,21 +261,22 @@ router.get(
         if (params.createdAtFrom && params.createdAtTo) {
           res.setHeader(
             'Content-Disposition',
-            `attachment; filename=logs-${(params.createdAtFrom as unknown) as string}~${(params.createdAtTo as unknown) as string
+            `attachment; filename=logs-${(new Date(params.createdAtFrom).toLocaleDateString() as unknown) as string}~${(new Date(params.createdAtTo).toLocaleDateString() as unknown) as string
             }.txt`
           );
         } else {
           if (params.createdAtFrom) {
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-${(params.createdAtFrom as unknown) as string
-              }~${new Date().toLocaleString()}.txt`
+              `attachment; filename=logs-${(new Date(params.createdAtFrom).toLocaleDateString() as unknown) as string
+              }~${new Date().toLocaleDateString()}.txt`
             );
           }
           if (params.createdAtTo) {
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-'unspecified'~${(params.createdAtTo as unknown) as string}.txt`
+              `attachment; filename=logs-'unspecified'~${(new Date(params.createdAtTo).toLocaleDateString() as unknown) as string
+              }.txt`
             );
           }
         }
@@ -312,6 +312,7 @@ router.get(
     } catch (err) {
       // 에러 응답 값 세팅
       const resJson = resError(err);
+      console.log('🚀 ~ err:', err);
       logging.RESPONSE_DATA(logFormat, resJson);
 
       return res.status(resJson.status).json(resJson);

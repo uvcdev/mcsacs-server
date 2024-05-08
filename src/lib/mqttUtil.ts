@@ -2,6 +2,8 @@
 import { logging } from '../lib/logging';
 import mqtt, { IClientOptions } from 'mqtt';
 import * as dotenv from 'dotenv';
+import { itemLogDao } from '../dao/timescale/itemLogDao';
+import { ItemLogInsertParams } from '../models/timescale/itemLog';
 dotenv.config();
 
 import { service as workOrderService } from '../service/operation/workOrderService';
@@ -19,6 +21,39 @@ const mqttConfig: MqttConfig = {
   topic: process.env.MQTT_TOPIC || 'mcs',
 };
 
+
+type AcsDetail = {
+  itemCode: string | null;
+  facilityCode: string | null;
+  facilityName: string | null;
+  amrCode: string | null;
+  amrName: string | null;
+};
+
+type MissionState =
+  | 'MISSION_INITIATED'
+  | 'AMR_ASSIGNED'
+  | 'AMR_ARRIVED'
+  | 'AMR_ACQUIRE_STARTED'
+  | 'AMR_ACQUIRE_COMPLETED'
+  | 'CARRIER_TRANSFERRING'
+  | 'AMR_DEPOSIT_STARTED'
+  | 'AMR_DEPOSIT_COMPLETED'
+  | 'AMR_UNASSIGNED'
+  | 'MISSION_COMPLETED'
+  | 'MISSION_CANCELED'
+  | 'MISSION_FAILED';
+
+type MissionStateData = {
+  mission: string;
+  state: MissionState;
+  assign: {
+    robot: string;
+    task: MissionState;
+  };
+  acsDetail: AcsDetail;
+};
+
 export enum MqttTopics {
   WorkerStatus = 'feedback_worker_status',
   WorkHistory = 'work_history',
@@ -26,6 +61,7 @@ export enum MqttTopics {
   AlarmRegist = 'alarm/regist',
   AlarmClear = 'alarm/clear',
   IsAlive = 'is-alive',
+  ItemLogging = 'item-logging',
 }
 
 // broker에 접속될 클라이언트 아이디(unique필요)
@@ -48,7 +84,7 @@ if (mqttConfig.host !== '') {
     } catch (error) {
       error;
     }
-  }, 10000);
+  }, 1000);
 }
 
 // mqtt 연결, 구독, 메세지 수신
@@ -63,7 +99,25 @@ export const receiveMqtt = (): void => {
       });
 
       // mqtt 구독
-      // client.subscribe(`${topic}/#`, (err) => {
+      client.subscribe(`${topic}/item-logging/#`, (err) => {
+        logging.MQTT_LOG({
+          title: 'mqtt subscribe',
+          topic,
+          message: null,
+        });
+
+        if (err) {
+          logging.MQTT_ERROR({
+            title: 'mqtt subscribe error',
+            topic,
+            message: null,
+            error: err,
+          });
+        }
+      });
+
+      // acs mqtt 구독
+      // client.subscribe(`acs/#`, (err) => {
       //   logging.MQTT_LOG({
       //     title: 'mqtt subscribe',
       //     topic,
@@ -81,40 +135,22 @@ export const receiveMqtt = (): void => {
       // });
 
       // mcs mqtt 구독
-      client.subscribe(`imcs/#`, (err) => {
-        logging.MQTT_LOG({
-          title: 'mqtt subscribe',
-          topic,
-          message: null,
-        });
+      // client.subscribe(`${topic.includes('mcs')}/#`, (err) => {
+      //   logging.MQTT_LOG({
+      //     title: 'mqtt subscribe',
+      //     topic,
+      //     message: null,
+      //   });
 
-        if (err) {
-          logging.MQTT_ERROR({
-            title: 'mqtt subscribe error',
-            topic,
-            message: null,
-            error: err,
-          });
-        }
-      });
-
-      // mcs mqtt 구독
-      client.subscribe(`${topic.includes('MCS')}/#`, (err) => {
-        logging.MQTT_LOG({
-          title: 'mqtt subscribe',
-          topic,
-          message: null,
-        });
-
-        if (err) {
-          logging.MQTT_ERROR({
-            title: 'mqtt subscribe error',
-            topic,
-            message: null,
-            error: err,
-          });
-        }
-      });
+      //   if (err) {
+      //     logging.MQTT_ERROR({
+      //       title: 'mqtt subscribe error',
+      //       topic,
+      //       message: null,
+      //       error: err,
+      //     });
+      //   }
+      // });
     });
 
     // 메세지 수신
@@ -122,10 +158,9 @@ export const receiveMqtt = (): void => {
       try {
         const topicSplit = messageTopic.split('/');
 
-        if (topicSplit.length >= 3) {
+        if (topicSplit) {
           const serverTopic = topicSplit[0];
           const logicTopic = topicSplit[1];
-          const targetId = topicSplit[2];
           const message = messageOrg.toString();
           logging.MQTT_LOG({
             title: 'receive message',
@@ -143,6 +178,23 @@ export const receiveMqtt = (): void => {
             });
 
             void workOrderService.regWorkOrder(messageJson);
+          }
+
+          // 2. acs에서 dhs item-logging 메세지 처리
+          if (serverTopic === 'acs' && logicTopic === 'item-logging') {
+            const messageJson = JSON.parse(message);
+            logging.MQTT_DEBUG({
+              title: 'imcs message',
+              topic: messageTopic,
+              message: messageJson,
+            });
+
+            try {
+              void itemLogDao.insert(messageJson);
+            } catch (error) {
+              console.log('logging.ITEM_LOG', error);
+            }
+
           }
         }
       } catch (err) {
