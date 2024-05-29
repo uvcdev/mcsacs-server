@@ -8,25 +8,18 @@ import {
   getOrderby,
   // DeletedResult,
 } from '../../lib/resUtil';
-import Log, {
-  LogAttributes,
-  LogInsertParams,
-  LogSelectListParams,
-  LogSelectListQuery,
-  LogSelectInfoParams,
-  logLevels,
-  LogLevel,
-} from '../../models/timescale/log';
+import ItemLog, {
+  ItemLogAttributes,
+  ItemLogInsertParams,
+  ItemLogSelectListParams,
+  ItemLogSelectListQuery,
+  ItemLogSelectInfoParams,
+} from '../../models/timescale/itemLog';
 
-const currentLevel = (process.env.LOGGER_LEVEL || 'info') as LogLevel;
-
-const logDao = {
-  insert(params: LogInsertParams): Promise<InsertedResult> | void {
-    if (logLevels[currentLevel] < logLevels[params.logLevel]) {
-      return;
-    }
+const itemLogDao = {
+  insert(params: ItemLogInsertParams): Promise<InsertedResult> | void {
     return new Promise((resolve, reject) => {
-      Log.create(params)
+      ItemLog.create(params)
         .then((inserted) => {
           resolve({ insertedId: inserted.id });
         })
@@ -35,16 +28,10 @@ const logDao = {
         });
     });
   },
-  countLogRecords(params: LogSelectListParams, level: string): Promise<{ [key: string]: number }> {
+  countItemLogRecords(params: ItemLogSelectListParams, level: string): Promise<{ [key: string]: number }> {
     // DB에 넘길 최종 쿼리 세팅
-    const setQuery: LogSelectListQuery = {};
+    const setQuery: ItemLogSelectListQuery = {};
     // 1. where조건 세팅
-    if (level) {
-      setQuery.where = {
-        ...setQuery.where,
-        logLevel: { [Op.like]: `%${level}%` }, // 'like' 검색
-      };
-    }
     // 기간 검색 - 등록일
     if (params.createdAtFrom || params.createdAtTo) {
       if (params.createdAtFrom && params.createdAtTo) {
@@ -73,7 +60,7 @@ const logDao = {
     // 3. orderby 세팅
     setQuery.order = getOrderby(params.order);
     return new Promise((resolve, reject) => {
-      Log.count({
+      ItemLog.count({
         ...setQuery,
         where: {
           ...setQuery.where,
@@ -89,9 +76,9 @@ const logDao = {
         });
     });
   },
-  selectList(params: LogSelectListParams): Promise<SelectedListResult<LogAttributes>> {
+  selectList(params: ItemLogSelectListParams): Promise<SelectedListResult<ItemLogAttributes>> {
     // DB에 넘길 최종 쿼리 세팅
-    const setQuery: LogSelectListQuery = {};
+    const setQuery: ItemLogSelectListQuery = {};
     // 1. where조건 세팅
     if (params.facilityCode) {
       setQuery.where = {
@@ -117,18 +104,6 @@ const logDao = {
         amrName: { [Op.like]: `%${params.amrName}%` }, // 'like' 검색
       };
     }
-    if (params.logLevel) {
-      setQuery.where = {
-        ...setQuery.where,
-        logLevel: { [Op.like]: `%${params.logLevel}%` }, // 'like' 검색
-      };
-    }
-    if (params.function) {
-      setQuery.where = {
-        ...setQuery.where,
-        function: { [Op.like]: `%${params.function}%` }, // 'like' 검색
-      };
-    }
     // 기간 검색 - 등록일
     if (params.createdAtFrom || params.createdAtTo) {
       if (params.createdAtFrom && params.createdAtTo) {
@@ -158,7 +133,7 @@ const logDao = {
     setQuery.order = getOrderby(params.order);
 
     return new Promise((resolve, reject) => {
-      Log.findAndCountAll({
+      ItemLog.findAndCountAll({
         ...setQuery,
         where: {
           ...setQuery.where,
@@ -173,9 +148,9 @@ const logDao = {
         });
     });
   },
-  selectInfo(params: LogSelectInfoParams): Promise<LogAttributes | null> {
+  selectInfo(params: ItemLogSelectInfoParams): Promise<ItemLogAttributes | null> {
     return new Promise((resolve, reject) => {
-      Log.findByPk(params.id, {})
+      ItemLog.findByPk(params.id, {})
         .then((selectedInfo) => {
           resolve(selectedInfo);
         })
@@ -186,4 +161,4 @@ const logDao = {
   },
 };
 
-export { logDao };
+export { itemLogDao };

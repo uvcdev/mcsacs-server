@@ -70,7 +70,7 @@ router.post('/log-tables', isActionKey, (req: Request, res: Response) => {
   const logFormat = makeLogFormat(req);
 
   try {
-    logging.REQUEST_PARAM(logFormat);
+    // logging.REQUEST_PARAM(logFormat);
 
     // table 생성
     logSequelize
@@ -78,7 +78,19 @@ router.post('/log-tables', isActionKey, (req: Request, res: Response) => {
         force: false,
       })
       .then(async () => {
-        await logSequelize.query(`SELECT create_hypertable('logs', 'created_at');`);
+        try {
+          await logSequelize.query(`SELECT create_hypertable('logs', 'created_at');`);
+        } catch (error) {
+          console.log('Error creating hypertable for logs, but continuing:', error);
+          await logSequelize.query(`SELECT create_hypertable('item_logs', 'created_at');`);
+        }
+
+        // 두 번째 쿼리 실행
+        try {
+          await logSequelize.query(`SELECT create_hypertable('item_logs', 'created_at');`);
+        } catch (error) {
+          console.log('Error creating hypertable for item_logs, but continuing:', error);
+        }
         // 최종 응답 값 세팅
         const resJson = resSuccess(
           {
@@ -95,7 +107,7 @@ router.post('/log-tables', isActionKey, (req: Request, res: Response) => {
           },
           resType.FREESTYLE
         );
-        logging.RESPONSE_DATA(logFormat, resJson);
+        // logging.RESPONSE_DATA(logFormat, resJson);
 
         return res.status(resJson.status).json(resJson);
       })

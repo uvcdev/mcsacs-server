@@ -8,7 +8,7 @@ import hpp from 'hpp';
 import helmet from 'helmet';
 import https from 'https';
 import fs from 'fs';
-import { sequelize } from './models';
+import { logSequelize, sequelize } from './models';
 import { router } from './routes/index';
 import { logging, makeLogFormat } from './lib/logging';
 import { responseCode as resCode, makeResponseError as resError, ErrorClass } from './lib/resUtil';
@@ -90,6 +90,61 @@ if (env === 'production') {
   app.use(hpp());
   app.use(helmet());
   app.use(morgan('combined'));
+  void (async () => {
+    try {
+      await sequelize.sync({ force: false }).then(async () => {
+        logging.SYSTEM_LOG({
+          title: 'Sequelize Table Sync',
+          message: {
+            DB_HOST: process.env.DB_HOST,
+            DB_PORT: process.env.DB_PORT,
+            DB_DATABASE: process.env.DB_DATABASE,
+            DB_ID: process.env.DB_ID,
+            DB_PASS: '******',
+            DB_DIALECT: process.env.DB_DIALECT,
+          },
+        });
+        console.log('Sequelize sync success');
+      });
+    } catch (error) {
+      console.error('Unable to connect to the database:', error);
+    }
+
+    try {
+      await logSequelize.sync({ force: false }).then(async () => {
+        // 첫 번째 쿼리 실행
+        try {
+          await logSequelize.query(`SELECT create_hypertable('logs', 'created_at');`);
+        } catch (error) {
+          console.log('Error creating hypertable for logs, but continuing:', error);
+          await logSequelize.query(`SELECT create_hypertable('item_logs', 'created_at');`);
+        }
+
+        // 두 번째 쿼리 실행
+        try {
+          await logSequelize.query(`SELECT create_hypertable('item_logs', 'created_at');`);
+        } catch (error) {
+          console.log('Error creating hypertable for item_logs, but continuing:', error);
+        }
+
+        logging.SYSTEM_LOG({
+          title: 'Sequelize Log Table Sync',
+          message: {
+            LOG_DB_HOST: process.env.LOG_DB_HOST,
+            LOG_DB_PORT: process.env.LOG_DB_PORT,
+            LOG_DB_DATABASE: process.env.LOG_DB_DATABASE,
+            LOG_DB_ID: process.env.LOG_DB_ID,
+            LOG_DB_PASS: '******',
+            LOG_DB_DIALECT: process.env.LOG_DB_DIALECT,
+          },
+        });
+        console.log('Sequelize sync success');
+        receiveMqtt(); // mqtt subscribe
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  })();
 } else {
   // 개발/테스트 환경 세팅
   app.use(morgan('dev'));

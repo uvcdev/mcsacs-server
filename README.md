@@ -32,3 +32,7 @@
   
 ## v0.0.3
 - 버전승인: `v0.0.2-cyk`
+
+## v0.0.3-cyk
+- MCS에서 acs/logging mqtt 메세지 받아서 로그 저장
+(`itemLogDao`, `itemLogModel`, `mqttUtil`)
