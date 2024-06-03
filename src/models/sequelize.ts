@@ -14,12 +14,14 @@ const sequelize = new Sequelize(database, username, password, {
   port,
   dialect,
   pool: {
-    max: 30,
+    max: 15,
     min: 0,
+    acquire: 30000,
+    idle: 10000,
   },
   dialectOptions: {
     options: {
-      requestTimeout: 15000,
+      requestTimeout: 5000,
     },
   },
   logging: process.env.SEQUELIZE_LOGGING !== 'false',
@@ -30,8 +32,10 @@ const logSequelize = new Sequelize(logDbConfig.database, logDbConfig.username, l
   port: logDbConfig.port,
   dialect: logDbConfig.dialect,
   pool: {
-    max: 30,
+    max: 15,
     min: 0,
+    acquire: 30000,
+    idle: 10000,
   },
   dialectOptions: {
     options: {

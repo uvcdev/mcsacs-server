@@ -23,6 +23,8 @@ import WorkOrder from './operation/workOrder';
 // timescale
 import Log from './timescale/log';
 import SystemLog from './timescale/systemLog';
+import CallReserve from './common/callReserve';
+import CallSpec from './common/callSpec';
 
 export * from './sequelize';
 
@@ -48,6 +50,8 @@ const db = {
   /* timescale */
   Log,
   SystemLog,
+  CallReserve,
+  CallSpec
 };
 
 export type dbType = typeof db;

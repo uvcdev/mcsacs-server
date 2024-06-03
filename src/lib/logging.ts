@@ -742,7 +742,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.TRaNSPORT_COMMAND_LOG', error);
       }
@@ -762,7 +761,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.LOAD_COMMAND_LOG', error);
       }
@@ -782,7 +780,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.UNLOAD_COMMAND', error);
       }
@@ -802,7 +799,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.CANCEL_MISSION_COMMAND', error);
       }
@@ -822,7 +818,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.ACK_MISSION_COMPLETED', error);
       }
@@ -842,7 +837,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.ACK_MISSION_FAILED', error);
       }
@@ -862,7 +856,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.ACK_MISSION_STATE', error);
       }
@@ -882,7 +875,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.PAYLOAD_STATE', error);
       }
@@ -902,7 +894,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.MISSION_STATE', error);
       }
@@ -922,7 +913,6 @@ export const logging = {
           body: { mission: data.mission, robot: acsDetail.amrCode },
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.MISSION_COMPLETED', error);
       }
@@ -942,7 +932,6 @@ export const logging = {
           body: { mission: data.mission },
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.MISSION_FAILED', error);
       }
@@ -962,7 +951,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.ALARM_REPORT', error);
       }
@@ -982,7 +970,6 @@ export const logging = {
           body: body,
         };
         void itemLogDao.insert(insertParams);
-        sendMqtt(`${MqttTopics.ItemLogging}`, JSON.stringify(insertParams));
       } catch (error) {
         console.log('logging.ITEM_LOG.ALARM_CLEAR', error);
       }

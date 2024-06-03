@@ -10,6 +10,7 @@
 - 기존 코드 삭제 및 초기 세팅
 
 ## v0.0.1-cyk
+
 - facilityGroup, facility 입력/수정시 acs에도 동일하게 입력
 - 알람 보관 주기 등록/수정 기능(로그 삭제 기능 포함)
 - 작업지시 생성
@@ -21,18 +22,26 @@
 - 비밀번호 단순화 `hashUtil` (최소4자리)
 
 ## v0.0.2
+
 - 버전승인: `v0.0.1-cyk`
 
 ## v0.0.2-cyk
+
 - 설비 관리
   - 검색조건 일치하는 컬럼 추가(`uniqueName`)
 - 설비그룹 관리
   - 검색조건 일치하는 컬럼 추가(`uniqueName`)
   - 설비그룹 코드 자동 채번 및 숨기기
-  
+
 ## v0.0.3
+
 - 버전승인: `v0.0.2-cyk`
 
 ## v0.0.3-cyk
+
 - MCS에서 acs/logging mqtt 메세지 받아서 로그 저장
-(`itemLogDao`, `itemLogModel`, `mqttUtil`)
+  (`itemLogDao`, `itemLogModel`, `mqttUtil`)
+
+## v0.0.4
+
+- itemLog 저장 방식 수정(토픽변경 등)

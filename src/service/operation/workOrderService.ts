@@ -127,7 +127,7 @@ const service = {
         existItemCode = await itemDao.selectOneCode({ code: existItem?.code });
       }
       if (!existItem || !existItemCode) {
-        const codeHeader = 'ITM';
+        const codeHeader = ' ';
         const highestRow = await itemDao.selectList({
           order: '-id',
           limit: 1,
