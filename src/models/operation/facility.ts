@@ -6,8 +6,6 @@ import { ZoneAttributes } from './zone';
 export interface FacilityAttributes {
   id: number;
   facilityGroupId: number;
-  zoneId: number | null;
-  dockingZoneId: number | null;
   code: string;
   name: string;
   system: 'WCS' | 'EQP';
@@ -31,8 +29,6 @@ export interface FacilityAttributesDeep extends FacilityAttributes {
 class Facility extends Model implements FacilityAttributes {
   public readonly id!: FacilityAttributes['id'];
   public facilityGroupId!: FacilityAttributes['facilityGroupId'];
-  public zoneId!: FacilityAttributes['zoneId'];
-  public dockingZoneId!: FacilityAttributes['dockingZoneId'];
   public code!: FacilityAttributes['code'];
   public name!: FacilityAttributes['name'];
   public system!: FacilityAttributes['system'];
@@ -59,12 +55,6 @@ Facility.init(
     facilityGroupId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    zoneId: {
-      type: DataTypes.INTEGER,
-    },
-    dockingZoneId: {
-      type: DataTypes.INTEGER,
     },
     code: {
       type: DataTypes.STRING(50),
@@ -117,8 +107,6 @@ Facility.init(
 // insert
 export interface FacilityInsertParams {
   facilityGroupId: number;
-  zoneId: number;
-  dockingZoneId: number;
   code: string;
   name: string;
   system: FacilityAttributes['system'] | null;
@@ -136,8 +124,6 @@ export interface FacilityInsertParams {
 export interface FacilitySelectListParams {
   ids?: Array<number> | null;
   facilityGroupIds?: Array<number> | null;
-  zondeIds?: Array<number> | null;
-  dockingZoneIds?: Array<number> | null;
   code?: string | null;
   name?: string | null;
   uniqueName?: string | null;
@@ -180,8 +166,6 @@ export interface FacilitySelectOneCodeParams {
 export interface FacilityUpdateParams {
   id?: number;
   facilityGroupId?: number;
-  zoneId?: number;
-  dockingZoneId?: number;
   code?: string;
   name?: string;
   system?: FacilityAttributes['system'] | null;
@@ -210,8 +194,6 @@ export interface FacilityDeleteParams {
 export const FacilityAttributesInclude = [
   'id',
   'facilityGroupId',
-  'zoneId',
-  'dockingZoneId',
   'code',
   'name',
   'system',

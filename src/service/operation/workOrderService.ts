@@ -175,8 +175,8 @@ const service = {
       workOrderResult = await workOrderDao.insertTransac(transParams, transaction);
 
       // ACS 테이블 입력
-      const accessToken = (await this.restapiLogin())?.accessToken || '';
-      await superagent.post(`${restapiUrl}/work-orders/fromMcs`).set('access-token', accessToken).send(transParams);
+      // const accessToken = (await this.restapiLogin())?.accessToken || '';
+      // await superagent.post(`${restapiUrl}/work-orders/fromMcs`).set('access-token', accessToken).send(transParams);
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
       await transaction.rollback(); // 트랜잭션 롤백

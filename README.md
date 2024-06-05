@@ -45,3 +45,11 @@
 ## v0.0.4
 
 - itemLog 저장 방식 수정(토픽변경 등)
+
+- facility에 zoneId, dockingZoneId 컬럼 삭제
+
+```sql
+ALTER TABLE public.facilities DROP CONSTRAINT facilities_zone_id_fkey;
+ALTER TABLE public.facilities DROP COLUMN zone_id;
+ALTER TABLE public.facilities DROP COLUMN docking_zone_id;
+```

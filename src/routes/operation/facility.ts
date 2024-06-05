@@ -34,8 +34,6 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, FacilityInser
     // 요청 파라미터
     const params: FacilityInsertParams = {
       facilityGroupId: req.body.facilityGroupId,
-      zoneId: req.body.zoneId,
-      dockingZoneId: req.body.dockingZoneId,
       code: req.body.code,
       name: req.body.name,
       system: req.body.system,
@@ -94,12 +92,6 @@ router.get(
         ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
         facilityGroupIds: req.query.facilityGroupIds
           ? ((req.query.facilityGroupIds as unknown) as string).split(',').map((i) => Number(i))
-          : null,
-        zondeIds: req.query.zondeIds
-          ? ((req.query.zondeIds as unknown) as string).split(',').map((i) => Number(i))
-          : null,
-        dockingZoneIds: req.query.dockingZoneIds
-          ? ((req.query.dockingZoneIds as unknown) as string).split(',').map((i) => Number(i))
           : null,
         code: req.query.code,
         name: req.query.name,
@@ -198,8 +190,6 @@ router.put(
       const params: FacilityUpdateParams = {
         id: Number(req.params.id),
         facilityGroupId: req.body.facilityGroupId,
-        zoneId: req.body.zoneId,
-        dockingZoneId: req.body.dockingZoneId,
         code: req.body.code,
         name: req.body.name,
         system: req.body.system,

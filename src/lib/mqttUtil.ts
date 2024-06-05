@@ -170,8 +170,88 @@ export const receiveMqtt = (): void => {
 
           // 1. imcs에서  메세지 처리
           if (serverTopic === 'imcs') {
+            if(topicSplit.length === 3 && topicSplit[2] === 'workorder'){
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                    title: 'imcs workorder',
+                    topic: messageTopic,
+                    message: messageJson,
+                  });
+              void workOrderService.regWorkOrder(messageJson)
+              sendMqtt('acs/workorder', message)
+            }
             // 미사용
-            if(logicTopic === 'notify'){
+            // if(logicTopic === 'notify'){
+            //   const messageJson = JSON.parse(message);
+            //   logging.MQTT_DEBUG({
+            //     title: 'imcs message',
+            //     topic: messageTopic,
+            //     message: messageJson,
+            //   });
+  
+            //   // void workOrderService.regWorkOrder(messageJson);
+            // }
+            // if(topicSplit.length>=3 && topicSplit[2] === 'error' ){
+            //   const system =topicSplit[1]
+            //   //알람 발생
+              
+            // }
+            if(topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'request'){
+              const targetSystem = topicSplit[2]
+              
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                title: 'imcs docking request',
+                topic: messageTopic,
+                message: messageJson,
+              });
+  
+              try {
+                void itemLogDao.insert(messageJson);
+              } catch (error) {
+                console.log('logging.ITEM_LOG', error);
+              }
+            }
+            if(topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'complete'){
+              const targetSystem = topicSplit[2]
+              
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                title: 'imcs docking complete',
+                topic: messageTopic,
+                message: messageJson,
+              });
+  
+              try {
+                void itemLogDao.insert(messageJson);
+              } catch (error) {
+                console.log('logging.ITEM_LOG', error);
+              }
+            }
+            if(topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'detach'){
+              const targetSystem = topicSplit[2]
+              
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                title: 'imcs docking detach',
+                topic: messageTopic,
+                message: messageJson,
+              });
+  
+              try {
+                void itemLogDao.insert(messageJson);
+              } catch (error) {
+                console.log('logging.ITEM_LOG', error);
+              }
+            }
+          }
+
+          // acs에서
+          if (serverTopic === 'acs') {
+            // item-logging 메세지 처리
+            if(topicSplit.length === 3 && topicSplit[1] === 'item-logging'){
+              const itemCode = topicSplit[2]
+              
               const messageJson = JSON.parse(message);
               logging.MQTT_DEBUG({
                 title: 'imcs message',
@@ -179,25 +259,52 @@ export const receiveMqtt = (): void => {
                 message: messageJson,
               });
   
-              // void workOrderService.regWorkOrder(messageJson);
+              try {
+                void itemLogDao.insert(messageJson);
+              } catch (error) {
+                console.log('logging.ITEM_LOG', error);
+              }
             }
-            if(topicSplit.length>=3 && topicSplit[2] === 'error' ){
-              const system =topicSplit[1]
-              //알람 발생
-              
-            }
-          }
 
-          // 2. acs에서 item-logging 메세지 처리
-          if (serverTopic === 'acs') {
-            if(topicSplit.length === 4 && topicSplit[2] === 'item-logging'){
-              const acsFloor = topicSplit[1]
-              const itemCode = topicSplit[3]
+            if(topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'request'){
+              const targetSystem = topicSplit[2]
+              
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                title: 'acs docking request',
+                topic: messageTopic,
+                message: messageJson,
+              });
+  
+              try {
+                void itemLogDao.insert(messageJson);
+              } catch (error) {
+                console.log('logging.ITEM_LOG', error);
+              }
+            }
+            if(topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'complete'){
+              const targetSystem = topicSplit[2]
+              
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                title: 'acs docking complete',
+                topic: messageTopic,
+                message: messageJson,
+              });
+  
+              try {
+                void itemLogDao.insert(messageJson);
+              } catch (error) {
+                console.log('logging.ITEM_LOG', error);
+              }
+            }
+            if(topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'detach'){
+              const targetSystem = topicSplit[2]
               
               const messageJson = JSON.parse(message);
               console.log("🚀 ~ client.on ~ messageJson:", messageJson)
-              logging.MQTT_DEBUG({
-                title: 'imcs message',
+              logging.MQTT_LOG({
+                title: 'acs docking detach',
                 topic: messageTopic,
                 message: messageJson,
               });
