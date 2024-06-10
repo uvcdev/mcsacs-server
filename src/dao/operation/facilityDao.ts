@@ -22,6 +22,7 @@ import Facility, {
   // FacilityUpdateLiveStateParams,
   // FacilityUpdateRunningStateParams,
   FacilityDeleteParams,
+  FacilitySelectSerialParams
 } from '../../models/operation/facility';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
@@ -240,6 +241,19 @@ const dao = {
     return new Promise((resolve, reject) => {
       Facility.findOne({
         where: { id: params.id },
+      })
+        .then((selectedOne) => {
+          resolve(selectedOne);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  selectSerial(params: FacilitySelectSerialParams): Promise<FacilityAttributes | null> {
+    return new Promise((resolve, reject) => {
+      Facility.findOne({
+        where: { serial: params.serial },
       })
         .then((selectedOne) => {
           resolve(selectedOne);

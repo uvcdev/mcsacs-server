@@ -156,7 +156,10 @@ export interface FacilitySelectInfoParams {
 export interface FacilitySelectOneParams {
   id?: number;
 }
-
+// selectSerialFromFacility
+export interface FacilitySelectSerialParams {
+  serial?: string;
+}
 // selectOneFacility
 export interface FacilitySelectOneCodeParams {
   code?: string;

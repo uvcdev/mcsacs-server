@@ -26,7 +26,7 @@ export interface WorkOrderAttributes {
   cancelUserId: number | null;
   cancelDate: Date | null;
   description: string | null;
-  type: string | null;
+  type: 'IN' | 'OUT';
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -118,9 +118,17 @@ export interface WorkOrderInsertParams {
   cancelUserId: number;
   cancelDate: Date | null;
   description: string | null;
-  type: string | null;
+  type: WorkOrderAttributes['type'];
 }
-
+export interface ImcsWorkOrderInsertParams {
+  newItemId?: number | null;
+  CALL_ID: string;    // 품목코드
+  TX_ID: string;    // 작업지시코드
+  EQP_ID: string;    // EQP설비코드
+  PORT_ID: string;    // WCS포트코드
+  TYPE: WorkOrderAttributes['type'];  // 타입
+  CALL_PRIORITY: number; // 우선순위
+}
 // selectList
 export interface WorkOrderSelectListParams {
   ids?: Array<number> | null;

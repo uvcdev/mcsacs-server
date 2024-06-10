@@ -15,10 +15,12 @@ import {
   WorkOrderSelectInfoParams,
   WorkOrderSelectListParams,
   WorkOrderUpdateParams,
+  ImcsWorkOrderInsertParams,
 } from '../../models/operation/workOrder';
 // import { WorkOrderUserJoinInsertParams } from '../../models/operation/workOrderUserJoin';
 import { dao as workOrderDao } from '../../dao/operation/workOrderDao';
 import { dao as itemDao } from '../../dao/operation/itemDao';
+import { dao as facilityDao } from '../../dao/operation/facilityDao';
 // import { dao as workOrderUserJoinDao } from '../../dao/operation/workOrderUserJoinDao';
 import { makeRegularCode, makeRegularCodeDao } from '../../lib/usefullToolUtil';
 import * as process from 'process';
@@ -112,68 +114,59 @@ const service = {
     });
   },
   // imcs 로부터 메시지 수신하여 작업등록
-  async regWorkOrder(params: WorkOrderInsertParams): Promise<InsertedResult> {
+  async regWorkOrder(params: ImcsWorkOrderInsertParams): Promise<InsertedResult> {
     let workOrderResult: InsertedResult;
     const transaction: Transaction = await sequelize.transaction();
 
     try {
       let result: InsertedResult;
-      const spreadParams = { ...Object.values(params) };
       // 품목 조회해서 없을 경우 insert
-      const existItem = await itemDao.selectInfo({ id: spreadParams[4] });
-      let existItemCode = null
-
-      if (existItem) {
-        existItemCode = await itemDao.selectOneCode({ code: existItem?.code });
-      }
-      if (!existItem || !existItemCode) {
-        const codeHeader = ' ';
-        const highestRow = await itemDao.selectList({
-          order: '-id',
-          limit: 1,
-        });
-        params.itemCode = makeRegularCode(highestRow, 'code', codeHeader);
-
+      const existItem = await itemDao.selectOneCode({ code: params.CALL_ID });
+      if (!existItem) {
         const itemInsertParam: ItemInsertParams = {
-          code: params.itemCode,
+          code: params.CALL_ID,
           type: null
         };
         result = await itemDao.insert(itemInsertParam);
-        params.id = result.insertedId
+        params.newItemId = result.insertedId
         console.log("🚀 ~ regWorkOrder ~ result.insertedId:", result.insertedId)
       }
 
-      let chkZone = 0
-      let chkEqp = 0
+      let fromFacilitySerial = null
+      let toFacilitySerial = null
 
-      // EQP 가 WCS에 배터리를 반출 요청
-      if (spreadParams[2] === 'OUT') {
-        chkZone = spreadParams[1] === '' ? null : spreadParams[1]
-        chkEqp = spreadParams[3] === '' ? null : spreadParams[3]
+      /** EQP 기준
+       * OUT: EQP에서 뺀다 = from설비(EQP) → to설비(WCS)
+       * IN: EQP에 넣는다 = from설비(WCS) → to설비(EQP)
+       */
+      if (params.TYPE === 'OUT') {
+        fromFacilitySerial = params.EQP_ID
+        toFacilitySerial = params.PORT_ID
       } else {
-        // EQP 에서 WCS에 비어있는 스키드 반입 요청
-        chkZone = spreadParams[3] === '' ? null : spreadParams[3]
-        chkEqp = spreadParams[1] === '' ? null : spreadParams[1]
+        fromFacilitySerial = params.PORT_ID
+        toFacilitySerial = params.EQP_ID
       }
+      // 설비 시리얼 조회해서 id 매핑
+      const fromFacilityInfo = await facilityDao.selectSerial({ serial: fromFacilitySerial });
+      const toFacilityInfo = await facilityDao.selectSerial({ serial: toFacilitySerial });
 
       // 작업지시 생성
       const transParams: WorkOrderInsertParams = {
-        code: spreadParams[0] === '' ? null : spreadParams[0],
-        fromFacilityId: chkZone,
-        type: spreadParams[2] === '' ? null : spreadParams[2],
-        toFacilityId: chkEqp,
-        itemId: params.id || spreadParams[4],
-        itemCode: params.itemCode,
-        level: spreadParams[5] === '' ? null : spreadParams[5],
-
-        fromAmrId: spreadParams[6] === '' ? null : spreadParams[6],
-        state: spreadParams[7] === '' ? null : spreadParams[7],
-        cancelUserId: spreadParams[8] === '' ? null : spreadParams[8],
-        cancelDate: spreadParams[9] === '' ? null : spreadParams[9],
-        description: spreadParams[10] === '' ? null : spreadParams[10],
+        fromFacilityId: fromFacilityInfo?.id || null,
+        toFacilityId: toFacilityInfo?.id || null,
+        code: params.TX_ID,
+        itemId: existItem?.id || params?.newItemId || null,
+        itemCode: params.CALL_ID,
+        level: params.CALL_PRIORITY,
+        type: params.TYPE,
+        fromAmrId: null,
+        state: 'registered',
+        cancelUserId: 0,
+        cancelDate: null,
+        description: null
       };
+      console.log("🚀 ~ regWorkOrder ~ transParams:", transParams)
       workOrderResult = await workOrderDao.insertTransac(transParams, transaction);
-
       // ACS 테이블 입력
       // const accessToken = (await this.restapiLogin())?.accessToken || '';
       // await superagent.post(`${restapiUrl}/work-orders/fromMcs`).set('access-token', accessToken).send(transParams);

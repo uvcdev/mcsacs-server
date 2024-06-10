@@ -53,3 +53,13 @@ ALTER TABLE public.facilities DROP CONSTRAINT facilities_zone_id_fkey;
 ALTER TABLE public.facilities DROP COLUMN zone_id;
 ALTER TABLE public.facilities DROP COLUMN docking_zone_id;
 ```
+
+## v0.0.4-cyk
+- iMCS 전용 insert 파라미터 추가(`ImcsWorkOrderInsertParams`)
+- workOrder 등록 로직 수정(`regWorkOrder`)
+- workOrder 테이블 수정
+  - workroder.itemcode 컬럼 및 외래키 추가
+```sql
+ALTER TABLE public.work_orders ADD item_code varchar(255) NULL;
+ALTER TABLE public.work_orders ADD CONSTRAINT work_orders_fk FOREIGN KEY (item_code) REFERENCES public.items(code) ON DELETE SET NULL ON UPDATE CASCADE;
+```
