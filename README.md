@@ -63,3 +63,6 @@ ALTER TABLE public.facilities DROP COLUMN docking_zone_id;
 ALTER TABLE public.work_orders ADD item_code varchar(255) NULL;
 ALTER TABLE public.work_orders ADD CONSTRAINT work_orders_fk FOREIGN KEY (item_code) REFERENCES public.items(code) ON DELETE SET NULL ON UPDATE CASCADE;
 ```
+## v0.0.5
+
+- 버전승인: `v0.0.4-cyk`
