@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { logging } from '../lib/logging';
+import { RequestLog, logging, makeLogFormat } from '../lib/logging';
 import mqtt, { IClientOptions } from 'mqtt';
 import * as dotenv from 'dotenv';
 import { itemLogDao } from '../dao/timescale/itemLogDao';
@@ -7,6 +7,7 @@ import { ItemLogInsertParams } from '../models/timescale/itemLog';
 dotenv.config();
 
 import { service as workOrderService } from '../service/operation/workOrderService';
+import { RequestParams } from 'nodemailer/lib/xoauth2';
 
 // mqtt접속 환경
 type MqttConfig = {
@@ -52,6 +53,30 @@ type MissionStateData = {
     task: MissionState;
   };
   acsDetail: AcsDetail;
+};
+
+// mcs/acs/workorder
+type McsWorkOrderRequestType = {
+  TX_ID: string;
+  ZONE_ID: string;
+  TYPE: 'IN' | 'OUT'; // 반출 OUT, 반입 IN
+  EQP_ID: string;
+  EQP_CALL_ID: string;
+  PORT_ID: string;
+  CALL_ID: string;
+  TAG_ID: string;
+  CALL_PRIORITY: string;
+  CALL_TYPE: string; // 배터리 타입 PLC 맵에서 콜타입 이라 명명
+};
+
+type McsCancelWorkOrderRequestType = {
+  TX_ID: string;
+  ZONE_ID: string;
+  TYPE: 'IN' | 'OUT'; // 반출 OUT, 반입 IN
+  EQP_ID: string;
+  EQP_CALL_ID: string;
+  PORT_ID: string;
+  CALL_ID: string;
 };
 
 export enum MqttTopics {
@@ -180,6 +205,17 @@ export const receiveMqtt = (): void => {
               await workOrderService.regWorkOrder(messageJson)
               console.log('###4')
               sendMqtt('acs/workorder', message)
+            }
+            if (topicSplit.length === 3 && topicSplit[2] === 'cancelworkorder') {
+              const messageJson = JSON.parse(message) as McsCancelWorkOrderRequestType;
+              logging.MQTT_LOG({
+                title: 'imcs cancel workorder',
+                topic: messageTopic,
+                message: messageJson,
+              });
+              const result = await workOrderService.facilityCancel({code:messageJson.EQP_CALL_ID}, makeLogFormat({} as RequestLog))
+              console.log('###4')
+              if(result.updatedCount>0) sendMqtt('acs/cancelworkorder', message)
             }
             // 미사용
             // if(logicTopic === 'notify'){

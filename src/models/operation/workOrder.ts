@@ -12,17 +12,30 @@ export interface WorkOrderAttributes {
   level: number | null;
   state:
   | 'registered'
-  | 'pending'
+  | 'preReregistered'
+  | 'reregistered'
+  | 'pending1'
+  | 'pending2'
   | 'assigned1'
   | 'assigned2'
   | 'working1'
   | 'working2'
+  | 'docking1'
+  | 'docking2'
+  | 'lift1'
+  | 'lift2'
   | 'canceled1'
   | 'canceled2'
   | 'aborted1'
   | 'aborted2'
+  | 'failed1'
+  | 'failed2'
   | 'completed1'
-  | 'completed2';
+  | 'completed2'
+  | 'dryrunCanceled'
+  | 'userCanceled'
+  | 'forceCanceled'
+  | 'facilityCanceled';
   cancelUserId: number | null;
   cancelDate: Date | null;
   description: string | null;
@@ -123,12 +136,23 @@ export interface WorkOrderInsertParams {
 export interface ImcsWorkOrderInsertParams {
   newItemId?: number | null;
   CALL_ID: string;    // 품목코드
-  TX_ID: string;    // 작업지시코드
+  TX_ID: string;    
+  EQP_CALL_ID: string; // 작업지시코드
+  TAG_ID: string;
   EQP_ID: string;    // EQP설비코드
   PORT_ID: string;    // WCS포트코드
   TYPE: WorkOrderAttributes['type'];  // 타입
   CALL_PRIORITY: number; // 우선순위
+  CALL_TYPE: string;
 }
+
+export interface WorkOrderCancelByCodeParams {
+  code: string;
+}
+export interface WorkOrderSelectInfoByCodeParams {
+  code: string;
+}
+
 // selectList
 export interface WorkOrderSelectListParams {
   ids?: Array<number> | null;

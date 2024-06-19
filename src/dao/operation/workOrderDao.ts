@@ -20,6 +20,7 @@ import WorkOrder, {
   // WorkOrderUpdateLiveStateParams,
   // WorkOrderUpdateRunningStateParams,
   WorkOrderDeleteParams,
+  WorkOrderSelectInfoByCodeParams,
 } from '../../models/operation/workOrder';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';
@@ -159,6 +160,36 @@ const dao = {
   selectInfo(params: WorkOrderSelectInfoParams): Promise<WorkOrderAttributes | null> {
     return new Promise((resolve, reject) => {
       WorkOrder.findByPk(params.id, {
+        include: [
+          {
+            model: Facility,
+            as: 'FromFacility',
+            attributes: FacilityAttributesInclude,
+          },
+          {
+            model: Facility,
+            as: 'ToFacility',
+            attributes: FacilityAttributesInclude,
+          },
+          {
+            model: Item,
+            as: 'Item',
+            attributes: ItemAttributesInclude,
+          },
+        ],
+      })
+        .then((selectedInfo) => {
+          resolve(selectedInfo);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  selectInfoByCode(params: WorkOrderSelectInfoByCodeParams): Promise<WorkOrderAttributes | null> {
+    return new Promise((resolve, reject) => {
+      WorkOrder.findOne( {
+        where: {code: params.code},
         include: [
           {
             model: Facility,

@@ -3,10 +3,12 @@ import { restapiConfig } from '../../config/restapiConfig';
 import {
   BulkInsertedOrUpdatedResult,
   DeletedResult,
+  ErrorClass,
   InsertedResult,
   SelectedAllResult,
   SelectedListResult,
   UpdatedResult,
+  responseCode,
 } from '../../lib/resUtil';
 import {
   WorkOrderAttributes,
@@ -16,6 +18,7 @@ import {
   WorkOrderSelectListParams,
   WorkOrderUpdateParams,
   ImcsWorkOrderInsertParams,
+  WorkOrderCancelByCodeParams,
 } from '../../models/operation/workOrder';
 // import { WorkOrderUserJoinInsertParams } from '../../models/operation/workOrderUserJoin';
 import { dao as workOrderDao } from '../../dao/operation/workOrderDao';
@@ -121,11 +124,14 @@ const service = {
     try {
       let result: InsertedResult;
       // 품목 조회해서 없을 경우 insert
-      const existItem = await itemDao.selectOneCode({ code: params.CALL_ID });
+      const itemCode= `${params.CALL_ID}${(params.TAG_ID && `&${params.TAG_ID}`) || ''}`
+
+
+      const existItem = await itemDao.selectOneCode({ code: itemCode });
       if (!existItem) {
         const itemInsertParam: ItemInsertParams = {
-          code: params.CALL_ID,
-          type: null
+          code: itemCode,
+          type: params.CALL_TYPE,
         };
         result = await itemDao.insert(itemInsertParam);
         params.newItemId = result.insertedId
@@ -154,9 +160,9 @@ const service = {
       const transParams: WorkOrderInsertParams = {
         fromFacilityId: fromFacilityInfo?.id || null,
         toFacilityId: toFacilityInfo?.id || null,
-        code: params.TX_ID,
+        code: params.EQP_CALL_ID,
         itemId: existItem?.id || params?.newItemId || null,
-        itemCode: params.CALL_ID,
+        itemCode: itemCode,
         level: params.CALL_PRIORITY,
         type: params.TYPE,
         fromAmrId: null,
@@ -221,6 +227,65 @@ const service = {
 
     return new Promise((resolve) => {
       resolve(result);
+    });
+  },
+  async facilityCancel(params: WorkOrderCancelByCodeParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+    let workOrderResult: UpdatedResult;
+    const transaction: Transaction = await sequelize.transaction();
+    try {
+      // 취소할 작업지시 조회
+      const workOrder = await workOrderDao.selectInfoByCode({ code: params.code });
+      if (!workOrder) {
+        await transaction.rollback();
+        const errorMessage = `postgres에 workOrder ${params.code} 데이터가 없습니다.`;
+        logging.ACTION_DEBUG({
+          filename: 'workOrderService.ts.forceCancel',
+          error: errorMessage,
+          params: null,
+          result: false,
+        });
+        const err = new ErrorClass(responseCode.BAD_REQUEST_NODATA, errorMessage);
+        logging.ERROR_METHOD(logFormat, __filename, params, err);
+
+        return new Promise((resolve, reject) => {
+          reject(err);
+        });
+      }
+      if (workOrder.state === 'facilityCanceled') {
+        await transaction.rollback();
+        const errorMessage = `이미 설비취소된 작업지시입니다.`;
+        logging.ACTION_DEBUG({
+          filename: 'workOrderService.ts.forceCancel',
+          error: errorMessage,
+          params: null,
+          result: false,
+        });
+        const err = new ErrorClass(responseCode.BAD_REQUEST_NODATA, errorMessage);
+        logging.ERROR_METHOD(logFormat, __filename, params, err);
+
+        return new Promise((resolve, reject) => {
+          reject(err);
+        });
+      }
+    
+
+      const workOrderUpdateParmas: WorkOrderUpdateParams = {
+        id: workOrder.id,
+        cancelDate: new Date(),
+        cancelUserId: null,
+        state: 'facilityCanceled',
+      };
+
+      workOrderResult = await workOrderDao.update(workOrderUpdateParmas);
+    } catch (err) {
+      await transaction.rollback();
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(workOrderResult);
     });
   },
   // update
