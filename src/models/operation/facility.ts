@@ -14,6 +14,7 @@ export interface FacilityAttributes {
   serial: string | null;
   ip: number | null;
   port: number | null;
+  floor: string | null;
   active: boolean | null;
   alwaysFill: boolean | null;
   description: string | null;
@@ -37,6 +38,7 @@ class Facility extends Model implements FacilityAttributes {
   public serial!: FacilityAttributes['serial'];
   public ip!: FacilityAttributes['ip'];
   public port!: FacilityAttributes['port'];
+  public floor!: FacilityAttributes['floor'];
   public active!: FacilityAttributes['active'];
   public alwaysFill!: FacilityAttributes['alwaysFill'];
   public description!: FacilityAttributes['description'];
@@ -82,6 +84,9 @@ Facility.init(
     port: {
       type: DataTypes.INTEGER,
     },
+    floor: {
+      type: DataTypes.STRING(10),
+    },
     active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
@@ -115,6 +120,7 @@ export interface FacilityInsertParams {
   serial: string | null;
   ip: string | null;
   port: number | null;
+  floor: string | null;
   active: boolean;
   alwaysFill: boolean;
   description: string | null;
@@ -133,6 +139,7 @@ export interface FacilitySelectListParams {
   serial?: string | null;
   ip?: string | null;
   port?: number | null;
+  floor?: string | null;
   active?: boolean | null;
   alwaysFill?: boolean | null;
   limit?: number;
@@ -177,6 +184,7 @@ export interface FacilityUpdateParams {
   serial?: string | null;
   ip?: string | null;
   port?: string | null;
+  floor?: string | null;
   active?: boolean;
   alwaysFill?: boolean;
   description?: string | null;
@@ -205,6 +213,7 @@ export const FacilityAttributesInclude = [
   'serial',
   'ip',
   'port',
+  'floor',
   'active',
   'alwaysFill',
   'description',

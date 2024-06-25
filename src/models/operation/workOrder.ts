@@ -1,5 +1,8 @@
 import { Model, DataTypes, WhereOptions, Order } from 'sequelize';
 import { sequelize } from '../sequelize';
+import { FacilityAttributesDeep } from './facility';
+import { ItemAttributes } from './item';
+import { AmrAttributes } from '../../models/common/amr';
 
 // 기본 interface
 export interface WorkOrderAttributes {
@@ -36,6 +39,9 @@ export interface WorkOrderAttributes {
   | 'userCanceled'
   | 'forceCanceled'
   | 'facilityCanceled';
+  isClosed: boolean;
+  startDate: Date | null;
+  endDate: Date | null;
   cancelUserId: number | null;
   cancelDate: Date | null;
   description: string | null;
@@ -44,7 +50,12 @@ export interface WorkOrderAttributes {
   updatedAt: Date;
   deletedAt: Date | null;
 }
-
+export interface WorkOrderAttributesDeep extends WorkOrderAttributes {
+  FromFacility: FacilityAttributesDeep;
+  ToFacility: FacilityAttributesDeep;
+  Item: ItemAttributes;
+  Amr: AmrAttributes;
+}
 class WorkOrder extends Model implements WorkOrderAttributes {
   public readonly id!: WorkOrderAttributes['id'];
   public fromFacilityId!: WorkOrderAttributes['fromFacilityId'];
@@ -54,6 +65,9 @@ class WorkOrder extends Model implements WorkOrderAttributes {
   public itemId!: WorkOrderAttributes['itemId'];
   public level!: WorkOrderAttributes['level'];
   public state!: WorkOrderAttributes['state'];
+  public isClosed!: WorkOrderAttributes['isClosed'];
+  public startDate!: WorkOrderAttributes['startDate'];
+  public endDate!: WorkOrderAttributes['endDate'];
   public cancelUserId!: WorkOrderAttributes['cancelUserId'];
   public cancelDate!: WorkOrderAttributes['cancelDate'];
   public description!: WorkOrderAttributes['description'];
@@ -94,6 +108,16 @@ WorkOrder.init(
       type: DataTypes.STRING(20),
       defaultValue: 'registered',
     },
+    isClosed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    startDate: {
+      type: DataTypes.DATE,
+    },   
+    endDate: {
+      type: DataTypes.DATE,
+    },
     cancelUserId: {
       type: DataTypes.INTEGER,
     },
@@ -128,7 +152,9 @@ export interface WorkOrderInsertParams {
   itemCode?: string | null;
   level: number | null;
   state: WorkOrderAttributes['state'];
-  cancelUserId: number;
+  isClosed: boolean;
+  startDate: Date | null;
+  cancelUserId: number | null;
   cancelDate: Date | null;
   description: string | null;
   type: WorkOrderAttributes['type'];
@@ -162,6 +188,7 @@ export interface WorkOrderSelectListParams {
   fromAmrId?: number | null;
   itemId?: number | null;
   state?: string | null;
+  isCLosed?: boolean | string | null;
   cancelUserId?: number | null;
   cancelDate?: Date | null;
   type?: string | null;
@@ -202,11 +229,30 @@ export interface WorkOrderUpdateParams {
   itemId?: number | null;
   level?: number | null;
   state?: WorkOrderAttributes['state'];
+  isClosed?: boolean;
+  startDate?: Date | null;
+  endDate?: Date | null;
   cancelUserId?: number | null;
   cancelDate?: Date | null;
   description?: string | null;
   type?: string | null;
 }
+
+export interface WorkOrderUpdateByCodeParams {
+  code?: string;
+  fromFacilityId?: number | null;
+  toFacilityId?: number | null;
+  fromAmrId?: number | null;
+  itemId?: number | null;
+  level?: number | null;
+  state?: WorkOrderAttributes['state'];
+  isClosed?: boolean;
+  cancelUserId?: number | null;
+  cancelDate?: Date | null;
+  description?: string | null;
+  type?: string | null;
+}
+
 
 // delete
 export interface WorkOrderDeleteParams {
@@ -223,6 +269,9 @@ export const WorkOrderAttributesInclude = [
   'itemId',
   'level',
   'state',
+  'isClosed',
+  'startDate',
+  'endDate',
   'cancelUserId',
   'cancelDate',
   'description',

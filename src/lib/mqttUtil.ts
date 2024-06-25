@@ -8,6 +8,7 @@ dotenv.config();
 
 import { service as workOrderService } from '../service/operation/workOrderService';
 import { RequestParams } from 'nodemailer/lib/xoauth2';
+import { WorkOrderAttributesDeep } from 'models/operation/workOrder';
 
 // mqtt접속 환경
 type MqttConfig = {
@@ -350,6 +351,18 @@ export const receiveMqtt = (): void => {
                 void itemLogDao.insert(messageJson);
               } catch (error) {
                 console.log('logging.ITEM_LOG', error);
+              }
+            }
+            //작업지시 진행상황
+            if(topicSplit[1] === 'work-order'){
+              const messageJson = JSON.parse(message)
+              // 작업지시 종결
+              if(messageJson.isClosed === true){
+                console.log(messageJson)
+                await workOrderService.editByCode(messageJson, makeLogFormat({} as RequestLog))
+              }else {
+                const params = messageJson as WorkOrderAttributesDeep
+                await workOrderService.stateCheckAndEdit(params, makeLogFormat({} as RequestLog))
               }
             }
           }

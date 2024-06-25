@@ -40,6 +40,8 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, WorkOrderInse
       itemId: req.body.itemId,
       level: req.body.level,
       state: req.body.state,
+      isClosed: req.body.isClosed,
+      startDate: req.body.startDate,
       cancelUserId: req.body.cancelUserId,
       cancelDate: req.body.cancelDate,
       description: req.body.description,
@@ -94,6 +96,7 @@ router.get(
         code: req.query.code,
         itemId: req.query.itemId,
         state: req.query.state,
+        isCLosed: req.query.isCLosed,
         limit: Number(req.query.limit || 'NaN'),
         offset: Number(req.query.offset || 'NaN'),
         order: req.query.order,
@@ -185,6 +188,7 @@ router.put(
         itemId: req.body.itemId,
         level: req.body.level,
         state: req.body.state,
+        isClosed: req.body.isClosed,
         description: req.body.description,
       };
       logging.REQUEST_PARAM(logFormat);

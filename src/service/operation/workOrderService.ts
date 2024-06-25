@@ -19,11 +19,14 @@ import {
   WorkOrderUpdateParams,
   ImcsWorkOrderInsertParams,
   WorkOrderCancelByCodeParams,
+  WorkOrderUpdateByCodeParams,
+  WorkOrderAttributesDeep,
 } from '../../models/operation/workOrder';
 // import { WorkOrderUserJoinInsertParams } from '../../models/operation/workOrderUserJoin';
 import { dao as workOrderDao } from '../../dao/operation/workOrderDao';
 import { dao as itemDao } from '../../dao/operation/itemDao';
 import { dao as facilityDao } from '../../dao/operation/facilityDao';
+import { dao as amrDao } from '../../dao/common/amrDao';
 // import { dao as workOrderUserJoinDao } from '../../dao/operation/workOrderUserJoinDao';
 import { makeRegularCode, makeRegularCodeDao } from '../../lib/usefullToolUtil';
 import * as process from 'process';
@@ -167,6 +170,8 @@ const service = {
         type: params.TYPE,
         fromAmrId: null,
         state: 'registered',
+        isClosed: false,
+        startDate: new Date(),
         cancelUserId: 0,
         cancelDate: null,
         description: null
@@ -292,7 +297,6 @@ const service = {
   async edit(params: WorkOrderUpdateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
 
-    // 1. 설비 정보 수정
     try {
       result = await workOrderDao.update(params);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
@@ -304,84 +308,99 @@ const service = {
       });
     }
 
-    // (Promise 2-1)설비당 작업자 정보 입력
-    // const promiseInsertWorkOrderUserJoin = async (
-    //   workOrderId: number,
-    //   userIds: WorkOrderUpdateParams['userIds']
-    // ): Promise<BulkInsertedOrUpdatedResult> => {
-    //   let insertedIds: BulkInsertedOrUpdatedResult;
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+ 
+  // update
+  async editByCode(params: WorkOrderUpdateByCodeParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+    let result: UpdatedResult;
 
-    //   // 설비당 작업정보 일괄 삭제
-    //   const deleteWorkOrderUserJoinParams = {
-    //     workOrderId,
-    //   };
-    //   try {
-    //     const deleteWorkOrderUserJoin = await workOrderUserJoinDao.deleteForce(deleteWorkOrderUserJoinParams);
-    //     logging.METHOD_ACTION(logFormat, __filename, deleteWorkOrderUserJoinParams, deleteWorkOrderUserJoin);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, deleteWorkOrderUserJoinParams, err);
+    try {
+      result = await workOrderDao.updateByCode(params);
+      logging.METHOD_ACTION(logFormat, __filename, params, result);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, params, err);
 
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
-
-    //   const paramList: Array<WorkOrderUserJoinInsertParams> = [];
-    //   if (userIds && userIds.length > 0) {
-    //     for (let i = 0; i < userIds.length; i += 1) {
-    //       paramList.push({
-    //         workOrderId,
-    //         userId: userIds[i],
-    //       });
-    //     }
-    //   }
-
-    //   // 설비당 작업자 입력
-    //   try {
-    //     insertedIds = await workOrderUserJoinDao.bulkInsert(paramList);
-    //     logging.METHOD_ACTION(logFormat, __filename, paramList, insertedIds);
-    //   } catch (err) {
-    //     logging.ERROR_METHOD(logFormat, __filename, params, err);
-
-    //     return new Promise((resolve, reject) => {
-    //       reject(err);
-    //     });
-    //   }
-
-    //   return new Promise((resolve) => {
-    //     resolve(insertedIds);
-    //   });
-    // };
-
-    // (Promise.all)설비당 작업자 입력 처리
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // const [insertedWorkOrderUserJoin] = await Promise.all([
-    //   promiseInsertWorkOrderUserJoin(params.id ? params.id : 0, params.userIds ? params.userIds : []),
-    // ]);
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
 
     return new Promise((resolve) => {
       resolve(result);
     });
   },
-  // update
-  // async editLiveState(params: WorkOrderUpdateLiveStateParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
-  //   let result: UpdatedResult;
 
-  //   try {
-  //     result = await workOrderDao.updateLiveState(params);
-  //     logging.METHOD_ACTION(logFormat, __filename, params, result);
-  //   } catch (err) {
-  //     logging.ERROR_METHOD(logFormat, __filename, params, err);
-
-  //     return new Promise((resolve, reject) => {
-  //       reject(err);
-  //     });
-  //   }
-
-  //   return new Promise((resolve) => {
-  //     resolve(result);
-  //   });
-  // },
+    // update
+    async stateCheckAndEdit(params: WorkOrderAttributesDeep, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+      let result: UpdatedResult = {updatedCount: 0};
+  
+      try {
+        const codeSplit = params.code?.split('$') || []
+        if(codeSplit.length <= 0){
+          const errorMessage = `작업지시 code가 없습니다.`;
+        logging.ACTION_DEBUG({
+          filename: 'workOrderService.ts.stateCheckAndEdit',
+          error: errorMessage,
+          params: null,
+          result: false,
+        });
+        const err = new ErrorClass(responseCode.BAD_REQUEST_REJECT, errorMessage);
+          return new Promise((resolve, reject) => {
+            reject(err);
+          });
+        }
+        const code = codeSplit[0]
+        const workOrderInfo = await workOrderDao.selectInfoByCode({code:code})
+        if(workOrderInfo){
+          //상태 업데이트
+          if(workOrderInfo.state !== params.state){
+            workOrderDao.updateByCode({code: code,
+              state:params.state,
+              startDate: params.state === 'assigned1' ? (workOrderInfo.startDate === null ? new Date() : undefined) : undefined,
+              endDate: params.state === 'completed2' ? new Date() : undefined,
+              cancelDate: params.cancelDate,
+              description: params.description,
+            })
+          }
+        }else{
+          //신규 (수동작업지시 등)
+          const fromFacility = await facilityDao.selectOneCode({code: params.FromFacility.code})
+          const toFacility = await facilityDao.selectOneCode({code: params.ToFacility.code})
+          const amr = await amrDao.selectOneCode({code: params.Amr?.code || ''})
+          const item = await itemDao.selectOneCode({code: params.Item.code})
+          const insertResult = await workOrderDao.insert({
+            code: code,
+            fromFacilityId: fromFacility && fromFacility.id || null,
+            toFacilityId: toFacility && toFacility.id || null,
+            fromAmrId: amr && amr.id || null,
+            itemId: item && item.id || null,
+            startDate: new Date(),
+            cancelDate: null,
+            cancelUserId: null,
+            level: params.level,
+            state: params.state,
+            type: params.type,
+            isClosed: false,
+            description: params.description,
+          })
+          result.updatedCount =insertResult.insertedId > 0 ? 1: 0
+        }
+        logging.METHOD_ACTION(logFormat, __filename, params, result);
+      } catch (err) {
+        logging.ERROR_METHOD(logFormat, __filename, params, err);
+  
+        return new Promise((resolve, reject) => {
+          reject(err);
+        });
+      }
+  
+      return new Promise((resolve) => {
+        resolve(result);
+      });
+    },
   // delete
   async delete(params: WorkOrderDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
     let result: DeletedResult;

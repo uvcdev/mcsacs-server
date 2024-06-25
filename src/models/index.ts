@@ -8,6 +8,7 @@ import EventHistory from './common/eventHistory';
 import Setting from './common/setting';
 import AlarmEmail from './common/alarmEmail';
 import McsAlarm from './common/mcsAlarm';
+import Amr from './common/amr';
 
 // dashboard
 import DailyStatistic from './dashboard/dailyStatistic';
@@ -38,6 +39,7 @@ const db = {
   Setting,
   AlarmEmail,
   McsAlarm,
+  Amr,
   /* dashboard */
   DailyStatistic,
   MonthlyStatistic,
@@ -74,3 +76,4 @@ Facility.belongsTo(FacilityGroup, { foreignKey: { name: 'facilityGroupId' }, onD
 WorkOrder.belongsTo(Facility, { foreignKey: { name: 'fromFacilityId' }, onDelete: 'SET NULL', as: 'FromFacility' });
 WorkOrder.belongsTo(Facility, { foreignKey: { name: 'toFacilityId' }, onDelete: 'SET NULL', as: 'ToFacility' });
 WorkOrder.belongsTo(Item, { foreignKey: { name: 'itemId' }, onDelete: 'SET NULL', as: 'Item' });
+WorkOrder.belongsTo(Amr, { foreignKey: { name: 'fromAmrId' }, onDelete: 'SET NULL', as: 'Amr' });

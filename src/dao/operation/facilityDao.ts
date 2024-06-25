@@ -97,6 +97,12 @@ const dao = {
         type: params.type, // '=' 검색
       };
     }
+    if (params.floor) {
+      setQuery.where = {
+        ...setQuery.where,
+        floor: params.floor, // '=' 검색
+      };
+    }
     if (params.active) {
       setQuery.where = {
         ...setQuery.where,

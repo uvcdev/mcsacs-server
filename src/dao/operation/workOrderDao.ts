@@ -240,6 +240,17 @@ const dao = {
         });
     });
   },
+  updateByCode(params: WorkOrderUpdateParams): Promise<UpdatedResult> {
+    return new Promise((resolve, reject) => {
+      WorkOrder.update(params, { where: { code: params.code } })
+        .then(([updated]) => {
+          resolve({ updatedCount: updated });
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
   delete(params: WorkOrderDeleteParams): Promise<DeletedResult> {
     return new Promise((resolve, reject) => {
       WorkOrder.destroy({
