@@ -80,6 +80,7 @@ ALTER TABLE public.work_orders ADD CONSTRAINT work_orders_fk FOREIGN KEY (item_c
 
 ```sql
 ALTER TABLE public.facilities ADD floor varchar(10) NULL;
+ALTER TABLE public.facilities ALTER COLUMN facility_group_id DROP NOT NULL;
 
 ```
 
@@ -87,10 +88,14 @@ ALTER TABLE public.facilities ADD floor varchar(10) NULL;
 
 ```sql
 ALTER TABLE public.work_orders ADD is_closed bool DEFAULT false NULL;
-ALTER TABLE public.work_orders ADD start_date timestamptz NULL;
-ALTER TABLE public.work_orders ADD end_date timestamptz NULL;
+ALTER TABLE public.work_orders ADD from_start_date timestamptz NULL;
+ALTER TABLE public.work_orders ADD from_end_date timestamptz NULL;
+ALTER TABLE public.work_orders ADD to_start_date timestamptz NULL;
+ALTER TABLE public.work_orders ADD to_end_date timestamptz NULL;
 
 ```
 
 - amr crud 추가
 - 작업지시 실시간 상태에 따른 작업지시 데이터 업데이트(mqtt)
+
+- 서버 시작시 설비별 금일 작업지시 상태 통계 데이터 세팅

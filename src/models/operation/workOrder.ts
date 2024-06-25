@@ -40,8 +40,10 @@ export interface WorkOrderAttributes {
   | 'forceCanceled'
   | 'facilityCanceled';
   isClosed: boolean;
-  startDate: Date | null;
-  endDate: Date | null;
+  fromStartDate: Date | null;
+  fromEndDate: Date | null;
+  toStartDate: Date | null;
+  toEndDate: Date | null;
   cancelUserId: number | null;
   cancelDate: Date | null;
   description: string | null;
@@ -66,8 +68,10 @@ class WorkOrder extends Model implements WorkOrderAttributes {
   public level!: WorkOrderAttributes['level'];
   public state!: WorkOrderAttributes['state'];
   public isClosed!: WorkOrderAttributes['isClosed'];
-  public startDate!: WorkOrderAttributes['startDate'];
-  public endDate!: WorkOrderAttributes['endDate'];
+  public fromStartDate!: WorkOrderAttributes['fromStartDate'];
+  public fromEndDate!: WorkOrderAttributes['fromEndDate'];
+  public toStartDate!: WorkOrderAttributes['toStartDate'];
+  public toEndDate!: WorkOrderAttributes['toEndDate'];
   public cancelUserId!: WorkOrderAttributes['cancelUserId'];
   public cancelDate!: WorkOrderAttributes['cancelDate'];
   public description!: WorkOrderAttributes['description'];
@@ -112,10 +116,16 @@ WorkOrder.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    startDate: {
+    fromStartDate: {
       type: DataTypes.DATE,
     },   
-    endDate: {
+    fromEndDate: {
+      type: DataTypes.DATE,
+    },
+    toStartDate: {
+      type: DataTypes.DATE,
+    },   
+    toEndDate: {
       type: DataTypes.DATE,
     },
     cancelUserId: {
@@ -153,7 +163,6 @@ export interface WorkOrderInsertParams {
   level: number | null;
   state: WorkOrderAttributes['state'];
   isClosed: boolean;
-  startDate: Date | null;
   cancelUserId: number | null;
   cancelDate: Date | null;
   description: string | null;
@@ -230,8 +239,10 @@ export interface WorkOrderUpdateParams {
   level?: number | null;
   state?: WorkOrderAttributes['state'];
   isClosed?: boolean;
-  startDate?: Date | null;
-  endDate?: Date | null;
+  fromStartDate?: Date | null;
+  fromEndDate?: Date | null;
+  toStartDate?: Date | null;
+  toEndDate?: Date | null;
   cancelUserId?: number | null;
   cancelDate?: Date | null;
   description?: string | null;
@@ -247,6 +258,10 @@ export interface WorkOrderUpdateByCodeParams {
   level?: number | null;
   state?: WorkOrderAttributes['state'];
   isClosed?: boolean;
+  fromStartDate?: Date | null;
+  fromEndDate?: Date | null;
+  toStartDate?: Date | null;
+  toEndDate?: Date | null;
   cancelUserId?: number | null;
   cancelDate?: Date | null;
   description?: string | null;
@@ -270,8 +285,10 @@ export const WorkOrderAttributesInclude = [
   'level',
   'state',
   'isClosed',
-  'startDate',
-  'endDate',
+  'fromStartDate',
+  'fromEndDate',
+  'toStartDate',
+  'toEndDate',
   'cancelUserId',
   'cancelDate',
   'description',

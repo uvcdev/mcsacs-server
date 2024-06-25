@@ -41,7 +41,6 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, WorkOrderInse
       level: req.body.level,
       state: req.body.state,
       isClosed: req.body.isClosed,
-      startDate: req.body.startDate,
       cancelUserId: req.body.cancelUserId,
       cancelDate: req.body.cancelDate,
       description: req.body.description,

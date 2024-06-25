@@ -171,7 +171,6 @@ const service = {
         fromAmrId: null,
         state: 'registered',
         isClosed: false,
-        startDate: new Date(),
         cancelUserId: 0,
         cancelDate: null,
         description: null
@@ -357,10 +356,14 @@ const service = {
         if(workOrderInfo){
           //상태 업데이트
           if(workOrderInfo.state !== params.state){
-            workOrderDao.updateByCode({code: code,
+            console.log(params.state)
+            workOrderDao.updateByCode({
+              code: code,
               state:params.state,
-              startDate: params.state === 'assigned1' ? (workOrderInfo.startDate === null ? new Date() : undefined) : undefined,
-              endDate: params.state === 'completed2' ? new Date() : undefined,
+              fromStartDate: params.state === 'pending1' ? (workOrderInfo.fromStartDate === null ? new Date() : undefined) : undefined,
+              fromEndDate: params.state === 'pending2' ? new Date() : undefined,
+              toStartDate: params.state === 'pending2' ? (workOrderInfo.toStartDate === null ? new Date() : undefined) : undefined,
+              toEndDate: params.state === 'completed2' ? new Date() : undefined,
               cancelDate: params.cancelDate,
               description: params.description,
             })
@@ -377,7 +380,6 @@ const service = {
             toFacilityId: toFacility && toFacility.id || null,
             fromAmrId: amr && amr.id || null,
             itemId: item && item.id || null,
-            startDate: new Date(),
             cancelDate: null,
             cancelUserId: null,
             level: params.level,

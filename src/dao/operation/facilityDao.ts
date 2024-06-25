@@ -70,7 +70,7 @@ const dao = {
     if (params.uniqueName) {
       setQuery.where = {
         ...setQuery.where,
-        name: params.uniqueName, // 'like' 검색
+        name: params.uniqueName, // '=' 검색
       };
     }
     if (params.state) {
