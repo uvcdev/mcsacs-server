@@ -85,7 +85,6 @@ export interface MonthlyStatisticDeleteParams {
   id?: MonthlyStatisticAttributes['id'];
 }
 
-
 /* 인터페이스 정의 끝 */
 
 export default MonthlyStatistic;

@@ -101,8 +101,7 @@ const dao = {
           as: 'User',
           attributes: UserAttributesInclude,
           ...setSubQueryUser,
-          include: [
-          ],
+          include: [],
         },
       })
         .then((selectedList) => {
@@ -120,8 +119,7 @@ const dao = {
           model: User,
           as: 'User',
           attributes: UserAttributesInclude,
-          include: [
-          ],
+          include: [],
         },
       })
         .then((selectedInfo) => {
@@ -180,9 +178,11 @@ const dao = {
       eh.table_name as "tableName", eh.table_pks as "tablePks", 
       eh.client_ip as "clientIp", eh.created_at as "createdAt"
       from event_histories eh, users u
-      where eh.id <= (select max(id)  from event_histories eh2) - (${params.rowCount ? params.rowCount : 10} * (${params.page ? params.page - 1 : 0
+      where eh.id <= (select max(id)  from event_histories eh2) - (${params.rowCount ? params.rowCount : 10} * (${
+        params.page ? params.page - 1 : 0
       }))
-      and eh.id > (select max(id)  from event_histories eh2) - ${params.rowCount ? params.rowCount : 10} - (${params.rowCount ? params.rowCount : 10
+      and eh.id > (select max(id)  from event_histories eh2) - ${params.rowCount ? params.rowCount : 10} - (${
+        params.rowCount ? params.rowCount : 10
       } * (${params.page ? params.page - 1 : 0}))
       and eh.user_id = u.id
       order by eh.id desc;

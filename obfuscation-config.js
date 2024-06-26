@@ -23,5 +23,5 @@ module.exports = {
   stringArrayWrappersParametersMaxCount: 2,
   stringArrayWrappersType: 'variable',
   stringArrayThreshold: 0.75,
-  unicodeEscapeSequence: false
-}
+  unicodeEscapeSequence: false,
+};

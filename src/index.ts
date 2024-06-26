@@ -18,6 +18,8 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJson from '../src/swagger.json';
 
 import * as process from 'process';
+import { service as workOrderService } from './service/operation/workOrderService';
+
 dotenv.config();
 
 const app = express();
@@ -218,3 +220,5 @@ if (httpsOption.key && httpsOption.cert) {
     console.log(`server is running on http port:${httpsPort}`);
   });
 }
+
+workOrderService.initFacilityAndAmrWorkOrderCount()

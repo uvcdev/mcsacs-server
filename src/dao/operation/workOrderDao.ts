@@ -26,6 +26,7 @@ import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/com
 import User, { UserAttributesInclude } from '../../models/common/user';
 import Item, { ItemAttributesInclude } from '../../models/operation/item';
 import Facility, { FacilityAttributesInclude } from '../../models/operation/facility';
+import Amr, { AmrAttributesInclude } from '../../models/common/amr';
 // import WorkOrderInterrupt, { WorkOrderInterruptAttributesInclude } from '../../models/operation/workOrderInterrupt';
 // import WorkOrderMaintenance, { WorkOrderMaintenanceAttributesInclude } from '../../models/operation/workOrderMaintenance';
 // import WorkOrderMaintenanceHistory, {
@@ -97,6 +98,27 @@ const dao = {
         state: params.state, // '=' 검색
       };
     }
+    if (params.createdAtFrom || params.createdAtTo) {
+      if (params.createdAtFrom && params.createdAtTo) {
+        setQuery.where = {
+          ...setQuery.where,
+          createdAt: { [Op.between]: [params.createdAtFrom, params.createdAtTo] }, // 'between '검색
+        };
+      } else {
+        if (params.createdAtFrom) {
+          setQuery.where = {
+            ...setQuery.where,
+            createdAt: { [Op.gte]: params.createdAtFrom }, // '>=' 검색
+          };
+        }
+        if (params.createdAtTo) {
+          setQuery.where = {
+            ...setQuery.where,
+            createdAt: { [Op.lte]: params.createdAtTo }, // '<=' 검색
+          };
+        }
+      }
+    }
     // 2. limit, offset 세팅
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;
@@ -123,6 +145,11 @@ const dao = {
             as: 'Item',
             attributes: ItemAttributesInclude,
           },
+          {
+            model: Amr,
+            as :'Amr',
+            attributes: AmrAttributesInclude,
+          }
         ],
       })
         .then((selectedList) => {
@@ -176,6 +203,11 @@ const dao = {
             as: 'Item',
             attributes: ItemAttributesInclude,
           },
+          {
+            model: Amr,
+            as :'Amr',
+            attributes: AmrAttributesInclude,
+          }
         ],
       })
         .then((selectedInfo) => {
@@ -188,8 +220,8 @@ const dao = {
   },
   selectInfoByCode(params: WorkOrderSelectInfoByCodeParams): Promise<WorkOrderAttributes | null> {
     return new Promise((resolve, reject) => {
-      WorkOrder.findOne( {
-        where: {code: params.code},
+      WorkOrder.findOne({
+        where: { code: params.code },
         include: [
           {
             model: Facility,
@@ -242,7 +274,7 @@ const dao = {
   },
   updateByCode(params: WorkOrderUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      console.log(params)
+      console.log(params);
       WorkOrder.update(params, { where: { code: params.code } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });

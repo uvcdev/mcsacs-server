@@ -90,11 +90,6 @@ export interface ZoneDeleteParams {
 }
 
 // include attributes
-export const ZoneAttributesInclude = [
-  'id',
-  'name',
-  'description',
-  'createdAt',
-];
+export const ZoneAttributesInclude = ['id', 'name', 'description', 'createdAt'];
 
 export default Zone;

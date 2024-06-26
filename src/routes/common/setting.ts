@@ -62,38 +62,34 @@ router.post('/', isLoggedIn, async (req: Request<unknown, unknown, SettingInsert
 });
 
 // Setting 리스트 조회
-router.get(
-  '/',
-  isLoggedIn,
-  async (req: Request<unknown, unknown, unknown, SettingSelectListParams>, res: Response) => {
-    const logFormat = makeLogFormat(req);
-    const tokenUser = (req as { decoded?: Payload }).decoded;
-    try {
-      const params: SettingSelectListParams = {
-        ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
-        system: req.query.system,
-        type: req.query.type,
-        limit: Number(req.query.limit),
-        offset: Number(req.query.offset),
-      };
-      logging.REQUEST_PARAM(logFormat);
-      // 비즈니스 로직 호출
-      const result = await settingService.list(params, logFormat);
-      // 최종 응답값 세팅
-      // front test 필요
-      const resJson = resSuccess(result, resType.LIST);
-      logging.RESPONSE_DATA(logFormat, resJson);
+router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, SettingSelectListParams>, res: Response) => {
+  const logFormat = makeLogFormat(req);
+  const tokenUser = (req as { decoded?: Payload }).decoded;
+  try {
+    const params: SettingSelectListParams = {
+      ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
+      system: req.query.system,
+      type: req.query.type,
+      limit: Number(req.query.limit),
+      offset: Number(req.query.offset),
+    };
+    logging.REQUEST_PARAM(logFormat);
+    // 비즈니스 로직 호출
+    const result = await settingService.list(params, logFormat);
+    // 최종 응답값 세팅
+    // front test 필요
+    const resJson = resSuccess(result, resType.LIST);
+    logging.RESPONSE_DATA(logFormat, resJson);
 
-      // 이벤트 로그 기록(비동기)
-      void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'SelectList', TABLE_NAME);
-      return res.status(resJson.status).json(resJson);
-    } catch (err) {
-      const resJson = resError(err);
-      logging.RESPONSE_DATA(logFormat, resJson);
-      return res.status(resJson.status).json(resJson);
-    }
+    // 이벤트 로그 기록(비동기)
+    void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'SelectList', TABLE_NAME);
+    return res.status(resJson.status).json(resJson);
+  } catch (err) {
+    const resJson = resError(err);
+    logging.RESPONSE_DATA(logFormat, resJson);
+    return res.status(resJson.status).json(resJson);
   }
-);
+});
 
 // setting 상세정보 조회
 router.get(

@@ -9,6 +9,7 @@ dotenv.config();
 import { service as workOrderService } from '../service/operation/workOrderService';
 import { RequestParams } from 'nodemailer/lib/xoauth2';
 import { WorkOrderAttributesDeep } from 'models/operation/workOrder';
+import { useWorkOrderStatsUtil } from './workOrderUtil';
 
 // mqtt접속 환경
 type MqttConfig = {
@@ -22,7 +23,6 @@ const mqttConfig: MqttConfig = {
   port: Number(process.env.MQTT_PORT || '1883'),
   topic: process.env.MQTT_TOPIC || 'mcs',
 };
-
 
 type AcsDetail = {
   itemCode: string | null;
@@ -88,6 +88,7 @@ export enum MqttTopics {
   AlarmClear = 'alarm/clear',
   IsAlive = 'is-alive',
   ItemLogging = 'item-logging',
+  WorkOrderStats = 'work-order-stats'
 }
 
 // broker에 접속될 클라이언트 아이디(unique필요)
@@ -108,9 +109,16 @@ if (mqttConfig.host !== '') {
     try {
       sendMqtt(`${MqttTopics.IsAlive}`, JSON.stringify(true));
     } catch (error) {
-      error;
+      console.log("🚀 ~ setInterval ~ error:", error)
     }
   }, 1000);
+  setInterval(() => {
+    try {
+      useWorkOrderStatsUtil().sendStats()
+    } catch (error){
+      console.log("🚀 ~ setInterval ~ error:", error)
+    }
+  }, 5000)
 }
 
 // mqtt 연결, 구독, 메세지 수신
@@ -203,9 +211,9 @@ export const receiveMqtt = (): void => {
                 topic: messageTopic,
                 message: messageJson,
               });
-              await workOrderService.regWorkOrder(messageJson)
-              console.log('###4')
-              sendMqtt('acs/workorder', message)
+              await workOrderService.regWorkOrder(messageJson);
+              console.log('###4');
+              sendMqtt('acs/workorder', message);
             }
             if (topicSplit.length === 3 && topicSplit[2] === 'cancelworkorder') {
               const messageJson = JSON.parse(message) as McsCancelWorkOrderRequestType;
@@ -214,9 +222,12 @@ export const receiveMqtt = (): void => {
                 topic: messageTopic,
                 message: messageJson,
               });
-              const result = await workOrderService.facilityCancel({code:messageJson.EQP_CALL_ID}, makeLogFormat({} as RequestLog))
-              console.log('###4')
-              if(result.updatedCount>0) sendMqtt('acs/cancelworkorder', message)
+              const result = await workOrderService.facilityCancel(
+                { code: messageJson.EQP_CALL_ID },
+                makeLogFormat({} as RequestLog)
+              );
+              console.log('###4');
+              if (result.updatedCount > 0) sendMqtt('acs/cancelworkorder', message);
             }
             // 미사용
             // if(logicTopic === 'notify'){
@@ -235,7 +246,7 @@ export const receiveMqtt = (): void => {
 
             // }
             if (topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'request') {
-              const targetSystem = topicSplit[2]
+              const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
               logging.MQTT_LOG({
@@ -251,7 +262,7 @@ export const receiveMqtt = (): void => {
               }
             }
             if (topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'complete') {
-              const targetSystem = topicSplit[2]
+              const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
               logging.MQTT_LOG({
@@ -267,7 +278,7 @@ export const receiveMqtt = (): void => {
               }
             }
             if (topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'detach') {
-              const targetSystem = topicSplit[2]
+              const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
               logging.MQTT_LOG({
@@ -288,7 +299,7 @@ export const receiveMqtt = (): void => {
           if (serverTopic === 'acs') {
             // item-logging 메세지 처리
             if (topicSplit.length === 3 && topicSplit[1] === 'item-logging') {
-              const itemCode = topicSplit[2]
+              const itemCode = topicSplit[2];
 
               const messageJson = JSON.parse(message);
               logging.MQTT_DEBUG({
@@ -305,7 +316,7 @@ export const receiveMqtt = (): void => {
             }
 
             if (topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'request') {
-              const targetSystem = topicSplit[2]
+              const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
               logging.MQTT_LOG({
@@ -321,7 +332,7 @@ export const receiveMqtt = (): void => {
               }
             }
             if (topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'complete') {
-              const targetSystem = topicSplit[2]
+              const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
               logging.MQTT_LOG({
@@ -337,10 +348,10 @@ export const receiveMqtt = (): void => {
               }
             }
             if (topicSplit.length === 4 && topicSplit[1] === 'docking' && topicSplit[3] === 'detach') {
-              const targetSystem = topicSplit[2]
+              const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
-              console.log("🚀 ~ client.on ~ messageJson:", messageJson)
+              console.log('🚀 ~ client.on ~ messageJson:', messageJson);
               logging.MQTT_LOG({
                 title: 'acs docking detach',
                 topic: messageTopic,
@@ -354,15 +365,15 @@ export const receiveMqtt = (): void => {
               }
             }
             //작업지시 진행상황
-            if(topicSplit[1] === 'work-order'){
-              const messageJson = JSON.parse(message)
+            if (topicSplit[1] === 'work-order') {
+              const messageJson = JSON.parse(message);
               // 작업지시 종결
-              if(messageJson.isClosed === true){
-                console.log(messageJson)
-                await workOrderService.editByCode(messageJson, makeLogFormat({} as RequestLog))
-              }else {
-                const params = messageJson as WorkOrderAttributesDeep
-                await workOrderService.stateCheckAndEdit(params, makeLogFormat({} as RequestLog))
+              if (messageJson.isClosed === true) {
+                console.log(messageJson);
+                await workOrderService.editByCode(messageJson, makeLogFormat({} as RequestLog));
+              } else {
+                const params = messageJson as WorkOrderAttributesDeep;
+                await workOrderService.stateCheckAndEdit(params, makeLogFormat({} as RequestLog));
               }
             }
           }

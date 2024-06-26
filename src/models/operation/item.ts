@@ -97,11 +97,6 @@ export interface ItemDeleteParams {
 }
 
 // include attributes
-export const ItemAttributesInclude = [
-  'id',
-  'code',
-  'type',
-  'createdAt',
-];
+export const ItemAttributesInclude = ['id', 'code', 'type', 'createdAt'];
 
 export default Item;

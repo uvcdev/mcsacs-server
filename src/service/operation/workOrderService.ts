@@ -1,4 +1,4 @@
-import { LogFormat, logging } from '../../lib/logging';
+import { LogFormat, RequestLog, logging, makeLogFormat } from '../../lib/logging';
 import { restapiConfig } from '../../config/restapiConfig';
 import {
   BulkInsertedOrUpdatedResult,
@@ -34,6 +34,10 @@ import { ItemInsertParams } from '../../models/operation/item';
 import superagent from 'superagent';
 import { Transaction } from 'sequelize';
 import { sequelize } from '../../models';
+import { RequestParams } from 'nodemailer/lib/xoauth2';
+import dayjs from 'dayjs';
+import { WorkOrderStats, useWorkOrderStatsUtil } from '../../lib/workOrderUtil';
+import { calculateDurationInSeconds } from '../../lib/dateUtil';
 
 const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
 let accessToken = '';
@@ -127,8 +131,7 @@ const service = {
     try {
       let result: InsertedResult;
       // 품목 조회해서 없을 경우 insert
-      const itemCode= `${params.CALL_ID}${(params.TAG_ID && `&${params.TAG_ID}`) || ''}`
-
+      const itemCode = `${params.CALL_ID}${(params.TAG_ID && `&${params.TAG_ID}`) || ''}`;
 
       const existItem = await itemDao.selectOneCode({ code: itemCode });
       if (!existItem) {
@@ -137,23 +140,23 @@ const service = {
           type: params.CALL_TYPE,
         };
         result = await itemDao.insert(itemInsertParam);
-        params.newItemId = result.insertedId
-        console.log("🚀 ~ regWorkOrder ~ result.insertedId:", result.insertedId)
+        params.newItemId = result.insertedId;
+        console.log('🚀 ~ regWorkOrder ~ result.insertedId:', result.insertedId);
       }
 
-      let fromFacilitySerial = null
-      let toFacilitySerial = null
+      let fromFacilitySerial = null;
+      let toFacilitySerial = null;
 
       /** EQP 기준
        * OUT: EQP에서 뺀다 = from설비(EQP) → to설비(WCS)
        * IN: EQP에 넣는다 = from설비(WCS) → to설비(EQP)
        */
       if (params.TYPE === 'OUT') {
-        fromFacilitySerial = params.EQP_ID
-        toFacilitySerial = params.PORT_ID
+        fromFacilitySerial = params.EQP_ID;
+        toFacilitySerial = params.PORT_ID;
       } else {
-        fromFacilitySerial = params.PORT_ID
-        toFacilitySerial = params.EQP_ID
+        fromFacilitySerial = params.PORT_ID;
+        toFacilitySerial = params.EQP_ID;
       }
       // 설비 시리얼 조회해서 id 매핑
       const fromFacilityInfo = await facilityDao.selectSerial({ serial: fromFacilitySerial });
@@ -173,9 +176,9 @@ const service = {
         isClosed: false,
         cancelUserId: 0,
         cancelDate: null,
-        description: null
+        description: null,
       };
-      console.log("🚀 ~ regWorkOrder ~ transParams:", transParams)
+      console.log('🚀 ~ regWorkOrder ~ transParams:', transParams);
       workOrderResult = await workOrderDao.insertTransac(transParams, transaction);
       // ACS 테이블 입력
       // const accessToken = (await this.restapiLogin())?.accessToken || '';
@@ -271,7 +274,6 @@ const service = {
           reject(err);
         });
       }
-    
 
       const workOrderUpdateParmas: WorkOrderUpdateParams = {
         id: workOrder.id,
@@ -311,7 +313,7 @@ const service = {
       resolve(result);
     });
   },
- 
+
   // update
   async editByCode(params: WorkOrderUpdateByCodeParams, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
     let result: UpdatedResult;
@@ -332,14 +334,14 @@ const service = {
     });
   },
 
-    // update
-    async stateCheckAndEdit(params: WorkOrderAttributesDeep, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
-      let result: UpdatedResult = {updatedCount: 0};
-  
-      try {
-        const codeSplit = params.code?.split('$') || []
-        if(codeSplit.length <= 0){
-          const errorMessage = `작업지시 code가 없습니다.`;
+  // update
+  async stateCheckAndEdit(params: WorkOrderAttributesDeep, logFormat: LogFormat<unknown>): Promise<UpdatedResult> {
+    let result: UpdatedResult = { updatedCount: 0 };
+
+    try {
+      const codeSplit = params.code?.split('$') || [];
+      if (codeSplit.length <= 0) {
+        const errorMessage = `작업지시 code가 없습니다.`;
         logging.ACTION_DEBUG({
           filename: 'workOrderService.ts.stateCheckAndEdit',
           error: errorMessage,
@@ -347,62 +349,181 @@ const service = {
           result: false,
         });
         const err = new ErrorClass(responseCode.BAD_REQUEST_REJECT, errorMessage);
-          return new Promise((resolve, reject) => {
-            reject(err);
-          });
-        }
-        const code = codeSplit[0]
-        const workOrderInfo = await workOrderDao.selectInfoByCode({code:code})
-        if(workOrderInfo){
-          //상태 업데이트
-          if(workOrderInfo.state !== params.state){
-            console.log(params.state)
-            workOrderDao.updateByCode({
-              code: code,
-              state:params.state,
-              fromStartDate: params.state === 'pending1' ? (workOrderInfo.fromStartDate === null ? new Date() : undefined) : undefined,
-              fromEndDate: params.state === 'pending2' ? new Date() : undefined,
-              toStartDate: params.state === 'pending2' ? (workOrderInfo.toStartDate === null ? new Date() : undefined) : undefined,
-              toEndDate: params.state === 'completed2' ? new Date() : undefined,
-              cancelDate: params.cancelDate,
-              description: params.description,
-            })
-          }
-        }else{
-          //신규 (수동작업지시 등)
-          const fromFacility = await facilityDao.selectOneCode({code: params.FromFacility.code})
-          const toFacility = await facilityDao.selectOneCode({code: params.ToFacility.code})
-          const amr = await amrDao.selectOneCode({code: params.Amr?.code || ''})
-          const item = await itemDao.selectOneCode({code: params.Item.code})
-          const insertResult = await workOrderDao.insert({
-            code: code,
-            fromFacilityId: fromFacility && fromFacility.id || null,
-            toFacilityId: toFacility && toFacility.id || null,
-            fromAmrId: amr && amr.id || null,
-            itemId: item && item.id || null,
-            cancelDate: null,
-            cancelUserId: null,
-            level: params.level,
-            state: params.state,
-            type: params.type,
-            isClosed: false,
-            description: params.description,
-          })
-          result.updatedCount =insertResult.insertedId > 0 ? 1: 0
-        }
-        logging.METHOD_ACTION(logFormat, __filename, params, result);
-      } catch (err) {
-        logging.ERROR_METHOD(logFormat, __filename, params, err);
-  
         return new Promise((resolve, reject) => {
           reject(err);
         });
       }
-  
-      return new Promise((resolve) => {
-        resolve(result);
+      const code = codeSplit[0];
+      const workOrderInfo = await workOrderDao.selectInfoByCode({ code: code });
+      if (workOrderInfo) {
+        //상태 업데이트
+        if (workOrderInfo.state !== params.state) {
+          console.log(params.state);
+          workOrderDao.updateByCode({
+            code: code,
+            state: params.state,
+            fromStartDate:
+              params.state === 'pending1' ? (workOrderInfo.fromStartDate === null ? new Date() : undefined) : undefined,
+            fromEndDate: params.state === 'pending2' ? new Date() : undefined,
+            toStartDate:
+              params.state === 'pending2' ? (workOrderInfo.toStartDate === null ? new Date() : undefined) : undefined,
+            toEndDate: params.state === 'completed2' ? new Date() : undefined,
+            cancelDate: params.cancelDate,
+            description: params.description,
+          });
+        }
+      } else {
+        //신규 (수동작업지시 등)
+        const fromFacility = await facilityDao.selectOneCode({ code: params.FromFacility.code });
+        const toFacility = await facilityDao.selectOneCode({ code: params.ToFacility.code });
+        const amr = await amrDao.selectOneCode({ code: params.Amr?.code || '' });
+        const item = await itemDao.selectOneCode({ code: params.Item.code });
+        const insertResult = await workOrderDao.insert({
+          code: code,
+          fromFacilityId: (fromFacility && fromFacility.id) || null,
+          toFacilityId: (toFacility && toFacility.id) || null,
+          fromAmrId: (amr && amr.id) || null,
+          itemId: (item && item.id) || null,
+          cancelDate: null,
+          cancelUserId: null,
+          level: params.level,
+          state: params.state,
+          type: params.type,
+          isClosed: false,
+          description: params.description,
+        });
+        result.updatedCount = insertResult.insertedId > 0 ? 1 : 0;
+      }
+      logging.METHOD_ACTION(logFormat, __filename, params, result);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, params, err);
+
+      return new Promise((resolve, reject) => {
+        reject(err);
       });
-    },
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+  // update
+  async initFacilityAndAmrWorkOrderCount(
+    logFormat: LogFormat<unknown> = makeLogFormat({} as RequestLog)
+  ): Promise<UpdatedResult> {
+    let result: UpdatedResult = { updatedCount: 0 };
+
+    try {
+      const dailyWorkOrderStats = useWorkOrderStatsUtil().getStats();
+      const startOfToDay = dayjs().startOf('day').toDate();
+      const endOfToDay = dayjs().endOf('day').toDate();
+
+      const todayWorkOrderList = await workOrderDao.selectList({
+        createdAtFrom: startOfToDay,
+        createdAtTo: endOfToDay,
+      });
+
+      todayWorkOrderList.rows.forEach((v) => {
+        const workOrder = v as WorkOrderAttributesDeep
+        if(workOrder.FromFacility){
+          if(dailyWorkOrderStats.Facility[workOrder.FromFacility.id]){
+            dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCreated += 1
+            if(workOrder.fromStartDate && workOrder.fromEndDate){
+              const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.fromEndDate)
+              dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCompleted += 1
+              dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalDuration += durationSec
+              dailyWorkOrderStats.Facility[workOrder.FromFacility.id].averageDuration = dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalDuration / dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCompleted
+            }
+          } else {
+            dailyWorkOrderStats.Facility[workOrder.FromFacility.id] = {
+              id: workOrder.FromFacility.id,
+              code: workOrder.FromFacility.code,
+              system: workOrder.FromFacility.system,
+              serial: workOrder.ToFacility.serial,
+              totalCreated: 0,
+              totalCompleted: 0,
+              averageDuration: 0,
+              totalDuration:0.
+            } as WorkOrderStats
+            dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCreated += 1
+            if(workOrder.fromStartDate && workOrder.fromEndDate){
+              const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.fromEndDate)
+              dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCompleted += 1
+              dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalDuration += durationSec
+              dailyWorkOrderStats.Facility[workOrder.FromFacility.id].averageDuration = dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalDuration / dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCompleted
+            }
+          }
+        }
+        if(workOrder.toStartDate){
+          if(dailyWorkOrderStats.Facility[workOrder.ToFacility.id]){
+            dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCreated += 1
+            if(workOrder.toStartDate && workOrder.toEndDate){
+              const durationSec = calculateDurationInSeconds(workOrder.toStartDate, workOrder.toEndDate)
+              dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCompleted += 1
+              dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalDuration += durationSec
+              dailyWorkOrderStats.Facility[workOrder.ToFacility.id].averageDuration = dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalDuration / dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCompleted
+            }
+          } else {
+            dailyWorkOrderStats.Facility[workOrder.ToFacility.id] = {
+              id: workOrder.ToFacility.id,
+              code: workOrder.ToFacility.code,
+              system: workOrder.ToFacility.system,
+              serial: workOrder.ToFacility.serial,
+              totalCreated: 0,
+              totalCompleted: 0,
+              averageDuration: 0,
+              totalDuration:0.
+            } as WorkOrderStats
+            dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCreated += 1
+            if(workOrder.toStartDate && workOrder.toEndDate){
+              const durationSec = calculateDurationInSeconds(workOrder.toStartDate, workOrder.toEndDate)
+              dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCompleted += 1
+              dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalDuration += durationSec
+              dailyWorkOrderStats.Facility[workOrder.ToFacility.id].averageDuration = dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalDuration / dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCompleted
+            }
+          }
+        }
+        if(workOrder.Amr){
+          if(dailyWorkOrderStats.Amr[workOrder.Amr.id]){
+            dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCreated += 1
+            if(workOrder.fromStartDate && workOrder.toEndDate){
+              const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.toEndDate)
+              dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCompleted += 1
+              dailyWorkOrderStats.Amr[workOrder.Amr.id].totalDuration += durationSec
+              dailyWorkOrderStats.Amr[workOrder.Amr.id].averageDuration = dailyWorkOrderStats.Amr[workOrder.Amr.id].totalDuration / dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCompleted
+            }
+          } else {
+            dailyWorkOrderStats.Amr[workOrder.Amr.id] = {
+              id: workOrder.Amr.id,
+              code: workOrder.Amr.code,
+              totalCreated: 0,
+              totalCompleted: 0,
+              averageDuration: 0,
+              totalDuration:0.
+            } as WorkOrderStats
+            dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCreated += 1
+            if(workOrder.fromStartDate && workOrder.toEndDate){
+              const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.toEndDate)
+              dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCompleted += 1
+              dailyWorkOrderStats.Amr[workOrder.Amr.id].totalDuration += durationSec
+              dailyWorkOrderStats.Amr[workOrder.Amr.id].averageDuration = dailyWorkOrderStats.Amr[workOrder.Amr.id].totalDuration / dailyWorkOrderStats.Facility[workOrder.Amr.id].totalCompleted
+            }
+          }
+        }
+      })
+      logging.METHOD_ACTION(logFormat, __filename, null, result);
+    } catch (err) {
+      logging.ERROR_METHOD(logFormat, __filename, null, err);
+
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
   // delete
   async delete(params: WorkOrderDeleteParams, logFormat: LogFormat<unknown>): Promise<DeletedResult> {
     let result: DeletedResult;

@@ -76,7 +76,7 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, ZoneS
   try {
     // 요청 파라미터
     const params: ZoneSelectListParams = {
-      ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+      ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
       name: req.query.name,
       limit: Number(req.query.limit || 'NaN'),
       offset: Number(req.query.offset || 'NaN'),

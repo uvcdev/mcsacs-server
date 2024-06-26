@@ -58,8 +58,8 @@ const dao = {
             model: Facility,
             as: 'Facility',
             attributes: FacilityAttributesInclude,
-          }
-        ]
+          },
+        ],
       })
         .then((selectedList) => {
           resolve(selectedList);

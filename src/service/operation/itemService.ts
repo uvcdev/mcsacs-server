@@ -82,10 +82,7 @@ const service = {
     });
   },
   // selectList
-  async list(
-    params: ItemSelectListParams,
-    logFormat: LogFormat<unknown>
-  ): Promise<SelectedListResult<ItemAttributes>> {
+  async list(params: ItemSelectListParams, logFormat: LogFormat<unknown>): Promise<SelectedListResult<ItemAttributes>> {
     let result: SelectedListResult<ItemAttributes>;
 
     try {

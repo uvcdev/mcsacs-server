@@ -63,7 +63,7 @@ const service = {
       void this.redisInit();
       if (params.type === 'logRetentionPeriod') {
         try {
-          const logPeriod = (params.data as unknown) as { mcsLog: number };
+          const logPeriod = params.data as unknown as { mcsLog: number };
           try {
             const remove = await logSequelize.query(`SELECT remove_retention_policy('logs');`);
           } catch (err) {
@@ -139,7 +139,7 @@ const service = {
       void this.redisInit();
       if (params.type === 'logRetentionPeriod') {
         try {
-          const logPeriod = (params.data as unknown) as { mcsLog: number };
+          const logPeriod = params.data as unknown as { mcsLog: number };
           try {
             const remove = await logSequelize.query(`SELECT remove_retention_policy('logs');`);
           } catch (err) {

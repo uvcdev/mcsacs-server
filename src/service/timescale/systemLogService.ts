@@ -6,7 +6,12 @@ import {
   UpdatedResult,
   DeletedResult,
 } from '../../lib/resUtil';
-import { SystemLogAttributes, SystemLogInsertParams, SystemLogSelectInfoParams, SystemLogSelectListParams } from '../../models/timescale/systemLog';
+import {
+  SystemLogAttributes,
+  SystemLogInsertParams,
+  SystemLogSelectInfoParams,
+  SystemLogSelectListParams,
+} from '../../models/timescale/systemLog';
 import { systemLogDao } from '../../dao/timescale/systemLogDao';
 
 const systemLogService = {
@@ -29,7 +34,10 @@ const systemLogService = {
     });
   },
   // selectList
-  async list(params: SystemLogSelectListParams, logFormat: LogFormat<unknown>): Promise<SelectedListResult<SystemLogAttributes>> {
+  async list(
+    params: SystemLogSelectListParams,
+    logFormat: LogFormat<unknown>
+  ): Promise<SelectedListResult<SystemLogAttributes>> {
     let result: SelectedListResult<SystemLogAttributes>;
 
     try {

@@ -161,7 +161,7 @@ export function makeLogFormat(req: RequestLog): LogFormat<unknown> {
     traceId: req.headers && req.headers['trace-id'] ? (req.headers['trace-id'] as string) : null,
     spanId: uuidv4(),
     accessToken: req.headers && req.headers['access-token'] ? (req.headers['access-token'] as string) : null,
-    clientIp: requestIp.getClientIp((req as unknown) as requestIp.Request)?.toString() as string,
+    clientIp: requestIp.getClientIp(req as unknown as requestIp.Request)?.toString() as string,
     requestLog: {
       method: req.method,
       hostname: req.hostname,

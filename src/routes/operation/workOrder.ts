@@ -20,6 +20,7 @@ import {
 } from '../../models/operation/workOrder';
 import { service as eventHistoryService } from '../../service/common/eventHistoryService';
 import { service as workOrderService } from '../../service/operation/workOrderService';
+import { useWorkOrderStatsUtil } from '../../lib/workOrderUtil';
 
 const router = express.Router();
 
@@ -89,7 +90,7 @@ router.get(
     try {
       // 요청 파라미터
       const params: WorkOrderSelectListParams = {
-        ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+        ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
         fromFacilityId: req.query.fromFacilityId,
         toFacilityId: req.query.toFacilityId,
         code: req.query.code,
@@ -168,7 +169,40 @@ router.get(
     }
   }
 );
+// workOrder stats 조회
+router.get(
+  '/daily-stats',
+  isLoggedIn,
+  async (req: Request<unknown, unknown, unknown, unknown>, res: Response) => {
+    const logFormat = makeLogFormat(req);
+    const tokenUser = (req as { decoded?: Payload }).decoded;
 
+    try {
+      // 요청 파라미터
+      logging.REQUEST_PARAM(logFormat);
+
+      // 입력 값 체크
+
+      // 비즈니스 로직 호출
+      const result = useWorkOrderStatsUtil().getStats()
+
+      // 최종 응답 값 세팅
+      const resJson = resSuccess(result, resType.INFO);
+      logging.RESPONSE_DATA(logFormat, resJson);
+
+      // 이벤트 로그 기록(비동기)
+      void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'SelectInfo', TABLE_NAME);
+
+      return res.status(resJson.status).json(resJson);
+    } catch (err) {
+      // 에러 응답 값 세팅
+      const resJson = resError(err);
+      logging.RESPONSE_DATA(logFormat, resJson);
+
+      return res.status(resJson.status).json(resJson);
+    }
+  }
+);
 // workOrder 정보 수정
 router.put(
   '/id/:id',

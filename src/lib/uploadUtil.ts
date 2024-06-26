@@ -51,8 +51,7 @@ export const format = {
 const filter: {
   [key: string]: string;
 } = {
-  file:
-    'jpeg|jpg|png|gif|bmp|ppt|pptx|potx|ppsx|thmx|odp|show|hsdt|htheme|doc|docx|hwp|hwt|hwpx|Hwtx|odt|xml|rtf|odf|2b|xls|xlsx|xlsm|xlsb|obs|hcdt|csv|txt|pm|mht|mhtml|htm|html|dbf|cell|nxl|pdf|ai|psd|zip|7z|tar|gz|mp3|mp4|wav|avi',
+  file: 'jpeg|jpg|png|gif|bmp|ppt|pptx|potx|ppsx|thmx|odp|show|hsdt|htheme|doc|docx|hwp|hwt|hwpx|Hwtx|odt|xml|rtf|odf|2b|xls|xlsx|xlsm|xlsb|obs|hcdt|csv|txt|pm|mht|mhtml|htm|html|dbf|cell|nxl|pdf|ai|psd|zip|7z|tar|gz|mp3|mp4|wav|avi',
   image: 'jpeg|jpg|png|gif|bmp',
 };
 // 파일 사이즈 세팅(파일 포맷에 따른다)

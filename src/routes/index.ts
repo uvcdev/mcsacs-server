@@ -201,7 +201,7 @@ router.use('/facilities', facilityRouter);
 router.use('/facility-groups', facilityGroupRouter);
 router.use('/zones', zoneRouter);
 router.use('/items', itemRouter);
-router.use('/workOrders', workOrderRouter);
+router.use('/work-orders', workOrderRouter);
 //timescale
 router.use('/logs', logRouter);
 // router.use('/system-logs', systemLogRouter);

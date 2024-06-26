@@ -70,7 +70,7 @@ router.get(
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
       const params: McsAlarmSelectListParams = {
-        ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+        ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
         facilityId: req.query.facilityId,
         state: req.query.state,
         limit: Number(req.query.limit),

@@ -79,7 +79,6 @@ export interface SettingSelectListQuery {
   attributes?: Array<string>;
 }
 
-
 // selectInfo
 export interface SettingSelectInfoParams {
   id?: number;

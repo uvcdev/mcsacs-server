@@ -99,3 +99,7 @@ ALTER TABLE public.work_orders ADD to_end_date timestamptz NULL;
 - 작업지시 실시간 상태에 따른 작업지시 데이터 업데이트(mqtt)
 
 - 서버 시작시 설비별 금일 작업지시 상태 통계 데이터 세팅
+
+## v0.0.8
+
+- 금일 작업지시 상태 계산, mqtt 메세지 발송, 조회 api 추가 (`workOrderStatsUtil`, `WorkOrderService`)

@@ -128,8 +128,7 @@ const dao = {
         ...setQuery,
         attributes: { exclude: ['description'] }, // 해당 필드 제외
         distinct: true,
-        include: [
-        ],
+        include: [],
       })
         .then((selectedList) => {
           resolve(selectedList);
@@ -208,9 +207,7 @@ const dao = {
         ...setQuery,
         attributes: { exclude: ['description'] }, // 해당 필드 제외
         distinct: true,
-        include: [
-          
-        ],
+        include: [],
       })
         .then((selectedList) => {
           resolve(selectedList);
@@ -222,9 +219,7 @@ const dao = {
   },
   selectInfo(params: AmrSelectInfoParams): Promise<AmrAttributes | null> {
     return new Promise((resolve, reject) => {
-      Amr.findByPk(params.id, {
-        
-      })
+      Amr.findByPk(params.id, {})
         .then((selectedInfo) => {
           resolve(selectedInfo);
         })
@@ -235,7 +230,7 @@ const dao = {
   },
   selectOneCode(params: AmrSelectOneByCodeParams): Promise<AmrAttributes | null> {
     return new Promise((resolve, reject) => {
-      Amr.findOne({where: {code: params.code} })
+      Amr.findOne({ where: { code: params.code } })
         .then((selectedInfo) => {
           resolve(selectedInfo);
         })

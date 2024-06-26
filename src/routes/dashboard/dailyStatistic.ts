@@ -26,37 +26,41 @@ const router = express.Router();
 const TABLE_NAME = 'dailyStatistics'; // 이벤트 히스토리를 위한 테이블 명
 
 // DailyStatistic 등록
-router.post('/', isLoggedIn, async (req: Request<unknown, unknown, DailyStatisticInsertParams, unknown>, res: Response) => {
-  const logFormat = makeLogFormat(req);
-  const tokenUser = (req as { decoded?: Payload }).decoded;
-  try {
-    const params: DailyStatisticInsertParams = {
-      data: req.body.data || null,
-    };
-    logging.REQUEST_PARAM(logFormat);
-    // 입력값 체크
-    // if (!params.userId) {
-    //   throw new ErrorClass(resCode.UNAUTHORIZED_ACCESSTOKEN, 'userid is undefined');
-    // }
+router.post(
+  '/',
+  isLoggedIn,
+  async (req: Request<unknown, unknown, DailyStatisticInsertParams, unknown>, res: Response) => {
+    const logFormat = makeLogFormat(req);
+    const tokenUser = (req as { decoded?: Payload }).decoded;
+    try {
+      const params: DailyStatisticInsertParams = {
+        data: req.body.data || null,
+      };
+      logging.REQUEST_PARAM(logFormat);
+      // 입력값 체크
+      // if (!params.userId) {
+      //   throw new ErrorClass(resCode.UNAUTHORIZED_ACCESSTOKEN, 'userid is undefined');
+      // }
 
-    // 비즈니스 로직 호출
-    const result = await dailyStatisticService.reg(params, logFormat);
+      // 비즈니스 로직 호출
+      const result = await dailyStatisticService.reg(params, logFormat);
 
-    // 최종 응답 값 세팅
-    const resJson = resSuccess(result, resType.REG);
-    logging.RESPONSE_DATA(logFormat, resJson);
+      // 최종 응답 값 세팅
+      const resJson = resSuccess(result, resType.REG);
+      logging.RESPONSE_DATA(logFormat, resJson);
 
-    // 이벤트 로그 기록(비동기)
-    void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'Create', TABLE_NAME);
+      // 이벤트 로그 기록(비동기)
+      void eventHistoryService.reg(tokenUser as Payload, resJson, logFormat, 'Create', TABLE_NAME);
 
-    return res.status(resJson.status).json(resJson);
-  } catch (err) {
-    // 에러 응답값 세팅
-    const resJson = resError(err);
-    logging.RESPONSE_DATA(logFormat, resJson);
-    return res.status(resJson.status).json(resJson);
+      return res.status(resJson.status).json(resJson);
+    } catch (err) {
+      // 에러 응답값 세팅
+      const resJson = resError(err);
+      logging.RESPONSE_DATA(logFormat, resJson);
+      return res.status(resJson.status).json(resJson);
+    }
   }
-});
+);
 
 // DailyStatistic 리스트 조회
 router.get(
@@ -67,7 +71,7 @@ router.get(
     const tokenUser = (req as { decoded?: Payload }).decoded;
     try {
       const params: DailyStatisticSelectListParams = {
-        ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+        ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
         limit: Number(req.query.limit),
         offset: Number(req.query.offset),
       };

@@ -81,10 +81,10 @@ router.get(
     try {
       // 요청 파라미터
       const params: AlarmEmailSelectListParams = {
-        ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+        ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
         email: req.query.email,
         name: req.query.name,
-        userIds: req.query.userIds ? ((req.query.userIds as unknown) as string).split(',').map((i) => Number(i)) : null,
+        userIds: req.query.userIds ? (req.query.userIds as unknown as string).split(',').map((i) => Number(i)) : null,
         active: req.query.active,
         createdAtFrom: req.query.createdAtFrom,
         createdAtTo: req.query.createdAtTo,

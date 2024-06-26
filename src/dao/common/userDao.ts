@@ -183,7 +183,7 @@ const dao = {
         { where: { id: params.id } }
       )
         .then((incrementedList) => {
-          const updatedCount = Number((((incrementedList as unknown) as Array<unknown>)[0] as Array<unknown>)[1]);
+          const updatedCount = Number(((incrementedList as unknown as Array<unknown>)[0] as Array<unknown>)[1]);
           resolve({ updatedCount });
         })
         .catch((err) => {

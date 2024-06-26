@@ -74,7 +74,6 @@ export interface McsAlarmSelectListQuery {
   attributes?: Array<string>;
 }
 
-
 // selectInfo
 export interface McsAlarmSelectInfoParams {
   id?: number;

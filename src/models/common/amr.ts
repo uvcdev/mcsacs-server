@@ -1,7 +1,6 @@
 import { Model, DataTypes, WhereOptions, Order } from 'sequelize';
 import sequelize from '../sequelize';
 
-
 // 기본 interface
 export interface AmrAttributes {
   id: number;

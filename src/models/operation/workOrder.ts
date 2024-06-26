@@ -14,31 +14,31 @@ export interface WorkOrderAttributes {
   itemId: number | null;
   level: number | null;
   state:
-  | 'registered'
-  | 'preReregistered'
-  | 'reregistered'
-  | 'pending1'
-  | 'pending2'
-  | 'assigned1'
-  | 'assigned2'
-  | 'working1'
-  | 'working2'
-  | 'docking1'
-  | 'docking2'
-  | 'lift1'
-  | 'lift2'
-  | 'canceled1'
-  | 'canceled2'
-  | 'aborted1'
-  | 'aborted2'
-  | 'failed1'
-  | 'failed2'
-  | 'completed1'
-  | 'completed2'
-  | 'dryrunCanceled'
-  | 'userCanceled'
-  | 'forceCanceled'
-  | 'facilityCanceled';
+    | 'registered'
+    | 'preReregistered'
+    | 'reregistered'
+    | 'pending1'
+    | 'pending2'
+    | 'assigned1'
+    | 'assigned2'
+    | 'working1'
+    | 'working2'
+    | 'docking1'
+    | 'docking2'
+    | 'lift1'
+    | 'lift2'
+    | 'canceled1'
+    | 'canceled2'
+    | 'aborted1'
+    | 'aborted2'
+    | 'failed1'
+    | 'failed2'
+    | 'completed1'
+    | 'completed2'
+    | 'dryrunCanceled'
+    | 'userCanceled'
+    | 'forceCanceled'
+    | 'facilityCanceled';
   isClosed: boolean;
   fromStartDate: Date | null;
   fromEndDate: Date | null;
@@ -118,13 +118,13 @@ WorkOrder.init(
     },
     fromStartDate: {
       type: DataTypes.DATE,
-    },   
+    },
     fromEndDate: {
       type: DataTypes.DATE,
     },
     toStartDate: {
       type: DataTypes.DATE,
-    },   
+    },
     toEndDate: {
       type: DataTypes.DATE,
     },
@@ -170,13 +170,13 @@ export interface WorkOrderInsertParams {
 }
 export interface ImcsWorkOrderInsertParams {
   newItemId?: number | null;
-  CALL_ID: string;    // 품목코드
-  TX_ID: string;    
+  CALL_ID: string; // 품목코드
+  TX_ID: string;
   EQP_CALL_ID: string; // 작업지시코드
   TAG_ID: string;
-  EQP_ID: string;    // EQP설비코드
-  PORT_ID: string;    // WCS포트코드
-  TYPE: WorkOrderAttributes['type'];  // 타입
+  EQP_ID: string; // EQP설비코드
+  PORT_ID: string; // WCS포트코드
+  TYPE: WorkOrderAttributes['type']; // 타입
   CALL_PRIORITY: number; // 우선순위
   CALL_TYPE: string;
 }
@@ -201,6 +201,8 @@ export interface WorkOrderSelectListParams {
   cancelUserId?: number | null;
   cancelDate?: Date | null;
   type?: string | null;
+  createdAtFrom?: Date | null;
+  createdAtTo?: Date | null;
   limit?: number;
   offset?: number;
   order?: string;
@@ -267,7 +269,6 @@ export interface WorkOrderUpdateByCodeParams {
   description?: string | null;
   type?: string | null;
 }
-
 
 // delete
 export interface WorkOrderDeleteParams {

@@ -22,7 +22,7 @@ import Facility, {
   // FacilityUpdateLiveStateParams,
   // FacilityUpdateRunningStateParams,
   FacilityDeleteParams,
-  FacilitySelectSerialParams
+  FacilitySelectSerialParams,
 } from '../../models/operation/facility';
 import CommonCode, { CommonCodeAttributesInclude } from '../../models/common/commonCode';
 import User, { UserAttributesInclude } from '../../models/common/user';

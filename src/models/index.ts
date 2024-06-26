@@ -53,7 +53,7 @@ const db = {
   Log,
   SystemLog,
   CallReserve,
-  CallSpec
+  CallSpec,
 };
 
 export type dbType = typeof db;
@@ -70,7 +70,11 @@ McsAlarm.belongsTo(Facility, { foreignKey: { name: 'FacilityId' }, onDelete: 'SE
 
 /* operation */
 // Facility
-Facility.belongsTo(FacilityGroup, { foreignKey: { name: 'facilityGroupId' }, onDelete: 'SET NULL', as: 'FacilityGroup' });
+Facility.belongsTo(FacilityGroup, {
+  foreignKey: { name: 'facilityGroupId' },
+  onDelete: 'SET NULL',
+  as: 'FacilityGroup',
+});
 
 // WorkOrder
 WorkOrder.belongsTo(Facility, { foreignKey: { name: 'fromFacilityId' }, onDelete: 'SET NULL', as: 'FromFacility' });

@@ -37,9 +37,9 @@ router.get(
       // 요청 파라미터
       const params: TokenHistorySelectListParams = {
         companyIds: req.query.companyIds
-          ? ((req.query.companyIds as unknown) as string).split(',').map((i) => Number(i))
+          ? (req.query.companyIds as unknown as string).split(',').map((i) => Number(i))
           : null,
-        userIds: req.query.userIds ? ((req.query.userIds as unknown) as string).split(',').map((i) => Number(i)) : null,
+        userIds: req.query.userIds ? (req.query.userIds as unknown as string).split(',').map((i) => Number(i)) : null,
         action: req.query.action,
         createdAtFrom: req.query.createdAtFrom ? new Date(req.query.createdAtFrom) : null,
         createdAtTo: req.query.createdAtTo ? new Date(req.query.createdAtTo) : null,
@@ -126,7 +126,7 @@ router.get(
       // 요청 파라미터
       const params: TokenHistorySelectAllUsersParams = {
         companyIds: req.query.companyIds
-          ? ((req.query.companyIds as unknown) as string).split(',').map((i) => Number(i))
+          ? (req.query.companyIds as unknown as string).split(',').map((i) => Number(i))
           : null,
         createdAtFrom: req.query.createdAtFrom ? new Date(req.query.createdAtFrom) : null,
         createdAtTo: req.query.createdAtTo ? new Date(req.query.createdAtTo) : null,

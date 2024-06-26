@@ -91,7 +91,7 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, UserS
   try {
     // 요청 파라미터
     const params: UserSelectListParams = {
-      ids: req.query.ids ? ((req.query.ids as unknown) as string).split(',').map((i) => Number(i)) : null,
+      ids: req.query.ids ? (req.query.ids as unknown as string).split(',').map((i) => Number(i)) : null,
       userid: req.query.userid,
       name: req.query.name,
       active: req.query.active,

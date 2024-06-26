@@ -78,7 +78,6 @@ CallSpec.init(
 //   attributes?: Array<string>;
 // }
 
-
 // // selectInfo
 // export interface CallSpecSelectInfoParams {
 //   id?: number;

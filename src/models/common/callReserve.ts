@@ -73,7 +73,6 @@ CallReserve.init(
 //   attributes?: Array<string>;
 // }
 
-
 // // selectInfo
 // export interface CallReserveSelectInfoParams {
 //   id?: number;
