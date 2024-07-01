@@ -112,13 +112,6 @@ if (mqttConfig.host !== '') {
       console.log("🚀 ~ setInterval ~ error:", error)
     }
   }, 1000);
-  setInterval(() => {
-    try {
-      useWorkOrderStatsUtil().sendStats()
-    } catch (error){
-      console.log("🚀 ~ setInterval ~ error:", error)
-    }
-  }, 5000)
 }
 
 // mqtt 연결, 구독, 메세지 수신
@@ -351,7 +344,6 @@ export const receiveMqtt = (): void => {
               const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
-              console.log('🚀 ~ client.on ~ messageJson:', messageJson);
               logging.MQTT_LOG({
                 title: 'acs docking detach',
                 topic: messageTopic,
@@ -369,7 +361,6 @@ export const receiveMqtt = (): void => {
               const messageJson = JSON.parse(message);
               // 작업지시 종결
               if (messageJson.isClosed === true) {
-                console.log(messageJson);
                 await workOrderService.editByCode(messageJson, makeLogFormat({} as RequestLog));
               } else {
                 const params = messageJson as WorkOrderAttributesDeep;

@@ -19,6 +19,7 @@ import swaggerJson from '../src/swagger.json';
 
 import * as process from 'process';
 import { service as workOrderService } from './service/operation/workOrderService';
+import { makeinitDailyWorkOrderstatsScheduleSet } from './lib/scheduleUtil';
 
 dotenv.config();
 
@@ -221,4 +222,7 @@ if (httpsOption.key && httpsOption.cert) {
   });
 }
 
-workOrderService.initFacilityAndAmrWorkOrderCount()
+
+if(process.env.SHCEDULER_DAILY_WORK_ORDER_STATS === 'true'){
+  makeinitDailyWorkOrderstatsScheduleSet({hour: 0,minute: 0, second:0})
+}

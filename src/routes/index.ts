@@ -18,6 +18,7 @@ import { router as tokenHistoryRouter } from './common/tokenHistory';
 import { router as settingRouter } from './common/setting';
 import { router as alarmEmailRouter } from './common/alarmEmail';
 import { router as mcsAlarmRouter } from './common/mcsAlarm';
+import { amrRouter } from './common/amr';
 // dashboard
 import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
 import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
@@ -193,6 +194,7 @@ router.use('/token-histories', tokenHistoryRouter);
 router.use('/settings', settingRouter);
 router.use('/alarm-emails', alarmEmailRouter);
 router.use('/mcs-alarms', mcsAlarmRouter);
+router.use('/amrs', amrRouter);
 // dashboard
 router.use('/daily-statistics', dailyStatisticRouter);
 router.use('/monthly-statistics', monthlyStatisticRouter);
