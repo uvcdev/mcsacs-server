@@ -107,4 +107,9 @@ ALTER TABLE public.work_orders ADD to_end_date timestamptz NULL;
 ## v0.0.8-a
 
 - 모비스 로그 조회 api 추가 (라우터 `itemLog`, `itemLogService`)
-f
+
+## v0.0.8-b
+- 모비스 로그 층 정보 입력을 위한 컬럼 추가
+```sql
+ALTER TABLE public.item_logs ADD floor varchar(10) NULL;
+```
