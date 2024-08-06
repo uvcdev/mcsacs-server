@@ -30,7 +30,8 @@ import { router as itemRouter } from './operation/item';
 import { router as workOrderRouter } from './operation/workOrder';
 // timescale
 import { router as logRouter } from './timescale/log';
-// import { router as systemLogRouter } from './timescale/systemLog';
+import { router as systemLogRouter } from './timescale/systemLog';
+import { router as itemLogRouter } from './timescale/itemLog';
 
 dotenv.config();
 
@@ -206,6 +207,7 @@ router.use('/items', itemRouter);
 router.use('/work-orders', workOrderRouter);
 //timescale
 router.use('/logs', logRouter);
-// router.use('/system-logs', systemLogRouter);
+router.use('/system-logs', systemLogRouter);
+router.use('/item-logs', itemLogRouter);
 
 export { router };

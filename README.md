@@ -103,3 +103,7 @@ ALTER TABLE public.work_orders ADD to_end_date timestamptz NULL;
 ## v0.0.8
 
 - 금일 작업지시 상태 계산, mqtt 메세지 발송, 조회 api 추가 (`workOrderStatsUtil`, `WorkOrderService`)
+
+## v0.0.8-a
+
+- 모비스 로그 조회 api 추가 (라우터 `itemLog`, `itemLogService`)
