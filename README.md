@@ -124,3 +124,5 @@ ALTER TABLE public.facilities ALTER COLUMN floor SET NOT NULL;
   - process.env.FIRST_ACS_RESTAPI_HOST
   - process.env.SECOND_ACS_RESTAPI_HOST
 
+## v0.0.9-a
+- 버전승인: `v0.0.9`

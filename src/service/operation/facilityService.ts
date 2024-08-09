@@ -67,6 +67,7 @@ const service = {
     let result: Record<string, any>;
 
     try {
+      console.log('loginApi', restapiUrl)
       result = await superagent.post(`${restapiUrl}/auths/token`).send({
         userid: restapiConfig.id,
         password: restapiConfig.pass,
@@ -100,7 +101,7 @@ const service = {
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
       // ACS 테이블 입력
-      if (params.floor === '1') {
+      if (Number(params.floor) === 1) {
         restapiUrl = firstFloorRestapiUrl
         restapiConfig = firstFloorRestapiConfig
       } else {
