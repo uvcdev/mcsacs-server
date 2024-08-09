@@ -115,6 +115,7 @@ export interface LogSelectListParams {
   key?: string | null;
   createdAtFrom?: Date | null;
   createdAtTo?: Date | null;
+  data?: Record<string, any> | string | null;
   limit?: number;
   offset?: number;
   order?: string;

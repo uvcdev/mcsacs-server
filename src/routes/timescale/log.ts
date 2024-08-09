@@ -28,9 +28,8 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
   }
   if (params.createdAtFrom || params.createdAtTo) {
     if (params.createdAtFrom && params.createdAtTo) {
-      whereQuery += ` "Log"."created_at" BETWEEN '${params.createdAtFrom as unknown as string}' AND '${
-        params.createdAtTo as unknown as string
-      }'`;
+      whereQuery += ` "Log"."created_at" BETWEEN '${params.createdAtFrom as unknown as string}' AND '${params.createdAtTo as unknown as string
+        }'`;
       if (params.logLevel) {
         whereQuery += ` AND "Log"."log_level" LIKE '%${params.logLevel}%' `;
       }
@@ -143,6 +142,10 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, LogSe
       function: req.query.function,
       createdAtFrom: req.query.createdAtFrom,
       createdAtTo: req.query.createdAtTo,
+      data:
+        req.query.data && typeof req.query.data === 'string'
+          ? (JSON.parse(req.query.data) as Record<string, any>)
+          : null,
       limit: Number(req.query.limit || 'NaN'),
       offset: Number(req.query.offset || 'NaN'),
       order: req.query.order,
@@ -262,24 +265,21 @@ router.get(
         if (params.createdAtFrom && params.createdAtTo) {
           res.setHeader(
             'Content-Disposition',
-            `attachment; filename=logs-${new Date(params.createdAtFrom).toLocaleDateString() as unknown as string}~${
-              new Date(params.createdAtTo).toLocaleDateString() as unknown as string
+            `attachment; filename=logs-${new Date(params.createdAtFrom).toLocaleDateString() as unknown as string}~${new Date(params.createdAtTo).toLocaleDateString() as unknown as string
             }.txt`
           );
         } else {
           if (params.createdAtFrom) {
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-${
-                new Date(params.createdAtFrom).toLocaleDateString() as unknown as string
+              `attachment; filename=logs-${new Date(params.createdAtFrom).toLocaleDateString() as unknown as string
               }~${new Date().toLocaleDateString()}.txt`
             );
           }
           if (params.createdAtTo) {
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-'unspecified'~${
-                new Date(params.createdAtTo).toLocaleDateString() as unknown as string
+              `attachment; filename=logs-'unspecified'~${new Date(params.createdAtTo).toLocaleDateString() as unknown as string
               }.txt`
             );
           }

@@ -37,25 +37,28 @@ const makeSelectListLogQuery = (params: ItemLogSelectListParams): string => {
     }
   }
   if (params.itemCode) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.itemCode}' `;
+    whereQuery += ` AND "ItemLog"."item_code" like '%${params.itemCode}%' `;
   }
   if (params.facilityCode) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.facilityCode}' `;
+    whereQuery += ` AND "ItemLog"."facility_code" like '%${params.facilityCode}%' `;
   }
   if (params.facilityName) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.facilityName}' `;
+    whereQuery += ` AND "ItemLog"."facility_name" like '%${params.facilityName}%' `;
   }
   if (params.amrCode) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.amrCode}' `;
+    whereQuery += ` AND "ItemLog"."amr_code" like '%${params.amrCode}%' `;
   }
   if (params.amrName) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.amrName}' `;
+    whereQuery += ` AND "ItemLog"."amr_name" like '%${params.amrName}%' `;
+  }
+  if (params.floor) {
+    whereQuery += ` AND "ItemLog"."floor" like '%${params.floor}%' `;
   }
   if (params.topic) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.topic}' `;
+    whereQuery += ` AND "ItemLog"."topic" like '%${params.topic}%' `;
   }
   if (params.subject) {
-    whereQuery += ` "ItemLog"."log_level" = '${params.subject}' `;
+    whereQuery += ` AND "ItemLog"."subject" like '%${params.subject}%' `;
   }
   if (params.limit) {
     limitQuery += ` LIMIT ${params.limit}`;
@@ -69,7 +72,7 @@ const makeSelectListLogQuery = (params: ItemLogSelectListParams): string => {
     `SELECT "id", 
     "created_at" AT TIME ZONE 'Asia/Seoul' AS "createdAt", "item_code" AS "itemCode", "facility_code" AS "facilityCode", 
     "facility_name" AS "facilityName", "amr_code" AS "amrCode", 
-    "amr_name" AS "amrName", "topic", "subject",
+    "amr_name" AS "amrName", "floor", "topic", "subject",
     "body" FROM "item_logs" AS "ItemLog" ` +
     (whereQuery ? `WHERE ${whereQuery}` : '') +
     `ORDER BY "ItemLog"."created_at" DESC ${limitQuery} ${offsetQuery}`;
@@ -250,21 +253,21 @@ router.get(
           const createdAtToDate = new Date(params.createdAtTo);
           res.setHeader(
             'Content-Disposition',
-            `attachment; filename=itemLogs-${createdAtFromDate.toLocaleDateString()}_${createdAtFromDate.toLocaleTimeString()}~${createdAtToDate.toLocaleDateString()}_${createdAtToDate.toLocaleTimeString()}.txt`
+            `attachment; filename=itemLogs-${createdAtFromDate.toLocaleDateString()}_${createdAtFromDate.toLocaleTimeString('it-IT')}~${createdAtToDate.toLocaleDateString()}_${createdAtToDate.toLocaleTimeString('it-IT')}.txt`
           );
         } else {
           if (params.createdAtFrom) {
             const createdAtFromDate = new Date(params.createdAtFrom);
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=itemLogs-${createdAtFromDate.toLocaleDateString()}_${createdAtFromDate.toLocaleTimeString()}~${new Date().toLocaleDateString()}_${new Date().toLocaleTimeString()}.txt`
+              `attachment; filename=itemLogs-${createdAtFromDate.toLocaleDateString()}_${createdAtFromDate.toLocaleTimeString('it-IT')}~${new Date().toLocaleDateString()}_${new Date().toLocaleTimeString('it-IT')}.txt`
             );
           }
           if (params.createdAtTo) {
             const createdAtToDate = new Date(params.createdAtTo);
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=itemLogs-'unspecified'~${createdAtToDate.toLocaleDateString()}_${createdAtToDate.toLocaleTimeString()}.txt`
+              `attachment; filename=itemLogs-'unspecified'~${createdAtToDate.toLocaleDateString()}_${createdAtToDate.toLocaleTimeString('it-IT')}.txt`
             );
           }
         }
@@ -283,7 +286,7 @@ router.get(
       });
       // 스트림 에러시 이벤트 처리
       stream.on('error', (err) => {
-        console.error(`Downloading logs - unexpected error occurred. ${err.message}`);
+        console.error(`Downloading itemLogs - unexpected error occurred. ${err.message}`);
         stream.destroy();
         // 에러 응답 값 세팅
         const resJson = resError(err);

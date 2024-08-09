@@ -39,7 +39,7 @@ const logService = {
 
     try {
       result = await logDao.selectList(params);
-      logging.METHOD_ACTION(logFormat, __filename, params, result);
+      // logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
 
@@ -58,7 +58,7 @@ const logService = {
 
     try {
       result = await logDao.selectInfo(params);
-      logging.METHOD_ACTION(logFormat, __filename, params, result);
+      // logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
 

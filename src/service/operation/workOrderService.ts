@@ -1,5 +1,4 @@
 import { LogFormat, RequestLog, logging, makeLogFormat } from '../../lib/logging';
-import { restapiConfig } from '../../config/restapiConfig';
 import {
   BulkInsertedOrUpdatedResult,
   DeletedResult,
@@ -39,32 +38,10 @@ import dayjs from 'dayjs';
 import { DailyWorkOrderStats, WorkOrderStats, useWorkOrderStatsUtil } from '../../lib/workOrderUtil';
 import { calculateDurationInSeconds } from '../../lib/dateUtil';
 
-const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
 let accessToken = '';
 const workOrderStatsUtil = useWorkOrderStatsUtil()
 
 const service = {
-  // restapi login
-  async restapiLogin(): Promise<Record<string, any>> {
-    let result: Record<string, any>;
-
-    try {
-      result = await superagent.post(`${restapiUrl}/auths/token`).send({
-        userid: restapiConfig.id,
-        password: restapiConfig.pass,
-      });
-      accessToken = JSON.parse(result.text).data.accessToken;
-      result = { accessToken };
-    } catch (err) {
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
-    }
-
-    return new Promise((resolve) => {
-      resolve(result);
-    });
-  },
   // insert
   async reg(params: WorkOrderInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
@@ -179,9 +156,6 @@ const service = {
         description: null,
       };
       workOrderResult = await workOrderDao.insertTransac(transParams, transaction);
-      // ACS 테이블 입력
-      // const accessToken = (await this.restapiLogin())?.accessToken || '';
-      // await superagent.post(`${restapiUrl}/work-orders/fromMcs`).set('access-token', accessToken).send(transParams);
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
       await transaction.rollback(); // 트랜잭션 롤백
@@ -373,35 +347,35 @@ const service = {
           }
           workOrderDao.updateByCode(updateParams);
           const newWorkOrderInfo = workOrderInfo as WorkOrderAttributesDeep
-          if(params.state === 'pending1' && !workOrderInfo.fromStartDate){
+          if (params.state === 'pending1' && !workOrderInfo.fromStartDate) {
             const fromFacility = newWorkOrderInfo.FromFacility
-            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, {created: 1})  
-            if(amr){
-              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', {created: 1})  
+            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { created: 1 })
+            if (amr) {
+              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { created: 1 })
             }
           }
-          if(params.state === 'pending2' && workOrderInfo.fromStartDate && updateParams.fromEndDate && !workOrderInfo.fromEndDate){
+          if (params.state === 'pending2' && workOrderInfo.fromStartDate && updateParams.fromEndDate && !workOrderInfo.fromEndDate) {
             const fromFacility = newWorkOrderInfo.FromFacility
             const duration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.fromEndDate)
-            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, {completed: 1, duration: duration})  
-          }          
-          if(params.state === 'pending2'){
-            const toFacility = newWorkOrderInfo.ToFacility
-            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name, {created: 1})  
+            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { completed: 1, duration: duration })
           }
-          if(params.state === 'completed2' && workOrderInfo.toStartDate && updateParams.toEndDate){
+          if (params.state === 'pending2') {
+            const toFacility = newWorkOrderInfo.ToFacility
+            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name, { created: 1 })
+          }
+          if (params.state === 'completed2' && workOrderInfo.toStartDate && updateParams.toEndDate) {
             const toFacility = newWorkOrderInfo.ToFacility
             const amr = newWorkOrderInfo.Amr
             const duration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
-            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name || '', {completed: 1, duration: duration})  
-            if(amr){
+            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name || '', { completed: 1, duration: duration })
+            if (amr) {
               let amrDuration = 0
-              if(workOrderInfo.fromStartDate){
-                amrDuration = calculateDurationInSeconds(workOrderInfo.fromStartDate , updateParams.toEndDate)
-              }else if(workOrderInfo.toStartDate){
-                amrDuration = calculateDurationInSeconds(workOrderInfo.toStartDate , updateParams.toEndDate)
+              if (workOrderInfo.fromStartDate) {
+                amrDuration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.toEndDate)
+              } else if (workOrderInfo.toStartDate) {
+                amrDuration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
               }
-              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', {completed: 1, duration: amrDuration})  
+              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { completed: 1, duration: amrDuration })
             }
           }
         }

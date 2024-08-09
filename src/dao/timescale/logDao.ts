@@ -151,6 +151,12 @@ const logDao = {
         }
       }
     }
+    if (params.data) {
+      setQuery.where = {
+        ...setQuery.where,
+        data: params.data, // 'json' 검색
+      };
+    }
     // 2. limit, offset 세팅
     if (params.limit && params.limit > 0) setQuery.limit = params.limit;
     if (params.offset && params.offset > 0) setQuery.offset = params.offset;

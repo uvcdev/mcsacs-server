@@ -1,6 +1,6 @@
 import { Transaction } from 'sequelize';
 import { LogFormat, logging } from '../../lib/logging';
-import { restapiConfig } from '../../config/restapiConfig';
+import { firstFloorRestapiConfig, secondFloorRestapiConfig } from '../../config/restapiConfig';
 import {
   BulkInsertedOrUpdatedResult,
   DeletedResult,
@@ -25,11 +25,15 @@ import * as process from 'process';
 import superagent from 'superagent';
 import { sequelize } from '../../models';
 
-const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
+const firstFloorRestapiUrl = `${firstFloorRestapiConfig.host}:${firstFloorRestapiConfig.port}`;
+const secondFloorRestapiUrl = `${secondFloorRestapiConfig.host}:${secondFloorRestapiConfig.port}`;
 let accessToken = '';
+let restapiUrl = '';
+let restapiConfig = {};
+
 const service = {
   // restapi login
-  async restapiLogin(logFormat: LogFormat<unknown>): Promise<Record<string, any>> {
+  async restapiLogin(logFormat: LogFormat<unknown>, restapiConfig: { id?: string; pass?: string; }): Promise<Record<string, any>> {
     let result: Record<string, any>;
 
     try {
@@ -64,7 +68,14 @@ const service = {
       result = await facilityGroupDao.insert(params, transaction);
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
-      // // ACS 테이블 입력
+      // ACS 테이블 입력
+      // if (params.floor === '1') {
+      //   restapiUrl = firstFloorRestapiUrl
+      //   restapiConfig = firstFloorRestapiConfig
+      // } else {
+      //   restapiUrl = secondFloorRestapiUrl
+      //   restapiConfig = secondFloorRestapiConfig
+      // }
       // const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
       // const response = await superagent
       //   .post(`${restapiUrl}/facility-groups`)

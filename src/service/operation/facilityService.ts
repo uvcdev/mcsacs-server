@@ -23,14 +23,17 @@ import { dao as facilityDao } from '../../dao/operation/facilityDao';
 import { makeRegularCodeDao } from '../../lib/usefullToolUtil';
 import * as process from 'process';
 import superagent from 'superagent';
-import { restapiConfig } from '../../config/restapiConfig';
+import { firstFloorRestapiConfig, secondFloorRestapiConfig } from '../../config/restapiConfig';
 import { sequelize } from '../../models';
 import { FacilityStatusType } from '../../lib/facilityUtil';
 import { RedisKeys, useRedisUtil } from '../../lib/redisUtil';
 
 const redisUtil = useRedisUtil();
-const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
+const firstFloorRestapiUrl = `${firstFloorRestapiConfig.host}:${firstFloorRestapiConfig.port}`;
+const secondFloorRestapiUrl = `${secondFloorRestapiConfig.host}:${secondFloorRestapiConfig.port}`;
 let accessToken = '';
+let restapiUrl = '';
+let restapiConfig = {};
 
 // export const redisFacilityInfoUpdate = async (facilityStatus: FacilityStatusType) => {
 //   const facilityInfo = await redisUtil.hgetObject<FacilityAttributesDeep>(RedisKeys.InfoFacility, facilityStatus.id || '');
@@ -60,7 +63,7 @@ let accessToken = '';
 
 const service = {
   // restapi login
-  async restapiLogin(logFormat: LogFormat<unknown>): Promise<Record<string, any>> {
+  async restapiLogin(logFormat: LogFormat<unknown>, restapiConfig: { id?: string; pass?: string; }): Promise<Record<string, any>> {
     let result: Record<string, any>;
 
     try {
@@ -97,10 +100,18 @@ const service = {
       logging.METHOD_ACTION(logFormat, __filename, params, result);
 
       // ACS 테이블 입력
-      // const accessToken = (await this.restapiLogin(logFormat))?.accessToken || '';
-      // const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken).send(params);
-      // const responseData: Record<string, any> = JSON.parse(response.text).Data;
-      // logging.METHOD_ACTION(logFormat, __filename, params, responseData);
+      if (params.floor === '1') {
+        restapiUrl = firstFloorRestapiUrl
+        restapiConfig = firstFloorRestapiConfig
+      } else {
+        restapiUrl = secondFloorRestapiUrl
+        restapiConfig = secondFloorRestapiConfig
+      }
+
+      const accessToken = (await this.restapiLogin(logFormat, restapiConfig))?.accessToken || '';
+      const response = await superagent.post(`${restapiUrl}/facilities`).set('access-token', accessToken).send(params);
+      const responseData: Record<string, any> = JSON.parse(response.text).Data;
+      logging.METHOD_ACTION(logFormat, __filename, params, responseData);
 
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {

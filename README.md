@@ -113,3 +113,14 @@ ALTER TABLE public.work_orders ADD to_end_date timestamptz NULL;
 ```sql
 ALTER TABLE public.item_logs ADD floor varchar(10) NULL;
 ```
+
+## v0.0.9
+- 버전승인: `v0.0.8-b`
+- 설비 테이블 층 컬럼 필수값 적용
+```sql
+ALTER TABLE public.facilities ALTER COLUMN floor SET NOT NULL;
+```
+- 설비 등록할 때 ACS 층별 분기 적용
+  - process.env.FIRST_ACS_RESTAPI_HOST
+  - process.env.SECOND_ACS_RESTAPI_HOST
+
