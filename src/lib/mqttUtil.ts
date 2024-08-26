@@ -217,7 +217,7 @@ export const receiveMqtt = (): void => {
               });
               await workOrderService.regWorkOrder(messageJson);
               console.log('###5');
-              sendMqtt('acs/workorder', message);
+              sendMqtt('acs/recallworkorder', message);
             }
             if (topicSplit.length === 3 && topicSplit[2] === 'cancelworkorder') {
               const messageJson = JSON.parse(message) as McsCancelWorkOrderRequestType;
