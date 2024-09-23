@@ -425,10 +425,10 @@ const service = {
 
       todayWorkOrderList.rows.forEach((v) => {
         const workOrder = v as WorkOrderAttributesDeep
-        if(workOrder.FromFacility){
-          if(dailyWorkOrderStats.Facility[workOrder.FromFacility.id]){
+        if (workOrder.FromFacility) {
+          if (dailyWorkOrderStats.Facility[workOrder.FromFacility.id]) {
             dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCreated += 1
-            if(workOrder.fromStartDate && workOrder.fromEndDate){
+            if (workOrder.fromStartDate && workOrder.fromEndDate) {
               const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.fromEndDate)
               dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCompleted += 1
               dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalDuration += durationSec
@@ -443,10 +443,10 @@ const service = {
               totalCreated: 0,
               totalCompleted: 0,
               averageDuration: 0,
-              totalDuration:0.
+              totalDuration: 0.
             } as WorkOrderStats
             dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCreated += 1
-            if(workOrder.fromStartDate && workOrder.fromEndDate){
+            if (workOrder.fromStartDate && workOrder.fromEndDate) {
               const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.fromEndDate)
               dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalCompleted += 1
               dailyWorkOrderStats.Facility[workOrder.FromFacility.id].totalDuration += durationSec
@@ -454,10 +454,10 @@ const service = {
             }
           }
         }
-        if(workOrder.toStartDate){
-          if(dailyWorkOrderStats.Facility[workOrder.ToFacility.id]){
+        if (workOrder.toStartDate) {
+          if (dailyWorkOrderStats.Facility[workOrder.ToFacility.id]) {
             dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCreated += 1
-            if(workOrder.toStartDate && workOrder.toEndDate){
+            if (workOrder.toStartDate && workOrder.toEndDate) {
               const durationSec = calculateDurationInSeconds(workOrder.toStartDate, workOrder.toEndDate)
               dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCompleted += 1
               dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalDuration += durationSec
@@ -472,10 +472,10 @@ const service = {
               totalCreated: 0,
               totalCompleted: 0,
               averageDuration: 0,
-              totalDuration:0.
+              totalDuration: 0.
             } as WorkOrderStats
             dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCreated += 1
-            if(workOrder.toStartDate && workOrder.toEndDate){
+            if (workOrder.toStartDate && workOrder.toEndDate) {
               const durationSec = calculateDurationInSeconds(workOrder.toStartDate, workOrder.toEndDate)
               dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalCompleted += 1
               dailyWorkOrderStats.Facility[workOrder.ToFacility.id].totalDuration += durationSec
@@ -483,10 +483,10 @@ const service = {
             }
           }
         }
-        if(workOrder.Amr){
-          if(dailyWorkOrderStats.Amr[workOrder.Amr.id]){
+        if (workOrder.Amr) {
+          if (dailyWorkOrderStats.Amr[workOrder.Amr.id]) {
             dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCreated += 1
-            if(workOrder.fromStartDate && workOrder.toEndDate){
+            if (workOrder.fromStartDate && workOrder.toEndDate) {
               const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.toEndDate)
               dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCompleted += 1
               dailyWorkOrderStats.Amr[workOrder.Amr.id].totalDuration += durationSec
@@ -499,10 +499,10 @@ const service = {
               totalCreated: 0,
               totalCompleted: 0,
               averageDuration: 0,
-              totalDuration:0.
+              totalDuration: 0.
             } as WorkOrderStats
             dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCreated += 1
-            if(workOrder.fromStartDate && workOrder.toEndDate){
+            if (workOrder.fromStartDate && workOrder.toEndDate) {
               const durationSec = calculateDurationInSeconds(workOrder.fromStartDate, workOrder.toEndDate)
               dailyWorkOrderStats.Amr[workOrder.Amr.id].totalCompleted += 1
               dailyWorkOrderStats.Amr[workOrder.Amr.id].totalDuration += durationSec
