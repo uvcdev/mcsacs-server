@@ -6,15 +6,20 @@ import {
   UpdatedResult,
   DeletedResult,
 } from '../../lib/resUtil';
-import { LogAttributes, LogInsertParams, LogSelectInfoParams, LogSelectListParams } from '../../models/timescale/log';
-import { logDao } from '../../dao/timescale/logDao';
+import {
+  ItemLogAttributes,
+  ItemLogInsertParams,
+  ItemLogSelectInfoParams,
+  ItemLogSelectListParams,
+} from '../../models/timescale/itemLog';
+import { itemLogDao } from '../../dao/timescale/itemLogDao';
 
-const logService = {
+const itemLogService = {
   // insert
-  async reg(params: LogInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
+  async reg(params: ItemLogInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
     try {
-      const tempResult = await logDao.insert(params);
+      const tempResult = await itemLogDao.insert(params);
       if (!tempResult) {
         result = {} as InsertedResult;
       } else {
@@ -34,11 +39,14 @@ const logService = {
     });
   },
   // selectList
-  async list(params: LogSelectListParams, logFormat: LogFormat<unknown>): Promise<SelectedListResult<LogAttributes>> {
-    let result: SelectedListResult<LogAttributes>;
+  async list(
+    params: ItemLogSelectListParams,
+    logFormat: LogFormat<unknown>
+  ): Promise<SelectedListResult<ItemLogAttributes>> {
+    let result: SelectedListResult<ItemLogAttributes>;
 
     try {
-      result = await logDao.selectList(params);
+      result = await itemLogDao.selectList(params);
       // logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -53,11 +61,11 @@ const logService = {
     });
   },
   // selectInfo
-  async info(params: LogSelectInfoParams, logFormat: LogFormat<unknown>): Promise<LogAttributes | null> {
-    let result: LogAttributes | null;
+  async info(params: ItemLogSelectInfoParams, logFormat: LogFormat<unknown>): Promise<ItemLogAttributes | null> {
+    let result: ItemLogAttributes | null;
 
     try {
-      result = await logDao.selectInfo(params);
+      result = await itemLogDao.selectInfo(params);
       // logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
@@ -73,4 +81,4 @@ const logService = {
   },
 };
 
-export { logService };
+export { itemLogService };

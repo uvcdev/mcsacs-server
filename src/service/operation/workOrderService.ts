@@ -1,5 +1,4 @@
 import { LogFormat, RequestLog, logging, makeLogFormat } from '../../lib/logging';
-import { restapiConfig } from '../../config/restapiConfig';
 import {
   BulkInsertedOrUpdatedResult,
   DeletedResult,
@@ -36,34 +35,13 @@ import { Transaction } from 'sequelize';
 import { sequelize } from '../../models';
 import { RequestParams } from 'nodemailer/lib/xoauth2';
 import dayjs from 'dayjs';
-import { WorkOrderStats, useWorkOrderStatsUtil } from '../../lib/workOrderUtil';
+import { DailyWorkOrderStats, WorkOrderStats, useWorkOrderStatsUtil } from '../../lib/workOrderUtil';
 import { calculateDurationInSeconds } from '../../lib/dateUtil';
 
-const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
 let accessToken = '';
+const workOrderStatsUtil = useWorkOrderStatsUtil()
 
 const service = {
-  // restapi login
-  async restapiLogin(): Promise<Record<string, any>> {
-    let result: Record<string, any>;
-
-    try {
-      result = await superagent.post(`${restapiUrl}/auths/token`).send({
-        userid: restapiConfig.id,
-        password: restapiConfig.pass,
-      });
-      accessToken = JSON.parse(result.text).data.accessToken;
-      result = { accessToken };
-    } catch (err) {
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
-    }
-
-    return new Promise((resolve) => {
-      resolve(result);
-    });
-  },
   // insert
   async reg(params: WorkOrderInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
@@ -141,7 +119,6 @@ const service = {
         };
         result = await itemDao.insert(itemInsertParam);
         params.newItemId = result.insertedId;
-        console.log('🚀 ~ regWorkOrder ~ result.insertedId:', result.insertedId);
       }
 
       let fromFacilitySerial = null;
@@ -178,11 +155,7 @@ const service = {
         cancelDate: null,
         description: null,
       };
-      console.log('🚀 ~ regWorkOrder ~ transParams:', transParams);
       workOrderResult = await workOrderDao.insertTransac(transParams, transaction);
-      // ACS 테이블 입력
-      // const accessToken = (await this.restapiLogin())?.accessToken || '';
-      // await superagent.post(`${restapiUrl}/work-orders/fromMcs`).set('access-token', accessToken).send(transParams);
       await transaction.commit(); // 트랜잭션 커밋
     } catch (err) {
       await transaction.rollback(); // 트랜잭션 롤백
@@ -354,23 +327,57 @@ const service = {
         });
       }
       const code = codeSplit[0];
+      const amr = await amrDao.selectOneCode({ code: params.Amr?.code || '' });
       const workOrderInfo = await workOrderDao.selectInfoByCode({ code: code });
       if (workOrderInfo) {
         //상태 업데이트
         if (workOrderInfo.state !== params.state) {
-          console.log(params.state);
-          workOrderDao.updateByCode({
+          const updateParams: WorkOrderUpdateByCodeParams = {
             code: code,
             state: params.state,
+            fromAmrId: amr && amr.id || undefined,
             fromStartDate:
-              params.state === 'pending1' ? (workOrderInfo.fromStartDate === null ? new Date() : undefined) : undefined,
+              params.state === 'pending1' ? (!workOrderInfo.fromStartDate ? new Date() : undefined) : undefined,
             fromEndDate: params.state === 'pending2' ? new Date() : undefined,
             toStartDate:
-              params.state === 'pending2' ? (workOrderInfo.toStartDate === null ? new Date() : undefined) : undefined,
+              params.state === 'pending2' ? (!workOrderInfo.toStartDate ? new Date() : undefined) : undefined,
             toEndDate: params.state === 'completed2' ? new Date() : undefined,
             cancelDate: params.cancelDate,
             description: params.description,
-          });
+          }
+          workOrderDao.updateByCode(updateParams);
+          const newWorkOrderInfo = workOrderInfo as WorkOrderAttributesDeep
+          if (params.state === 'pending1' && !workOrderInfo.fromStartDate) {
+            const fromFacility = newWorkOrderInfo.FromFacility
+            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { created: 1 })
+            if (amr) {
+              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { created: 1 })
+            }
+          }
+          if (params.state === 'pending2' && workOrderInfo.fromStartDate && updateParams.fromEndDate && !workOrderInfo.fromEndDate) {
+            const fromFacility = newWorkOrderInfo.FromFacility
+            const duration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.fromEndDate)
+            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { completed: 1, duration: duration })
+          }
+          if (params.state === 'pending2') {
+            const toFacility = newWorkOrderInfo.ToFacility
+            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name, { created: 1 })
+          }
+          if (params.state === 'completed2' && workOrderInfo.toStartDate && updateParams.toEndDate) {
+            const toFacility = newWorkOrderInfo.ToFacility
+            const amr = newWorkOrderInfo.Amr
+            const duration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
+            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name || '', { completed: 1, duration: duration })
+            if (amr) {
+              let amrDuration = 0
+              if (workOrderInfo.fromStartDate) {
+                amrDuration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.toEndDate)
+              } else if (workOrderInfo.toStartDate) {
+                amrDuration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
+              }
+              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { completed: 1, duration: amrDuration })
+            }
+          }
         }
       } else {
         //신규 (수동작업지시 등)
@@ -408,13 +415,13 @@ const service = {
     });
   },
   // update
-  async initFacilityAndAmrWorkOrderCount(
+  async initDailyWorkOrderstats(
     logFormat: LogFormat<unknown> = makeLogFormat({} as RequestLog)
   ): Promise<UpdatedResult> {
     let result: UpdatedResult = { updatedCount: 0 };
 
     try {
-      const dailyWorkOrderStats = useWorkOrderStatsUtil().getStats();
+      await workOrderStatsUtil.initStats()
       const startOfToDay = dayjs().startOf('day').toDate();
       const endOfToDay = dayjs().endOf('day').toDate();
 
@@ -511,6 +518,7 @@ const service = {
           }
         }
       })
+      workOrderStatsUtil.sendStats()
       logging.METHOD_ACTION(logFormat, __filename, null, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, null, err);

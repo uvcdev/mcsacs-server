@@ -20,7 +20,6 @@ import {
   SettingAttributes,
 } from '../../models/common/setting';
 import { dao as settingDao } from '../../dao/common/settingDao';
-import { restapiConfig } from '../../config/restapiConfig';
 import superagent from 'superagent';
 import { logSequelize, sequelize } from '../../models';
 import { RedisKeys, useRedisUtil, RedisSettingKeys } from '../../lib/redisUtil';
@@ -28,33 +27,7 @@ import { useTimescaleUtil } from '../../lib/timescaleUtil';
 const redisUtil = useRedisUtil();
 const timescaleUtil = useTimescaleUtil();
 
-const restapiUrl = `${restapiConfig.host}:${restapiConfig.port}`;
-let accessToken = '';
 const service = {
-  // restapi login
-  async restapiLogin(logFormat: LogFormat<unknown>): Promise<Record<string, any>> {
-    let result: Record<string, any>;
-
-    try {
-      result = await superagent.post(`${restapiUrl}/auths/token`).send({
-        userid: restapiConfig.id,
-        password: restapiConfig.pass,
-      });
-      accessToken = JSON.parse(result.text).data.accessToken;
-      result = { accessToken };
-      logging.METHOD_ACTION(logFormat, __filename, null, result);
-    } catch (err) {
-      logging.ERROR_METHOD(logFormat, __filename, null, err);
-
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
-    }
-
-    return new Promise((resolve) => {
-      resolve(result);
-    });
-  },
   async reg(params: SettingInsertParams, logFormat: LogFormat<unknown>): Promise<InsertedResult> {
     let result: InsertedResult;
 

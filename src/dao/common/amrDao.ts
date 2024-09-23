@@ -48,7 +48,7 @@ const dao = {
   bulkInsert(paramList: Array<AmrUpsertParams>): Promise<BulkInsertedOrUpdatedResult> {
     return new Promise((resolve, reject) => {
       Amr.bulkCreate(paramList, {
-        updateOnDuplicate: ['code', 'name', 'serial', 'state', 'description', 'mapId'],
+        updateOnDuplicate: ['code', 'name', 'serial', 'state', 'active', 'mode', 'description' ],
       })
         .then((insertedOrUpdatedList) => {
           const insertedOrUpdatedIds = insertedOrUpdatedList.map((row: unknown) => Number((row as { id?: number }).id));

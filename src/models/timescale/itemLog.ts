@@ -11,6 +11,7 @@ export interface ItemLogAttributes {
   facilityName: string | null;
   amrCode: string | null;
   amrName: string | null;
+  floor: string | null;
   topic: string | null;
   subject: ItemLogSubjectType;
   body: Record<string, any> | null;
@@ -44,6 +45,7 @@ class ItemLog extends Model implements ItemLogAttributes {
   public facilityName!: ItemLogAttributes['facilityName'];
   public amrCode!: ItemLogAttributes['amrCode'];
   public amrName!: ItemLogAttributes['amrName'];
+  public floor!: ItemLogAttributes['floor'];
   public topic!: ItemLogAttributes['topic'];
   public subject!: ItemLogAttributes['subject'];
   public body!: ItemLogAttributes['body'];
@@ -85,6 +87,9 @@ ItemLog.init(
     body: {
       type: DataTypes.JSONB,
     },
+    floor: {
+      type: DataTypes.STRING(10),
+    },
   },
   {
     sequelize: logSequelize,
@@ -117,6 +122,7 @@ export interface ItemLogSelectListParams {
   facilityName?: string | null;
   amrCode?: string | null;
   amrName?: string | null;
+  floor?: string | null;
   topic?: string | null;
   subject?: string | null;
   body?: string | null;

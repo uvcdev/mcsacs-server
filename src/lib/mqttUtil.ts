@@ -233,6 +233,17 @@ export const receiveMqtt = (): void => {
               console.log('###4');
               sendMqtt('acs/workorder', message);
             }
+            if (topicSplit.length === 3 && topicSplit[2] === 'recallworkorder') {
+              const messageJson = JSON.parse(message);
+              logging.MQTT_LOG({
+                title: 'imcs recallworkorder',
+                topic: messageTopic,
+                message: messageJson,
+              });
+              await workOrderService.regWorkOrder(messageJson);
+              console.log('###5');
+              sendMqtt('acs/recallworkorder', message);
+            }
             if (topicSplit.length === 3 && topicSplit[2] === 'cancelworkorder') {
               const messageJson = JSON.parse(message) as McsCancelWorkOrderRequestType;
               logging.MQTT_LOG({
@@ -244,7 +255,7 @@ export const receiveMqtt = (): void => {
                 { code: messageJson.EQP_CALL_ID },
                 makeLogFormat({} as RequestLog)
               );
-              console.log('###4');
+              console.log('###6');
               if (result.updatedCount > 0) sendMqtt('acs/cancelworkorder', message);
             }
             // 미사용
@@ -369,7 +380,6 @@ export const receiveMqtt = (): void => {
               const targetSystem = topicSplit[2];
 
               const messageJson = JSON.parse(message);
-              console.log('🚀 ~ client.on ~ messageJson:', messageJson);
               logging.MQTT_LOG({
                 title: 'acs docking detach',
                 topic: messageTopic,
@@ -387,7 +397,6 @@ export const receiveMqtt = (): void => {
               const messageJson = JSON.parse(message);
               // 작업지시 종결
               if (messageJson.isClosed === true) {
-                console.log(messageJson);
                 await workOrderService.editByCode(messageJson, makeLogFormat({} as RequestLog));
               } else {
                 const params = messageJson as WorkOrderAttributesDeep;

@@ -238,6 +238,11 @@ const dao = {
             as: 'Item',
             attributes: ItemAttributesInclude,
           },
+          {
+            model: Amr,
+            as :'Amr',
+            attributes: AmrAttributesInclude,
+          }
         ],
       })
         .then((selectedInfo) => {
@@ -274,7 +279,6 @@ const dao = {
   },
   updateByCode(params: WorkOrderUpdateParams): Promise<UpdatedResult> {
     return new Promise((resolve, reject) => {
-      console.log(params);
       WorkOrder.update(params, { where: { code: params.code } })
         .then(([updated]) => {
           resolve({ updatedCount: updated });

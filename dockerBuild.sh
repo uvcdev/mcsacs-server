@@ -1,6 +1,6 @@
 #!/bin/bash
 DOCKER_USER_NAME=uvclab
-DOCKER_IMAGE_NAME=flexing-mes-server-2.0
+DOCKER_IMAGE_NAME=flexing-mcs-server
 DOCKER_IMAGE_TAG={tag}
 
 docker build -t $DOCKER_USER_NAME/$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .

@@ -103,3 +103,33 @@ ALTER TABLE public.work_orders ADD to_end_date timestamptz NULL;
 ## v0.0.8
 
 - 금일 작업지시 상태 계산, mqtt 메세지 발송, 조회 api 추가 (`workOrderStatsUtil`, `WorkOrderService`)
+
+## v0.0.8-a
+
+- 모비스 로그 조회 api 추가 (라우터 `itemLog`, `itemLogService`)
+
+## v0.0.8-b
+- 모비스 로그 층 정보 입력을 위한 컬럼 추가
+```sql
+ALTER TABLE public.item_logs ADD floor varchar(10) NULL;
+```
+
+## v0.0.9
+- 버전승인: `v0.0.8-b`
+- 설비 테이블 층 컬럼 필수값 적용
+```sql
+ALTER TABLE public.facilities ALTER COLUMN floor SET NOT NULL;
+```
+- 설비 등록할 때 ACS 층별 분기 적용
+  - process.env.FIRST_ACS_RESTAPI_HOST
+  - process.env.SECOND_ACS_RESTAPI_HOST
+
+## v0.0.9-a
+- 버전승인: `v0.0.9`
+
+## v0.0.9-b
+- 버전승인: `v0.0.9-a`
+- `imcs/mcs/recallworkorder` mqttUtil 추가
+
+## v0.0.9-c
+- `acs/recallworkorder` 변경

@@ -18,6 +18,7 @@ import { router as tokenHistoryRouter } from './common/tokenHistory';
 import { router as settingRouter } from './common/setting';
 import { router as alarmEmailRouter } from './common/alarmEmail';
 import { router as mcsAlarmRouter } from './common/mcsAlarm';
+import { amrRouter } from './common/amr';
 // dashboard
 import { router as dailyStatisticRouter } from './dashboard/dailyStatistic';
 import { router as monthlyStatisticRouter } from './dashboard/monthlyStatistic';
@@ -29,7 +30,8 @@ import { router as itemRouter } from './operation/item';
 import { router as workOrderRouter } from './operation/workOrder';
 // timescale
 import { router as logRouter } from './timescale/log';
-// import { router as systemLogRouter } from './timescale/systemLog';
+import { router as systemLogRouter } from './timescale/systemLog';
+import { router as itemLogRouter } from './timescale/itemLog';
 
 dotenv.config();
 
@@ -193,6 +195,7 @@ router.use('/token-histories', tokenHistoryRouter);
 router.use('/settings', settingRouter);
 router.use('/alarm-emails', alarmEmailRouter);
 router.use('/mcs-alarms', mcsAlarmRouter);
+router.use('/amrs', amrRouter);
 // dashboard
 router.use('/daily-statistics', dailyStatisticRouter);
 router.use('/monthly-statistics', monthlyStatisticRouter);
@@ -204,6 +207,7 @@ router.use('/items', itemRouter);
 router.use('/work-orders', workOrderRouter);
 //timescale
 router.use('/logs', logRouter);
-// router.use('/system-logs', systemLogRouter);
+router.use('/system-logs', systemLogRouter);
+router.use('/item-logs', itemLogRouter);
 
 export { router };

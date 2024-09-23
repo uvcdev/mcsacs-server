@@ -80,6 +80,12 @@ const itemLogDao = {
     // DB에 넘길 최종 쿼리 세팅
     const setQuery: ItemLogSelectListQuery = {};
     // 1. where조건 세팅
+    if (params.itemCode) {
+      setQuery.where = {
+        ...setQuery.where,
+        itemCode: { [Op.like]: `%${params.itemCode}%` }, // 'like' 검색
+      };
+    }
     if (params.facilityCode) {
       setQuery.where = {
         ...setQuery.where,
@@ -102,6 +108,24 @@ const itemLogDao = {
       setQuery.where = {
         ...setQuery.where,
         amrName: { [Op.like]: `%${params.amrName}%` }, // 'like' 검색
+      };
+    }
+    if (params.floor) {
+      setQuery.where = {
+        ...setQuery.where,
+        floor: { [Op.like]: `%${params.floor}%` }, // 'like' 검색
+      };
+    }
+    if (params.subject) {
+      setQuery.where = {
+        ...setQuery.where,
+        subject: { [Op.like]: `%${params.subject}%` }, // 'like' 검색
+      };
+    }
+    if (params.topic) {
+      setQuery.where = {
+        ...setQuery.where,
+        topic: { [Op.like]: `%${params.topic}%` }, // 'like' 검색
       };
     }
     // 기간 검색 - 등록일

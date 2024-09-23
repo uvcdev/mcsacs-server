@@ -12,66 +12,54 @@ import {
   ErrorClass,
 } from '../../lib/resUtil';
 import { Payload } from '../../lib/tokenUtil';
-import { LogSelectInfoParams, LogSelectListParams } from '../../models/timescale/log';
-import { logService } from '../../service/timescale/logService';
+import { ItemLogSelectInfoParams, ItemLogSelectListParams } from '../../models/timescale/itemLog';
+import { itemLogService } from '../../service/timescale/itemLogService';
 import { Pool } from 'pg';
 import { to as copyTo } from 'pg-copy-streams';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const makeSelectListLogQuery = (params: LogSelectListParams): string => {
+const makeSelectListLogQuery = (params: ItemLogSelectListParams): string => {
   let whereQuery = '';
   let limitQuery = '';
   let offsetQuery = '';
-  if (params.createdAtFrom || params.createdAtTo || params.logLevel || params.function) {
-    whereQuery += 'WHERE';
-  }
   if (params.createdAtFrom || params.createdAtTo) {
     if (params.createdAtFrom && params.createdAtTo) {
-      whereQuery += ` "Log"."created_at" BETWEEN '${params.createdAtFrom as unknown as string}' AND '${params.createdAtTo as unknown as string
+      whereQuery += ` "ItemLog"."created_at" BETWEEN '${(params.createdAtFrom as unknown) as string}' AND '${(params.createdAtTo as unknown) as string
         }'`;
-      if (params.logLevel) {
-        whereQuery += ` AND "Log"."log_level" LIKE '%${params.logLevel}%' `;
-      }
-      if (params.function) {
-        whereQuery += ` AND "Log"."function" LIKE '%${params.function}%' `;
-      }
     } else {
       if (params.createdAtFrom) {
-        whereQuery += ` "Log"."created_at" >= '${params.createdAtFrom as unknown as string}'`;
+        whereQuery += ` "ItemLog"."created_at" >= '${(params.createdAtFrom as unknown) as string}'`;
       }
       if (params.createdAtTo) {
-        whereQuery += ` "Log"."created_at" <= '${params.createdAtTo as unknown as string}'`;
-      }
-
-      if (params.logLevel || params.function) {
-        if (params.logLevel && params.function) {
-          whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' AND "Log"."function" LIKE '%${params.function}%'  `;
-        } else {
-          if (params.logLevel) {
-            whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' `;
-          }
-          if (params.function) {
-            whereQuery += ` "Log"."function" LIKE '%${params.function}%' `;
-          }
-        }
-      }
-    }
-  } else {
-    if (params.logLevel || params.function) {
-      if (params.logLevel && params.function) {
-        whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' AND "Log"."function" LIKE '%${params.function}%'  `;
-      } else {
-        if (params.logLevel) {
-          whereQuery += ` "Log"."log_level" LIKE '%${params.logLevel}%' `;
-        }
-        if (params.function) {
-          whereQuery += ` "Log"."function" LIKE '%${params.function}%' `;
-        }
+        whereQuery += ` "ItemLog"."created_at" <= '${(params.createdAtTo as unknown) as string}'`;
       }
     }
   }
-
+  if (params.itemCode) {
+    whereQuery += ` AND "ItemLog"."item_code" like '%${params.itemCode}%' `;
+  }
+  if (params.facilityCode) {
+    whereQuery += ` AND "ItemLog"."facility_code" like '%${params.facilityCode}%' `;
+  }
+  if (params.facilityName) {
+    whereQuery += ` AND "ItemLog"."facility_name" like '%${params.facilityName}%' `;
+  }
+  if (params.amrCode) {
+    whereQuery += ` AND "ItemLog"."amr_code" like '%${params.amrCode}%' `;
+  }
+  if (params.amrName) {
+    whereQuery += ` AND "ItemLog"."amr_name" like '%${params.amrName}%' `;
+  }
+  if (params.floor) {
+    whereQuery += ` AND "ItemLog"."floor" like '%${params.floor}%' `;
+  }
+  if (params.topic) {
+    whereQuery += ` AND "ItemLog"."topic" like '%${params.topic}%' `;
+  }
+  if (params.subject) {
+    whereQuery += ` AND "ItemLog"."subject" like '%${params.subject}%' `;
+  }
   if (params.limit) {
     limitQuery += ` LIMIT ${params.limit}`;
   }
@@ -82,12 +70,12 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
 
   const query =
     `SELECT "id", 
-    "created_at" AT TIME ZONE 'Asia/Seoul' AS "createdAt", "facility_code" AS "facilityCode", 
+    "created_at" AT TIME ZONE 'Asia/Seoul' AS "createdAt", "item_code" AS "itemCode", "facility_code" AS "facilityCode", 
     "facility_name" AS "facilityName", "amr_code" AS "amrCode", 
-    "amr_name" AS "amrName", "log_level" AS "logLevel", 
-    "function", "data" FROM "logs" AS "Log" ` +
-    whereQuery +
-    `ORDER BY "Log"."created_at" DESC ${limitQuery} ${offsetQuery}`;
+    "amr_name" AS "amrName", "floor", "topic", "subject",
+    "body" FROM "item_logs" AS "ItemLog" ` +
+    (whereQuery ? `WHERE ${whereQuery}` : '') +
+    `ORDER BY "ItemLog"."created_at" DESC ${limitQuery} ${offsetQuery}`;
 
   // const query =
   //   `SELECT A.id,
@@ -121,31 +109,27 @@ const makeSelectListLogQuery = (params: LogSelectListParams): string => {
   //   ) ` + whereQuery;
   return query;
 };
-
 const router = express.Router();
 
-const TABLE_NAME = 'logs'; // 이벤트 히스토리를 위한 테이블 명
+const TABLE_NAME = 'itemLogs'; // 이벤트 히스토리를 위한 테이블 명
 
 // log 리스트 조회
-router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, LogSelectListParams>, res: Response) => {
+router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, ItemLogSelectListParams>, res: Response) => {
   const logFormat = makeLogFormat(req);
   const tokenUser = (req as { decoded?: Payload }).decoded;
 
   try {
     // 요청 파라미터
-    const params: LogSelectListParams = {
+    const params: ItemLogSelectListParams = {
+      itemCode: req.query.itemCode,
       facilityCode: req.query.facilityCode,
       facilityName: req.query.facilityName,
       amrCode: req.query.amrCode,
       amrName: req.query.amrName,
-      logLevel: req.query.logLevel,
-      function: req.query.function,
+      topic: req.query.topic,
+      subject: req.query.subject,
       createdAtFrom: req.query.createdAtFrom,
       createdAtTo: req.query.createdAtTo,
-      data:
-        req.query.data && typeof req.query.data === 'string'
-          ? (JSON.parse(req.query.data) as Record<string, any>)
-          : null,
       limit: Number(req.query.limit || 'NaN'),
       offset: Number(req.query.offset || 'NaN'),
       order: req.query.order,
@@ -153,7 +137,7 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, LogSe
     logging.REQUEST_PARAM(logFormat);
 
     // 비즈니스 로직 호출
-    const result = await logService.list(params, logFormat);
+    const result = await itemLogService.list(params, logFormat);
 
     // 최종 응답 값 세팅
     const resJson = resSuccess(result, resType.LIST);
@@ -175,13 +159,13 @@ router.get('/', isLoggedIn, async (req: Request<unknown, unknown, unknown, LogSe
 router.get(
   '/id/:id',
   isLoggedIn,
-  async (req: Request<LogSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
+  async (req: Request<ItemLogSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // 요청 파라미터
-      const params: LogSelectInfoParams = {
+      const params: ItemLogSelectInfoParams = {
         id: Number(req.params.id),
       };
       logging.REQUEST_PARAM(logFormat);
@@ -197,7 +181,7 @@ router.get(
       }
 
       // 비즈니스 로직 호출
-      const result = await logService.info(params, logFormat);
+      const result = await itemLogService.info(params, logFormat);
 
       // 최종 응답 값 세팅
       const resJson = resSuccess(result, resType.INFO);
@@ -219,24 +203,25 @@ router.get(
 router.get(
   '/download',
   // isLoggedIn,
-  async (req: Request<unknown, unknown, unknown, LogSelectListParams>, res: Response) => {
+  async (req: Request<unknown, unknown, unknown, ItemLogSelectListParams>, res: Response) => {
     const logFormat = makeLogFormat(req);
     const tokenUser = (req as { decoded?: Payload }).decoded;
 
     try {
       // // 요청 파라미터
-      const params: LogSelectListParams = {
-        // facilityCode: req.query.facilityCode,
-        // facilityName: req.query.facilityName,
-        // amrCode: req.query.amrCode,
-        // amrName: req.query.amrName,
-        logLevel: req.query.logLevel,
-        function: req.query.function,
+      const params: ItemLogSelectListParams = {
+        itemCode: req.query.itemCode,
+        facilityCode: req.query.facilityCode,
+        facilityName: req.query.facilityName,
+        amrCode: req.query.amrCode,
+        amrName: req.query.amrName,
+        topic: req.query.topic,
+        subject: req.query.subject,
         createdAtFrom: req.query.createdAtFrom,
         createdAtTo: req.query.createdAtTo,
         limit: Number(req.query.limit || 'NaN'),
         offset: Number(req.query.offset || 'NaN'),
-        // order: req.query.order,
+        order: req.query.order,
       };
       logging.REQUEST_PARAM(logFormat);
 
@@ -257,35 +242,37 @@ router.get(
       // const query = `SELECT * FROM logs ORDER BY "logs"."created_at" DESC`;
       // makeSelectListLogQuery로 쿼리 생성
       const query = makeSelectListLogQuery(params);
+      console.log('🚀 ~ query:', query);
       // 쿼리 결과를 스트림으로 받아 CSV 파일에 쓰기
       const stream = client.query(copyTo(copyToCSV(query)));
       // 스트림 형식으로 데이터를 클라이언트에게 전송
       res.setHeader('Content-Type', 'text/csv');
       if (params.createdAtFrom || params.createdAtTo) {
         if (params.createdAtFrom && params.createdAtTo) {
+          const createdAtFromDate = new Date(params.createdAtFrom);
+          const createdAtToDate = new Date(params.createdAtTo);
           res.setHeader(
             'Content-Disposition',
-            `attachment; filename=logs-${new Date(params.createdAtFrom).toLocaleDateString() as unknown as string}~${new Date(params.createdAtTo).toLocaleDateString() as unknown as string
-            }.txt`
+            `attachment; filename=itemLogs-${createdAtFromDate.toLocaleDateString()}_${createdAtFromDate.toLocaleTimeString('it-IT')}~${createdAtToDate.toLocaleDateString()}_${createdAtToDate.toLocaleTimeString('it-IT')}.txt`
           );
         } else {
           if (params.createdAtFrom) {
+            const createdAtFromDate = new Date(params.createdAtFrom);
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-${new Date(params.createdAtFrom).toLocaleDateString() as unknown as string
-              }~${new Date().toLocaleDateString()}.txt`
+              `attachment; filename=itemLogs-${createdAtFromDate.toLocaleDateString()}_${createdAtFromDate.toLocaleTimeString('it-IT')}~${new Date().toLocaleDateString()}_${new Date().toLocaleTimeString('it-IT')}.txt`
             );
           }
           if (params.createdAtTo) {
+            const createdAtToDate = new Date(params.createdAtTo);
             res.setHeader(
               'Content-Disposition',
-              `attachment; filename=logs-'unspecified'~${new Date(params.createdAtTo).toLocaleDateString() as unknown as string
-              }.txt`
+              `attachment; filename=itemLogs-'unspecified'~${createdAtToDate.toLocaleDateString()}_${createdAtToDate.toLocaleTimeString('it-IT')}.txt`
             );
           }
         }
       } else {
-        res.setHeader('Content-Disposition', `attachment; filename=logs-total.txt`);
+        res.setHeader('Content-Disposition', `attachment; filename=itemLogs-total.txt`);
       }
 
       // 스트림 데이터를 응답에 직접 파이핑
@@ -299,7 +286,7 @@ router.get(
       });
       // 스트림 에러시 이벤트 처리
       stream.on('error', (err) => {
-        console.error('Downloading logs - unexpected error occurred. [stream error]');
+        console.error(`Downloading itemLogs - unexpected error occurred. ${err.message}`);
         stream.destroy();
         // 에러 응답 값 세팅
         const resJson = resError(err);

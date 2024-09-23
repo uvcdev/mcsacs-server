@@ -16,12 +16,12 @@ import { systemLogService } from '../../service/timescale/systemLogService';
 import { checkPasswordValidator } from '../../lib/hashUtil';
 import { systemLogDao } from '../../dao/timescale/systemLogDao';
 
-const systemLogRouter = express.Router();
+const router = express.Router();
 
 const TABLE_NAME = 'systemLogs'; // 이벤트 히스토리를 위한 테이블 명
 
 // systemLog 리스트 조회
-systemLogRouter.get(
+router.get(
   '/',
   isLoggedIn,
   async (req: Request<unknown, unknown, unknown, SystemLogSelectListParams>, res: Response) => {
@@ -74,7 +74,7 @@ systemLogRouter.get(
 );
 
 // systemLog 상세정보 조회
-systemLogRouter.get(
+router.get(
   '/id/:id',
   isLoggedIn,
   async (req: Request<SystemLogSelectInfoParams, unknown, unknown, unknown>, res: Response) => {
@@ -118,4 +118,4 @@ systemLogRouter.get(
   }
 );
 
-export { systemLogRouter };
+export { router };
