@@ -91,6 +91,11 @@ export enum MqttTopics {
   WorkOrderStats = 'work-order-stats'
 }
 
+
+
+
+
+
 // broker에 접속될 클라이언트 아이디(unique필요)
 const clientId = 'mcs_' + Math.random().toString(16).substr(2, 8);
 
@@ -232,6 +237,11 @@ export const receiveMqtt = (): void => {
               );
               console.log('###6');
               if (result.updatedCount > 0) sendMqtt('acs/cancelworkorder', message);
+            }
+            // 작업 로그
+            if (topicSplit.length === 4 && topicSplit[3] === 'workinfo') {
+              const messageJson = JSON.parse(message);
+              logging.WORK_STATUS(messageJson);
             }
             // 미사용
             // if(logicTopic === 'notify'){

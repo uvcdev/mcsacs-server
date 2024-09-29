@@ -102,6 +102,7 @@ type RobotTransport = {
   acsDetail: AcsDetail;
 };
 
+
 type PayloadDetail = {
   partid: string;
   partstatus: string;
@@ -150,6 +151,78 @@ type MissionStateData = {
     task: MissionState;
   };
   acsDetail: AcsDetail;
+};
+
+type WorkStatus = {
+  EQP_ID: string;
+  AMR_CODE: string;
+  EQP_CALL_ID: string;
+  WCS_CALL_ID: string;
+  STATUS: keyof typeof workStatusObject;
+  DATE_TIME: string;
+};
+
+const workStatusObject = {
+  CALL_REQUEST: {
+    description: "EQP(설비) 콜 발생",
+    missing_value: "EQP(설비) 콜 미수신"
+  },
+  CALL_CHECK: {
+    description: "WCS(창고)에서 해당 콜 인지",
+    missing_value: "MCS, WCS(창고) 통신 불량"
+  },
+  CALL_RESPONSE: {
+    description: "EQP(설비)에 콜 응답 작성",
+    missing_value: "MCS, PLC 통신 불량"
+  },
+  WORK_CREATE: {
+    description: "콜이 작업으로 생성됨",
+    missing_value: "WCS(창고) 포트 미배정 or WCS(창고) 통신 불량"
+  },
+  WORK_ASSIGNED: {
+    description: "작업이 로봇에 할당됨",
+    missing_value: "로봇 미할당 or MCS, ACS 통신 불량"
+  },
+  CALL_ROBOT: {
+    description: "콜에 로봇 할당 값 Write",
+    missing_value: "MCS, PLC 통신 불량"
+  },
+  WCS_DOCKING_REQUEST: {
+    description: "WCS(창고)에 도킹 요청",
+    missing_value: "ACS에서 도킹 요청 신호 미수신 or MQTT 통신 불량"
+  },
+  WCS_DOCKING_RESPONSE: {
+    description: "WCS(창고) 도킹 허가 확인",
+    missing_value: "WCS(창고)에서 도킹 불가 처리"
+  },
+  WCS_DOCKING_COMPLETE: {
+    description: "WCS(창고) 도킹 완료",
+    missing_value: "ACS에서 도킹 완료 신호 미수신 or MQTT 통신 불량"
+  },
+  WCS_DOCKING_DETACH: {
+    description: "WCS(창고) 도킹 해제",
+    missing_value: "ACS에서 도킹 해제 신호 미수신 or MQTT 통신 불량"
+  },
+  EQP_DOCKING_REQUEST: {
+    description: "EQP(설비) 도킹 요청",
+    missing_value: "ACS에서 도킹 요청 신호 미수신 or MQTT 통신 불량"
+  },
+  EQP_DOCKING_RESPONSE: {
+    description: "EQP(설비)에 도킹 허가 확인",
+    missing_value: "EQP(설비)에서 도킹 허가 미수신 (설비 수동 or 도킹 불가 등..)"
+  },
+  EQP_DOCKING_FAILED: {
+    description: "EQP(설비)에서 도킹 불가 처리",
+    missing_value: "정상 도킹 or MQTT 통신 불량"
+  },
+  EQP_DOCKING_COMPLETE: {
+    description: "EQP(설비) 도킹 완료",
+    missing_value: "ACS에서 도킹 완료 신호 미수신 or MQTT 통신 불량 or EQP 통신 불량"
+  },
+  EQP_DOCKING_DETACH: {
+    description: "EQP(설비) 도킹 해제",
+    missing_value: "ACS에서 도킹 해제 신호 미수신 or MQTT 통신 불량"
+  }
 };
 
 // 기본 로그 포맷 만들어 주기
@@ -724,6 +797,29 @@ export const logging = {
       });
     } catch (error) {
       console.log('logging.CACHE_ERROR', error);
+    }
+  },
+  WORK_STATUS(data: WorkStatus): void {
+    try {
+      const { EQP_ID, AMR_CODE, DATE_TIME, STATUS, ...newData } = data
+      const workStatusInfo = workStatusObject[STATUS]
+      if (!workStatusInfo)
+        return
+
+      const logData = { info: workStatusInfo.description, ...newData }
+
+      const logLevel = 'info';
+      void logDao.insert({
+        facilityCode: EQP_ID || null,
+        facilityName: null,
+        amrCode: AMR_CODE || null,
+        amrName: null,
+        logLevel: logLevel,
+        function: 'WORK_STATUS',
+        data: logData,
+      });
+    } catch (error) {
+      console.log('logging.ITEM_LOG.TRaNSPORT_COMMAND_LOG', error);
     }
   },
   ITEM_LOG: {

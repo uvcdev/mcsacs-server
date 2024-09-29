@@ -133,3 +133,6 @@ ALTER TABLE public.facilities ALTER COLUMN floor SET NOT NULL;
 
 ## v0.0.9-c
 - `acs/recallworkorder` 변경
+
+## v0.1.0
+- `WROK_STATUS`작업 상태 로깅 추가
