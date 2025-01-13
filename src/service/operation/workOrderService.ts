@@ -327,81 +327,83 @@ const service = {
         });
       }
       const code = codeSplit[0];
-      const amr = await amrDao.selectOneCode({ code: params.Amr?.code || '' });
-      const workOrderInfo = await workOrderDao.selectInfoByCode({ code: code });
-      if (workOrderInfo) {
-        //상태 업데이트
-        if (workOrderInfo.state !== params.state) {
-          const updateParams: WorkOrderUpdateByCodeParams = {
-            code: code,
-            state: params.state,
-            fromAmrId: amr && amr.id || undefined,
-            fromStartDate:
-              params.state === 'pending1' ? (!workOrderInfo.fromStartDate ? new Date() : undefined) : undefined,
-            fromEndDate: params.state === 'pending2' ? new Date() : undefined,
-            toStartDate:
-              params.state === 'pending2' ? (!workOrderInfo.toStartDate ? new Date() : undefined) : undefined,
-            toEndDate: params.state === 'completed2' ? new Date() : undefined,
-            cancelDate: params.cancelDate,
-            description: params.description,
-          }
-          workOrderDao.updateByCode(updateParams);
-          const newWorkOrderInfo = workOrderInfo as WorkOrderAttributesDeep
-          if (params.state === 'pending1' && !workOrderInfo.fromStartDate) {
-            const fromFacility = newWorkOrderInfo.FromFacility
-            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { created: 1 })
-            if (amr) {
-              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { created: 1 })
-            }
-          }
-          if (params.state === 'pending2' && workOrderInfo.fromStartDate && updateParams.fromEndDate && !workOrderInfo.fromEndDate) {
-            const fromFacility = newWorkOrderInfo.FromFacility
-            const duration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.fromEndDate)
-            workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { completed: 1, duration: duration })
-          }
-          if (params.state === 'pending2') {
-            const toFacility = newWorkOrderInfo.ToFacility
-            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name, { created: 1 })
-          }
-          if (params.state === 'completed2' && workOrderInfo.toStartDate && updateParams.toEndDate) {
-            const toFacility = newWorkOrderInfo.ToFacility
-            const amr = newWorkOrderInfo.Amr
-            const duration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
-            workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name || '', { completed: 1, duration: duration })
-            if (amr) {
-              let amrDuration = 0
-              if (workOrderInfo.fromStartDate) {
-                amrDuration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.toEndDate)
-              } else if (workOrderInfo.toStartDate) {
-                amrDuration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
-              }
-              workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { completed: 1, duration: amrDuration })
-            }
-          }
-        }
-      } else {
-        //신규 (수동작업지시 등)
-        const fromFacility = await facilityDao.selectOneCode({ code: params.FromFacility.code });
-        const toFacility = await facilityDao.selectOneCode({ code: params.ToFacility.code });
+      if (code) {
         const amr = await amrDao.selectOneCode({ code: params.Amr?.code || '' });
-        const item = await itemDao.selectOneCode({ code: params.Item.code });
-        const insertResult = await workOrderDao.insert({
-          code: code,
-          fromFacilityId: (fromFacility && fromFacility.id) || null,
-          toFacilityId: (toFacility && toFacility.id) || null,
-          fromAmrId: (amr && amr.id) || null,
-          itemId: (item && item.id) || null,
-          cancelDate: null,
-          cancelUserId: null,
-          level: params.level,
-          state: params.state,
-          type: params.type,
-          isClosed: false,
-          description: params.description,
-        });
-        result.updatedCount = insertResult.insertedId > 0 ? 1 : 0;
+        const workOrderInfo = await workOrderDao.selectInfoByCode({ code: code });
+        if (workOrderInfo) {
+          //상태 업데이트
+          if (workOrderInfo.state !== params.state) {
+            const updateParams: WorkOrderUpdateByCodeParams = {
+              code: code,
+              state: params.state,
+              fromAmrId: amr && amr.id || undefined,
+              fromStartDate:
+                params.state === 'pending1' ? (!workOrderInfo.fromStartDate ? new Date() : undefined) : undefined,
+              fromEndDate: params.state === 'pending2' ? new Date() : undefined,
+              toStartDate:
+                params.state === 'pending2' ? (!workOrderInfo.toStartDate ? new Date() : undefined) : undefined,
+              toEndDate: params.state === 'completed2' ? new Date() : undefined,
+              cancelDate: params.cancelDate,
+              description: params.description,
+            }
+            workOrderDao.updateByCode(updateParams);
+            const newWorkOrderInfo = workOrderInfo as WorkOrderAttributesDeep
+            if (params.state === 'pending1' && !workOrderInfo.fromStartDate) {
+              const fromFacility = newWorkOrderInfo.FromFacility
+              workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { created: 1 })
+              if (amr) {
+                workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { created: 1 })
+              }
+            }
+            if (params.state === 'pending2' && workOrderInfo.fromStartDate && updateParams.fromEndDate && !workOrderInfo.fromEndDate) {
+              const fromFacility = newWorkOrderInfo.FromFacility
+              const duration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.fromEndDate)
+              workOrderStatsUtil.setStats('Facility', fromFacility.id, fromFacility.code, fromFacility.system, fromFacility.name, { completed: 1, duration: duration })
+            }
+            if (params.state === 'pending2') {
+              const toFacility = newWorkOrderInfo.ToFacility
+              workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name, { created: 1 })
+            }
+            if (params.state === 'completed2' && workOrderInfo.toStartDate && updateParams.toEndDate) {
+              const toFacility = newWorkOrderInfo.ToFacility
+              const amr = newWorkOrderInfo.Amr
+              const duration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
+              workOrderStatsUtil.setStats('Facility', toFacility.id, toFacility.code, toFacility.system, toFacility.name || '', { completed: 1, duration: duration })
+              if (amr) {
+                let amrDuration = 0
+                if (workOrderInfo.fromStartDate) {
+                  amrDuration = calculateDurationInSeconds(workOrderInfo.fromStartDate, updateParams.toEndDate)
+                } else if (workOrderInfo.toStartDate) {
+                  amrDuration = calculateDurationInSeconds(workOrderInfo.toStartDate, updateParams.toEndDate)
+                }
+                workOrderStatsUtil.setStats('Amr', amr.id, amr.code, '', amr.name || '', { completed: 1, duration: amrDuration })
+              }
+            }
+          }
+        } else {
+          //신규 (수동작업지시 등)
+          const fromFacility = await facilityDao.selectOneCode({ code: params.FromFacility.code });
+          const toFacility = await facilityDao.selectOneCode({ code: params.ToFacility.code });
+          const amr = await amrDao.selectOneCode({ code: params.Amr?.code || '' });
+          const item = await itemDao.selectOneCode({ code: params.Item.code });
+          const insertResult = await workOrderDao.insert({
+            code: code,
+            fromFacilityId: (fromFacility && fromFacility.id) || null,
+            toFacilityId: (toFacility && toFacility.id) || null,
+            fromAmrId: (amr && amr.id) || null,
+            itemId: (item && item.id) || null,
+            cancelDate: null,
+            cancelUserId: null,
+            level: params.level,
+            state: params.state,
+            type: params.type,
+            isClosed: false,
+            description: params.description,
+          });
+          result.updatedCount = insertResult.insertedId > 0 ? 1 : 0;
+        }
+        logging.METHOD_ACTION(logFormat, __filename, params, result);
       }
-      logging.METHOD_ACTION(logFormat, __filename, params, result);
     } catch (err) {
       logging.ERROR_METHOD(logFormat, __filename, params, err);
 
