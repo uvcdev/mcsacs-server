@@ -117,13 +117,6 @@ if (mqttConfig.host !== '') {
       console.log("🚀 ~ setInterval ~ error:", error)
     }
   }, 1000);
-  setInterval(() => {
-    try {
-      useWorkOrderStatsUtil().sendStats()
-    } catch (error) {
-      console.log("🚀 ~ setInterval ~ error:", error)
-    }
-  }, 5000)
 }
 
 // mqtt 연결, 구독, 메세지 수신
@@ -137,26 +130,8 @@ export const receiveMqtt = (): void => {
         message: null,
       });
 
-      // mqtt 구독
-      // client.subscribe(`${topic}/#`, (err) => {
-      //   logging.MQTT_LOG({
-      //     title: 'mqtt subscribe',
-      //     topic,
-      //     message: null,
-      //   });
-
-      //   if (err) {
-      //     logging.MQTT_ERROR({
-      //       title: 'mqtt subscribe error',
-      //       topic,
-      //       message: null,
-      //       error: err,
-      //     });
-      //   }
-      // });
-
-      // mcs mqtt 구독
-      client.subscribe(`imcs/#`, (err) => {
+      // mqtt 구독      
+      client.subscribe(`${topic}/#`, (err) => {
         logging.MQTT_LOG({
           title: 'mqtt subscribe',
           topic,
