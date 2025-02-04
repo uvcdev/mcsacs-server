@@ -139,3 +139,10 @@ ALTER TABLE public.facilities ALTER COLUMN floor SET NOT NULL;
 
 ## v0.1.1
 - `workOrderService.stateCheckAndEdit` code 값 예외처리
+
+## v0.1.1-ssb
+- 설비 관리 컬럼 추가
+  - 'rf_pio' 컬럼 추가
+  ```sql
+    ALTER TABLE public.facilities ADD rf_pio varchar(50) NULL;
+  ```

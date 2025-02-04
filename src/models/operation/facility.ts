@@ -14,6 +14,7 @@ export interface FacilityAttributes {
   serial: string | null;
   ip: number | null;
   port: number | null;
+  rfPio: string | null;
   floor: string | null;
   active: boolean | null;
   alwaysFill: boolean | null;
@@ -38,6 +39,7 @@ class Facility extends Model implements FacilityAttributes {
   public serial!: FacilityAttributes['serial'];
   public ip!: FacilityAttributes['ip'];
   public port!: FacilityAttributes['port'];
+  public rfPio!: FacilityAttributes['rfPio'];
   public floor!: FacilityAttributes['floor'];
   public active!: FacilityAttributes['active'];
   public alwaysFill!: FacilityAttributes['alwaysFill'];
@@ -84,6 +86,9 @@ Facility.init(
     port: {
       type: DataTypes.INTEGER,
     },
+    rfPio: {
+      type: DataTypes.STRING(50),
+    },
     floor: {
       type: DataTypes.STRING(10),
     },
@@ -120,6 +125,7 @@ export interface FacilityInsertParams {
   serial: string | null;
   ip: string | null;
   port: number | null;
+  rfPio: string | null;
   floor: string | null;
   active: boolean;
   alwaysFill: boolean;
@@ -139,6 +145,7 @@ export interface FacilitySelectListParams {
   serial?: string | null;
   ip?: string | null;
   port?: number | null;
+  rfPio?: string | null;
   floor?: string | null;
   active?: boolean | null;
   alwaysFill?: boolean | null;
@@ -184,6 +191,7 @@ export interface FacilityUpdateParams {
   serial?: string | null;
   ip?: string | null;
   port?: string | null;
+  rfPio?: string | null;
   floor?: string | null;
   active?: boolean;
   alwaysFill?: boolean;
@@ -213,6 +221,7 @@ export const FacilityAttributesInclude = [
   'serial',
   'ip',
   'port',
+  'rfPio',
   'floor',
   'active',
   'alwaysFill',
